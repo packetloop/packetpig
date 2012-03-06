@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <title>Finding Needles - Globe</title>
+    <link rel="stylesheet" type="text/css" href="../lib/packetloop/main.css" />
+    <script type="text/javascript" src='../lib/jquery-1.7.1.min.js'></script>
+    <script type="text/javascript" src='../lib/packetloop/packetloop.js'></script>
+    <script type="text/javascript" src='../lib/packetloop/files.js'></script>
+    <script type="text/javascript" src='../lib/three/Three.r40.js'></script>
+    <script type="text/javascript" src='../lib/globe/globe/globe.js'></script>
+    <script type="text/javascript" src='../lib/d3/d3.js'></script>
+    <script type="text/javascript" src='../lib/d3/d3.csv.js'></script>
+    <script type="text/javascript" src="../lib/dat.gui.min.js"></script>
+  </head>
+
+  <body>
+
+    <div id="drop_zone">Drop files here</div>
+    <input type="file" id="files" name="files[]" multiple />
+
+    <div id="gl"></div>
+
+    <script>
+
+      var globe
+      var animateInterval
+      var gui
+
+      var colourFun = function(x) {
+        var c = new THREE.Color();
+        c.setHSV(x * 0.3, 1.0, 1.0);
+        return c;
+      };
+
+      console.log(colourFun(0))
+      console.log(colourFun(1))
+
+
+      $('#gl').width($(window).width())
+      $('#gl').height($(window).height() - 50)
+      var container = document.getElementById('gl');
+      globe = new DAT.Globe(container, colourFun)
+
+      function initGui(settings) {
+        gui = new dat.GUI();
+      }
+
+      var parse = function(data, settings) {
+
+        console.log(globe)
+        console.log(globe.addData)
+
+        // Expect a format like this:
+        // lat lon,average severity,total attacks
+
+        var a = []
+        d3.csv.parseRows(data).forEach(function(d) {
+          if (d[0] == '')
+            return
+          a.push(d)
+        })
+
+        var d1max = d3.max(a, function(d) { return parseFloat(d[1]) })
+        var d2max = d3.max(a, function(d) { return parseFloat(d[2]) })
+
+        var d1range = d3.scale.linear().domain([1, 3.1])
+        var d2range = d3.scale.linear().domain([0, d2max])
+
+        d2r = d2range
+
+        var points = []
+
+        a.forEach(function(d) {
+
+          var latlon = d[0]
+          latlon = latlon.split(' ')
+          lat = parseFloat(latlon[0])
+          lon = parseFloat(latlon[1])
+
+          var d1 = d1range(parseFloat(d[1]))
+          var d2 = d2range(parseFloat(d[2]))
+
+          // circle randomness
+          // var ang = Math.random() * 2.0 * Math.PI
+          // var r = Math.random() * 2
+
+          // points.push(lat + Math.cos(ang) * r)
+          // points.push(lon + Math.sin(ang) * r)
+          points.push(lat)
+          points.push(lon)
+          points.push(d2)
+          points.push(d1)
+
+          console.log(lat, lon, d1, d2)
+        })
+
+        // severity = parseFloat(row[3]) - 1  // 2 - 0, 0 being critical
+        // severity = 2 - severity // 0 - 2, 2 being critical
+        // severity += 0.2
+        // severity /= 2.2
+
+        // console.log(points)
+
+        // addLL(row[1], severity)
+        // addLL(row[2], severity)
+
+        console.log(points)
+
+        globe.addData(points, {})
+        globe.createPoints();
+
+        clearInterval(animateInterval)
+        animateInterval = setInterval(globe.animate, 10)
+
+      }
+
+      $(function() {
+        var settings = {
+        }
+        initGui(settings)
+        Packetloop.Files.init(function(data) {
+          // $('#gl *').remove()
+          parse(data, settings)
+        })
+      })
+    </script>
+
+  </body>
+
+</html>
+
+

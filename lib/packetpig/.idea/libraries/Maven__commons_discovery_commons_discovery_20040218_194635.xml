@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: commons-discovery:commons-discovery:20040218.194635">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/commons-discovery/commons-discovery/20040218.194635/commons-discovery-20040218.194635.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/commons-discovery/commons-discovery/20040218.194635/commons-discovery-20040218.194635-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/commons-discovery/commons-discovery/20040218.194635/commons-discovery-20040218.194635-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

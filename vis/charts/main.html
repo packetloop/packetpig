@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <title>Finding Needles</title>
+    <link rel="stylesheet" type="text/css" href="../lib/packetloop/main.css" />
+    <script type="text/javascript" src='../lib/jquery-1.7.1.min.js'></script>
+    <script type="text/javascript" src='../lib/d3/d3.js'></script>
+    <script type="text/javascript" src='../lib/d3/d3.time.js'></script>
+    <script type="text/javascript" src='../lib/d3/d3.csv.js'></script>
+    <script type="text/javascript" src='../lib/packetloop/packetloop.js'></script>
+    <script type="text/javascript" src='../lib/packetloop/files.js'></script>
+    <script type="text/javascript" src='../lib/packetloop/multiple-timeseries.js'></script>
+    <script type="text/javascript" src="../lib/dat.gui.min.js"></script>
+  </head>
+
+  <body>
+
+    <div id="drop_zone">Drop files here</div>
+    <input type="file" id="files" name="files[]" multiple />
+
+    <ol id="filters"></ol>
+    <div id="vis"></div>
+
+    <script>
+
+      var gui
+      var settings
+
+      function initGui(settings) {
+        gui = new dat.GUI();
+
+        var folderHist = gui.addFolder('Histogram')
+        folderHist.add(settings.histogram, 'sortByFrequency')
+          .onFinishChange(Packetloop.MultipleTimeSeries.updateSorting)
+      }
+
+      var parse = function(d) {
+        $('#filters *').remove()
+        $('#vis *').remove()
+        var rows = d3.csv.parseRows(d)
+        Packetloop.MultipleTimeSeries.create(rows)
+      }
+
+      $(function() {
+        settings = {
+          histogram: {
+            sortByFrequency: false,
+          },
+        }
+        initGui(settings)
+        Packetloop.Files.init(function(data) {
+          parse(data)
+        })
+
+      })
+
+    </script>
+
+  </body>
+
+</html>
+

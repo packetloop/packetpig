@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <title>Finding Needles - Cube</title>
+    <link rel="stylesheet" type="text/css" href="../lib/packetloop/main.css" />
+    <script type="text/javascript" src='../lib/jquery-1.7.1.min.js'></script>
+    <script type="text/javascript" src='../lib/packetloop/packetloop.js'></script>
+    <script type="text/javascript" src='../lib/packetloop/files.js'></script>
+    <script type="text/javascript" src='../lib/packetloop/cube.js'></script>
+    <script type="text/javascript" src='../lib/three/Three.js'></script>
+    <script type="text/javascript" src='../lib/d3/d3.js'></script>
+    <script type="text/javascript" src='../lib/d3/d3.csv.js'></script>
+    <script type="text/javascript" src="../lib/dat.gui.min.js"></script>
+  </head>
+
+  <body>
+
+    <div id="drop_zone">Drop files here</div>
+    <input type="file" id="files" name="files[]" multiple />
+
+    <div id="gl"></div>
+
+    <script>
+
+      var animateInterval
+      var gui
+
+      function initGui(settings) {
+        gui = new dat.GUI();
+      }
+
+      var parse = function(data, settings) {
+
+        $('#gl').width($(window).width())
+        $('#gl').height($(window).height() - 65)
+        var container = document.getElementById('gl');
+
+        cube = new Packetloop.Cube()
+        cube.init(container)
+
+        data = data.split(',')
+
+        var n = 16
+        var arr = []
+        for (var a = 0; a < Math.pow(n, 3); a++) {
+          var x = a % n
+          var y = (a % (n*n) - x) / n
+          var z = (a % (n*n*n) - x - y * n) / (n * n)
+          var v = data[a]
+          arr.push([x, y, z, v])
+        }
+        cube.createCubes(arr)
+
+        animateInterval = setInterval(function() { cube.animate() }, 100)
+      }
+
+      $(function() {
+        var settings = {
+        }
+        initGui(settings)
+        Packetloop.Files.init(function(data) {
+          $('#gl *').remove()
+          parse(data, settings)
+        })
+      })
+    </script>
+
+  </body>
+
+</html>
+

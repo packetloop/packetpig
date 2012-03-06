@@ -1,0 +1,14 @@
+pig_*.log
+*.RData
+*.Rd2dvi*
+Rplots.pdf
+*.Rout
+pig.ipr
+pig.iws
+lib/packetpig/target
+lib/packetpig/.idea/workspace.xml
+*.tsv
+*.csv
+
+README.html
+tmp

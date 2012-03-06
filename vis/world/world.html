@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <title>Finding Needles - Cube</title>
+    <link rel="stylesheet" type="text/css" href="../lib/packetloop/main.css" />
+    <script type="text/javascript" src='../lib/jquery-1.7.1.min.js'></script>
+    <script type="text/javascript" src='../lib/packetloop/packetloop.js'></script>
+    <script type="text/javascript" src='../lib/packetloop/files.js'></script>
+    <script type="text/javascript" src='../lib/d3/d3.js'></script>
+    <script type="text/javascript" src='../lib/d3/d3.csv.js'></script>
+    <script type="text/javascript" src='../lib/d3/d3.geo.js'></script>
+    <script type="text/javascript" src="../lib/dat.gui.min.js"></script>
+  </head>
+
+  <body>
+
+    <div id="drop_zone">Drop files here</div>
+    <input type="file" id="files" name="files[]" multiple />
+
+    <div id="vis"></div>
+
+    <script>
+
+      $('#vis').width($(window).width())
+      $('#vis').height($(window).height() - 65)
+
+      var animateInterval
+      var gui
+
+      var proj = d3.geo.mercator()
+      var path = d3.geo.path().projection(proj)
+      // var trans = proj.translate()
+      // var scale = proj.scale()
+      var svg = d3.select('#vis').append('svg:svg')
+      var countries = svg.append('svg:g')
+        .attr('id', 'countries')
+      var nameToCode
+      var codeToName
+      var rejigged
+      var max
+
+      var col = function(d) {
+        var unknown = '#FFFFFF'
+        var code = nameToCode[d.properties.name]
+        if (!code)
+          return unknown
+        var data = rejigged[code]
+        if (!data)
+          return unknown
+        var val = rejigged[code]
+        console.log(code, val, max, val / max * .3)
+        return d3.hsl((1. - val / max) * 90, .5, .5)
+      }
+
+      d3.json('../../data/world.json', function(json) {
+        countries.selectAll('path')
+            .data(json.features)
+          .enter().append('svg:path')
+            .attr('d', path)
+            .style('stroke', '#655')
+            .style('fill', 'white')
+            .style('stroke-width', '1px')
+
+        d3.json('../../data/countries.json', function(c) {
+          codeToName = c
+          nameToCode = {}
+          for (k in codeToName) {
+            nameToCode[codeToName[k]] = k
+          }
+        })
+      })
+
+      function initGui(settings) {
+        gui = new dat.GUI();
+      }
+
+      var parse = function(data, settings) {
+
+        rejigged = {}
+
+        // Excpecting the first column to be the country code
+        d3.csv.parseRows(data).forEach(function(d) {
+          var bits = d[0].split("\t")  // XXX: tsv hack
+          rejigged[bits[0]] = parseFloat(bits[1])
+        })
+        max = d3.max(d3.values(rejigged))
+        console.log(max)
+
+        countries.selectAll('path')
+          .style('fill', col)
+      }
+
+      $(function() {
+        var settings = {
+        }
+        initGui(settings)
+        Packetloop.Files.init(function(data) {
+          parse(data, settings)
+        })
+      })
+    </script>
+
+  </body>
+
+</html>
+
