@@ -99,7 +99,7 @@ pig/examples/ contains various examples for you to try out.
 For each web-related snort alert found in a set of captures, the attacker
 User-Agent header is discovered.
 
-#### Arguments
+Arguments:
 
 - pcap: path to the capture (or directory of captures) to work on
 - time: the bin period (default: 60)
@@ -110,7 +110,7 @@ User-Agent header is discovered.
 
 Sum ip packet length per time bin.
 
-#### Arguments
+Arguments:
 
 - pcap: path to the capture (or directory of captures) to work on
 - time: the bin period (default: 60)
@@ -120,7 +120,7 @@ Sum ip packet length per time bin.
 Collect packets into bins of $time seconds.
 Additionally group by tcp, udp, and bandwidth.
 
-#### Arguments
+Arguments:
 
 - pcap: path to the capture (or directory of captures) to work on
 - time: the bin period (default: 60)
@@ -130,7 +130,7 @@ Additionally group by tcp, udp, and bandwidth.
 Conversation info, which includes a list of intervals within the
 conversation.
 
-#### Arguments
+Arguments:
 
 - pcap: path to the capture (or directory of captures) to work on
 
@@ -138,7 +138,7 @@ conversation.
 
 Join conversations to packets and shows 4tuple + conversation length.
 
-#### Arguments
+Arguments:
 
 - pcap: path to the capture (or directory of captures) to work on
 
@@ -146,7 +146,7 @@ Join conversations to packets and shows 4tuple + conversation length.
 
 Shows DNS queries and responses.
 
-#### Arguments
+Arguments:
 
 - pcap: path to the capture (or directory of captures) to work on
 
@@ -154,7 +154,7 @@ Shows DNS queries and responses.
 
 Show DNS response TTLs.
 
-#### Arguments
+Arguments:
 
 - pcap: path to the capture (or directory of captures) to work on
 
@@ -162,7 +162,7 @@ Show DNS response TTLs.
 
 Extract files out of conversations.
 
-#### Arguments
+Arguments:
 
 - pcap: path to the capture (or directory of captures) to work on
 - path: directory to store files in
@@ -171,7 +171,7 @@ Extract files out of conversations.
 
 Create a packet length histogram.
 
-#### Arguments
+Arguments:
 
 - pcap: path to the capture (or directory of captures) to work on
 
@@ -179,7 +179,7 @@ Create a packet length histogram.
 
 Create an ngram.
 
-#### Arguments
+Arguments:
 
 - pcap: path to the capture (or directory of captures) to work on
 - filter: string in the format of 'proto:port' e.g. tcp:80
@@ -189,7 +189,8 @@ Create an ngram.
 
 Find p0f fingerprints of snort attackers.
 
-#### Arguments
+Arguments:
+
 - pcap: path to the capture (or directory of captures) to work on
 - snortconfig: the path to the snort config (default: built-in snort config)
 
@@ -197,7 +198,7 @@ Find p0f fingerprints of snort attackers.
 
 Show p0f fingerprints of packets.
 
-#### Arguments
+Arguments:
 
 - pcap: path to the capture (or directory of captures) to work on
 
@@ -205,7 +206,7 @@ Show p0f fingerprints of packets.
 
 Histogram for packets, ordered by the packet volume on dport.
 
-#### Arguments
+Arguments:
 
 - pcap: path to the capture (or directory of captures) to work on
 
