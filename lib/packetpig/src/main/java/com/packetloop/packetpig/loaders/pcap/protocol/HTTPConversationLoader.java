@@ -11,8 +11,15 @@ import java.io.IOException;
 
 public class HTTPConversationLoader extends PcapLoader {
     public String field;
+    private String pathToTcp;
 
     public HTTPConversationLoader(String field) {
+        this.pathToTcp = "lib/scripts/tcp.py";
+        this.field = field;
+    }
+
+    public HTTPConversationLoader(String pathToTcp, String field) {
+        this.pathToTcp = pathToTcp;
         this.field = field;
     }
 
@@ -21,8 +28,8 @@ public class HTTPConversationLoader extends PcapLoader {
         return new FileInputFormat() {
 
             @Override
-            public RecordReader createRecordReader(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
-                return new HTTPConversationRecordReader(field);
+            public RecordReader createRecordReader(InputSplit split, TaskAttemptContext context) {
+                return new HTTPConversationRecordReader(pathToTcp, field);
             }
         };
     }

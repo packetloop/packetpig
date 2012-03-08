@@ -7,8 +7,6 @@ import org.apache.pig.data.Tuple;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class LatLon extends EvalFunc<String> {
 
@@ -20,13 +18,6 @@ public class LatLon extends EvalFunc<String> {
         } catch (FileNotFoundException ignored) {
             cl = new LookupService("GeoLiteCity.dat", LookupService.GEOIP_MEMORY_CACHE);
         }
-    }
-
-    @Override
-    public List<String> getCacheFiles() {
-        List<String> s = new ArrayList<String>();
-        s.add("hdfs://" + System.getenv("HDFS_MASTER") + "/packetpig/GeoLiteCity.dat#data/GeoLiteCity.dat");
-        return s;
     }
 
     @Override

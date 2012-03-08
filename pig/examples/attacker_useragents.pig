@@ -3,6 +3,7 @@ RUN $includepath;
 
 %DEFAULT time 60
 %DEFAULT snortconfig 'lib/snort/etc/snort.conf'
+%DEFAULT tcppath 'lib/scripts/tcp.py'
 %DEFAULT field 'user-agent'
 
 snort_alerts = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.detection.SnortLoader('$snortconfig') AS (
@@ -17,9 +18,8 @@ snort_alerts = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.detectio
     dport:int
 );
 
-http_conversations = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.protocol.HTTPConversationLoader('$field') AS (
+http_conversations = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.protocol.HTTPConversationLoader('$tcppath', '$field') AS (
     ts:long,
-
     src:chararray,
     sport:int,
     dst:chararray,

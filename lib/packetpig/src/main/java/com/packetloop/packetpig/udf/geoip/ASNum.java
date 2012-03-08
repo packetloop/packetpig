@@ -7,8 +7,6 @@ import org.apache.pig.data.Tuple;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ASNum extends EvalFunc<String> {
 
@@ -22,12 +20,6 @@ public class ASNum extends EvalFunc<String> {
         }
     }
 
-    @Override
-    public List<String> getCacheFiles() {
-        List<String> s = new ArrayList<String>();
-        s.add("hdfs://" + System.getenv("HDFS_MASTER") + "/packetpig/GeoIPASNum.dat#GeoIPASNum.dat");
-        return s;
-    }
     @Override
     public String exec(Tuple input) throws ExecException {
         return cl.getOrg((String)input.get(0));

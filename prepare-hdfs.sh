@@ -11,5 +11,6 @@ for file in `find pig -name '*.pig'`; do
 done
 
 hdfs data/GeoIP.dat
+hdfs data/GeoIPASNum.dat
 hdfs data/GeoLiteCity.dat
 

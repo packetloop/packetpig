@@ -12,8 +12,10 @@ import java.io.InputStreamReader;
 public class HTTPConversationRecordReader extends PcapRecordReader {
     protected BufferedReader reader;
     private String field;
+    private String pathToTcp;
 
-    public HTTPConversationRecordReader(String field) {
+    public HTTPConversationRecordReader(String pathToTcp, String field) {
+        this.pathToTcp = pathToTcp;
         this.field = field;
     }
 
@@ -21,7 +23,7 @@ public class HTTPConversationRecordReader extends PcapRecordReader {
     public void initialize(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
         super.initialize(split, context);
 
-        String cmd = "lib/scripts/tcp.py -r " + path + " -om http_headers -of tsv";
+        String cmd = pathToTcp + " -r " + path + " -om http_headers -of tsv";
 
         ProcessBuilder builder = new ProcessBuilder(cmd.split(" "));
         //builder.redirectErrorStream(true);
