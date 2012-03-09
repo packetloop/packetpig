@@ -10,5 +10,5 @@ dns = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.protocol.DNSConve
 	ttl:int
 );
 
-STORE dns INTO 'output/dns' USING PigStorage(',');
+STORE dns INTO 'output/ubigraph-dns' USING PigStorage(',');
 

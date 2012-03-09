@@ -9,10 +9,10 @@ class Ubigraph:
 
   def clear(self):
     self.server.ubigraph.clear()
-    
+
   def beginMultiCall(self):
     self.server = xmlrpclib.MultiCall(self.server)
-    
+
   def endMultiCall(self):
     for result in self.server():
       print result
@@ -24,20 +24,20 @@ class Ubigraph:
     return Vertex(self, id=id, style=style, color=color, shape=shape,
       label=label, size=size, fontcolor=fontcolor, fontfamily=fontfamily,
       fontsize=fontsize, visible=visible)
-                
+
   def newEdge(self, x, y, id=None, style=None, arrow=None, arrow_position=None,
              arrow_length=None, arrow_radius=None, arrow_reverse=None,
-             color=None, label=None, fontcolor=None, fontfamily=None, 
-             fontsize=None, oriented=None, spline=None, showstrain=None, 
+             color=None, label=None, fontcolor=None, fontfamily=None,
+             fontsize=None, oriented=None, spline=None, showstrain=None,
              stroke=None, strength=None, visible=None, width=None):
-    return Edge(self, x, y, id=id, style=style, arrow=arrow, 
+    return Edge(self, x, y, id=id, style=style, arrow=arrow,
       arrow_position=arrow_position, arrow_length=arrow_length,
       arrow_radius=arrow_radius, arrow_reverse=arrow_reverse, color=color,
-      label=label, fontcolor=fontcolor, fontfamily=fontfamily, 
-      fontsize=fontsize, oriented=oriented, spline=spline, 
+      label=label, fontcolor=fontcolor, fontfamily=fontfamily,
+      fontsize=fontsize, oriented=oriented, spline=spline,
       showstrain=showstrain, stroke=stroke, strength=strength,
       visible=visible, width=width)
-    
+
   def newVertexStyle(self, parentStyle=None, id=None, color=None, shape=None,
                 label=None, size=None, fontcolor=None, fontfamily=None,
                 fontsize=None, visible=None):
@@ -45,15 +45,15 @@ class Ubigraph:
       color=color, shape=shape, label=label, size=size, fontcolor=fontcolor,
       fontfamily=fontfamily, fontsize=fontsize, visible=visible)
 
-  def newEdgeStyle(self, parentStyle=None, id=None, arrow=None, 
-             arrow_position=None, arrow_length=None, arrow_radius=None, 
+  def newEdgeStyle(self, parentStyle=None, id=None, arrow=None,
+             arrow_position=None, arrow_length=None, arrow_radius=None,
              arrow_reverse=None, color=None,
              label=None, fontcolor=None, fontfamily=None, fontsize=None,
              oriented=None, spline=None, showstrain=None, stroke=None,
              strength=None, visible=None, width=None):
     return EdgeStyle(self, parentStyle=parentStyle, id=id, arrow=arrow,
-      arrow_position=arrow_position, arrow_length=arrow_length, 
-      arrow_radius=arrow_radius, color=color, label=label, 
+      arrow_position=arrow_position, arrow_length=arrow_length,
+      arrow_radius=arrow_radius, color=color, label=label,
       fontcolor=fontcolor, fontfamily=fontfamily,
       fontsize=fontsize, oriented=oriented, spline=spline,
       showstrain=showstrain, stroke=stroke, strength=strength,
@@ -63,7 +63,7 @@ class Ubigraph:
 
 class Vertex:
   def __init__(self, U, id=None, style=None, color=None, shape=None,
-      label=None, size=None, fontcolor=None, fontfamily=None, fontsize=None, 
+      label=None, size=None, fontcolor=None, fontfamily=None, fontsize=None,
       visible=None, callback=None):
     self.U = U
     if id == None:
@@ -71,8 +71,8 @@ class Vertex:
     else:
       U.server.ubigraph.new_vertex_w_id(id)
       self.id = id
-    self.set(style=style, color=color, shape=shape, label=label, 
-      size=size, fontcolor=fontcolor, fontfamily=fontfamily, 
+    self.set(style=style, color=color, shape=shape, label=label,
+      size=size, fontcolor=fontcolor, fontfamily=fontfamily,
       fontsize=fontsize, visible=visible, callback=callback)
 
   def set(self, style=None, color=None, shape=None,
@@ -97,7 +97,7 @@ class Vertex:
     if visible != None:
       self.U.server.ubigraph.set_vertex_attribute(self.id, "visible", str(visible))
     if callback != None:
-      self.U.server.ubigraph.set_vertex_attribute(self.id, "callback_left_doubleclick", 
+      self.U.server.ubigraph.set_vertex_attribute(self.id, "callback_left_doubleclick",
         callback)
 
   def destroy(self):
@@ -106,8 +106,8 @@ class Vertex:
 
 
 class Edge:
-  def __init__(self, U, x, y, id=None, style=None, arrow=None, 
-             arrow_position=None, arrow_length=None, arrow_radius=None, 
+  def __init__(self, U, x, y, id=None, style=None, arrow=None,
+             arrow_position=None, arrow_length=None, arrow_radius=None,
              arrow_reverse=None, color=None,
              label=None, fontcolor=None, fontfamily=None, fontsize=None,
              oriented=None, spline=None, showstrain=None, stroke=None,
@@ -118,24 +118,24 @@ class Edge:
     else:
       U.server.ubigraph.new_edge_w_id(id,x.id,y.id)
       self.id = id
-    self.set(style=style, arrow=arrow, arrow_position=arrow_position, 
+    self.set(style=style, arrow=arrow, arrow_position=arrow_position,
       arrow_length=arrow_length, arrow_radius=arrow_radius, color=color,
       label=label, fontcolor=fontcolor, fontfamily=fontfamily,
       fontsize=fontsize, oriented=oriented, spline=spline,
       showstrain=showstrain, stroke=stroke, strength=strength,
       visible=visible, width=width)
 
-  def set(self, style=None, arrow=None, arrow_position=None, 
-             arrow_length=None, arrow_radius=None, arrow_reverse=None,  
-             color=None, label=None, fontcolor=None, fontfamily=None, 
-             fontsize=None, oriented=None, spline=None, showstrain=None, 
+  def set(self, style=None, arrow=None, arrow_position=None,
+             arrow_length=None, arrow_radius=None, arrow_reverse=None,
+             color=None, label=None, fontcolor=None, fontfamily=None,
+             fontsize=None, oriented=None, spline=None, showstrain=None,
              stroke=None, strength=None, visible=None, width=None):
     if style != None:
       self.U.server.ubigraph.change_edge_style(self.id, style.id)
     if arrow != None:
       self.U.server.ubigraph.set_edge_attribute(self.id, "arrow", str(arrow))
     if arrow_position != None:
-      self.U.server.ubigraph.set_edge_attribute(self.id, "arrow_position", 
+      self.U.server.ubigraph.set_edge_attribute(self.id, "arrow_position",
         str(arrow_position))
     if arrow_length != None:
       self.U.server.ubigraph.set_edge_attribute(self.id, "arrow_length",
@@ -195,12 +195,12 @@ class VertexStyle:
       U.server.ubigraph.new_vertex_style_w_id(id, parentStyle2.id)
       self.id = id
     self.set(color=color, shape=shape, label=label, size=size,
-      fontcolor=fontcolor, fontfamily=fontfamily, fontsize=fontsize, 
+      fontcolor=fontcolor, fontfamily=fontfamily, fontsize=fontsize,
       visible=visible)
 
-  def set(self, color=None, shape=None, label=None, size=None, 
-      fontcolor=None, fontfamily=None, fontsize=None, visible=None, 
-      callback=None): 
+  def set(self, color=None, shape=None, label=None, size=None,
+      fontcolor=None, fontfamily=None, fontsize=None, visible=None,
+      callback=None):
     if color != None:
       self.U.server.ubigraph.set_vertex_style_attribute(self.id, "color", color)
     if shape != None:
@@ -218,7 +218,7 @@ class VertexStyle:
     if visible != None:
       self.U.server.ubigraph.set_vertex_style_attribute(self.id, "visible", str(visible))
     if callback != None:
-      self.U.server.ubigraph.set_vertex_style_attribute(self.id, "callback_left_doubleclick", 
+      self.U.server.ubigraph.set_vertex_style_attribute(self.id, "callback_left_doubleclick",
         callback)
 
 
@@ -243,8 +243,8 @@ class EdgeStyle:
     else:
       U.server.ubigraph.new_edge_style_w_id(id, parentStyle2.id)
       self.id = id
-    self.set(arrow=arrow, color=color, label=label, fontcolor=fontcolor, 
-      fontfamily=fontfamily, fontsize=fontsize, oriented=oriented, 
+    self.set(arrow=arrow, color=color, label=label, fontcolor=fontcolor,
+      fontfamily=fontfamily, fontsize=fontsize, oriented=oriented,
       spline=spline, showstrain=showstrain, stroke=stroke, strength=strength,
       visible=visible, width=width)
 

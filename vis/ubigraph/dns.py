@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import socket
 import colorsys
 import sys
 
@@ -9,20 +10,21 @@ class Dns:
 
     def __init__(self):
         self.ubi = ubigraph.Ubigraph()
-        self.ubi.clear()
+        try:
+            self.ubi.clear()
+        except socket.error, e:
+            print 'Ubigraph server seems to be not running. Please run it.'
+            print e
+            sys.exit(1)
         self.names = {}
 
     def go(self, filename):
         for line in open(sys.argv[1]):
-            line = line[1:-2]
+            line = line.strip()
             self.add(line)
 
     def add(self, line):
-        print line
-        try:
-            ts, ttl, query, domain, _ = line.split(',')
-        except ValueError:
-            return
+        domain = line.split(',')[3]  # 3rd column is the domain name
         dbits = domain.split('.')
         dbits.append('-')
 
@@ -46,6 +48,9 @@ class Dns:
         else:
             l = None
 
+        if l and l.endswith('.-'):
+            l = l[:-2]  # get rid of the '.-' at the end
+
         v = self.ubi.newVertex(shape="sphere", color=cstr,
             label=l,
             size=s)
@@ -55,7 +60,7 @@ class Dns:
     def node(self, fr, to, s):
         frn = self.cached_node(fr)
         ton = self.cached_node(to)
-        self.ubi.newEdge(frn, ton, strength=s)
+        self.ubi.newEdge(frn, ton)
 
 def main():
     Dns().go(sys.argv[1])
