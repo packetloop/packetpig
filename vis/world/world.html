@@ -31,8 +31,6 @@
 
       var proj = d3.geo.mercator()
       var path = d3.geo.path().projection(proj)
-      // var trans = proj.translate()
-      // var scale = proj.scale()
       var svg = d3.select('#vis').append('svg:svg')
       var countries = svg.append('svg:g')
         .attr('id', 'countries')
@@ -81,12 +79,10 @@
         rejigged = {}
 
         // Excpecting the first column to be the country code
-        d3.csv.parseRows(data).forEach(function(d) {
-          var bits = d[0].split("\t")  // XXX: tsv hack
+        d3.csv.parseRows(data).forEach(function(bits) {
           rejigged[bits[0]] = parseFloat(bits[1])
         })
         max = d3.max(d3.values(rejigged))
-        console.log(max)
 
         countries.selectAll('path')
           .style('fill', col)
