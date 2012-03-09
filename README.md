@@ -53,6 +53,18 @@ A frontend to Snort which produces a record for each alert triggered.
 
 ## Scripts
 
+### pigrun.py
+
+A lightweight wrapper around Pig. It is a handy tool when switching between local and mapreduce mode without having to change many arguments, e.g. HDFS paths. It also has a basic set of sane default arguements to help retyping them all the time. An example usage of pigrun:
+
+    # ./pigrun.py -f pig/charts/ngram-chart.pig
+
+This will generate the command:
+
+    pig -v -x local -f pig/charts/ngram-chart.pig -param pcap=data/web.pcap -param snortconfig=etc/snort.conf
+
+The list of available arguments are listed when running `--help` as an argument, and checking out the source code is handy too.
+
 ### put.sh
 
 Upload a single file into HDFS into a predetermined location. You should specify the env variable HDFS_MASTER to specify where the destination is. The env
@@ -66,8 +78,7 @@ Uses `put.sh` to upload all `.pig` and `.jar` files into HDFS.
 
 ### Overview
 
-The visualisations are pure HTML and JavaScript. You'll need to run a dumb web
-server that just serves files.
+The visualisations are pure HTML and JavaScript. You'll need to run a dumb web server that just serves files.
 
 Python does this well with a one-liner:
 
@@ -76,19 +87,72 @@ Python does this well with a one-liner:
 Run this in the root of the project, then access a visualisation via
 http://localhost:8888/vis/cube/cube.html for example.
 
+WebGL will require a browser that supports WebGL.
+
+### Globe (WebGL) ✔
+
+The globe is a WebGL visualisation which displays the Earth with lines extruding out from it. The colour of the lines represent average severity in Snort attacks and the height of the lines for number of attacks.
+
+It expects the format to be `"lat lon,avgsev,attacks"`.
+
+It's in `vis/globe/globe.html` and an example pig script is `pig/globe/globe.pig`.
+
+### Trigram Cube (WebGL)
+
+Trigram cube is a WebGL visualisation displaying 3 dimensions of data, designed for visualising trigrams.
+
+The `vis/cube/ngram.pig` file outputs a list of ngraphs. A trigram of 256 variations of bytes produces 16777216 values, which is quite a fair bit to visualise. To reduce this, this is a script called `lib/scripts/reduce-trigram.py` where it condenses the 16M values into a summarised output.
+
+First, run `vis/cube/ngram.pig' on a pcap, then run the `reduce-trigram.py` script over the output:
+
+    # pig -x local -f pig/cube/ngram.pig -param pcap=data/web.pcap
+    # lib/scripts/reduce-trigram.py output/ngram/part-m-00000 > output/ngram/summarised
+
+The generated `output/ngram/summarised` file can now be used in the visualisation at `vis/cube/cube.html`.
+
+### DNS Directed Graph (Ubigraph)
+
+This is a visualisation that uses Ubigraph. It links domains by their subdomain parts.
+
+Download Ubigraph from http://ubietylab.net/ubigraph/content/Downloads/ then extract and run `bin/ubigraph_server`. This will create a window where the visualisation will appear. When that's running, execute the `dns.py` script in `vis/ubigraph/dns.py` with the output of `pig/ubigraph/dns.pig`, e.g.:
+
+    # cd vis/ubigraph
+    # ./dns.py ../../output/ubigraph-dns/part-m-00000
+
+### Side-by-Side Charts
+
+These charts allow you to compare different sets of data together.
+
+Use either histogram or timeseries data in this format:
+
+    filter,category,timestmap,value
+
+or
+
+    filter,category,title,value
+
+The vis is in `vis/charts/main.html` and there are two scripts in `pig/graphs`.
+
+#### Unigram
+
+The Unigram pig script at `pig/charts/ngram-chart.pig` runs multiple n-gram jobs over your pcap file. You'll need to concatenate all the files together using a command similar to this:
+
+  # ./pigrun.py -f pig/charts/ngram-chart.pig
+  # cat output/ngram-chart/*/* > output/ngram-chart/combined
+
+Note: If you inspect the output of `ngram-chart.pig`, you'll notice one of the output files, "ngram-chart/all", has no filter name. To fix this so that the charts all have labels, run this command over the output:
+
+  # sed 's/,,/,All Protocols,/g' output/ngram-chart/combined > output/ngram-chart/combined-tweaked
+
+Drag the combined-tweaked into the visualisation at `vis/charts/main.html`.
+
 ### Choropleth
+
+Choropleth is a map of the Earth with countries shaded to a particular colour based on some data.
 
 The input expected for the Choropleth is "country code,value". Basically drag it into the drop zone and the countries get highlighted.
 
-It's in vis/world/world.html and an example pig script is pig/choropleth/snort.pig
-
-### N-gram cube
-
-The ngram.pig file can output a list of ngraphs from a pcap specifying a packet
-filter and N.
-
-The output is a single line CSV file that should have 256 ^ N elements and can
-be imported into vis/cube/cube.html
+It's in `vis/world/world.html` and an example pig script is `pig/choropleth/snort.pig`
 
 ## Pig Scripts
 

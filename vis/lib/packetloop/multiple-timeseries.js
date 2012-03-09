@@ -255,6 +255,9 @@ Packetloop.MultipleTimeSeries.update = function(sorted)
 
   // bar
   d3.selectAll('svg').each(function(d, i) {
+
+    console.log(chartData[i])
+
     d3.select(this).selectAll('rect.bar')
       .data(chartData[i])
     .transition()
