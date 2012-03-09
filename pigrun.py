@@ -40,7 +40,7 @@ def generate_cmd(conf):
         cmd.append('-param includepath=%s/include-hdfs.pig' % conf.hdfs_path)
         #cmd.append('-param cvss=%s/snort-cvss.tsv' % conf.hdfs_path)
         cmd.append('-param tcppath=%s' % conf.tcp_path)
-        cmd.append('-param dnspath=%s' % conf.tcp_path)
+        cmd.append('-param dnspath=%s' % conf.dns_path)
 
     if conf.mode == 'local':
         cmd.append('-f %s' % conf.pig_path)
