@@ -19,6 +19,11 @@ public class DNSConversationRecordReader extends PcapRecordReader {
     private static final ObjectMapper mapper = new ObjectMapper();
     private ArrayList<Tuple> tupleQueue;
     private int currentId;
+    private String pathToDns;
+
+    public DNSConversationRecordReader(String pathToDns) {
+        this.pathToDns = pathToDns;
+    }
 
     @Override
     public void initialize(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
@@ -26,7 +31,7 @@ public class DNSConversationRecordReader extends PcapRecordReader {
 
         tupleQueue = new ArrayList<Tuple>();
 
-        String cmd = "lib/scripts/dns_parser.py -r " + path;
+        String cmd = pathToDns + " -r " + path;
 
         ProcessBuilder builder = new ProcessBuilder(cmd.split(" "));
         Process process = builder.start();

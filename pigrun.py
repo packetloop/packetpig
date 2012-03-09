@@ -17,6 +17,7 @@ def parse_args():
     parser.add_argument('-p', dest='hdfs_path')
     parser.add_argument('-s', dest='snort_conf', default='lib/snort/etc/snort.conf')
     parser.add_argument('-t', dest='tcp_path', default='lib/scripts/tcp.py')
+    parser.add_argument('-t', dest='dns_path', default='lib/scripts/dns_parser.py')
     return parser.parse_args()
 
 def prepend_hdfs_path(conf, path):
@@ -39,6 +40,7 @@ def generate_cmd(conf):
         cmd.append('-param includepath=%s/include-hdfs.pig' % conf.hdfs_path)
         #cmd.append('-param cvss=%s/snort-cvss.tsv' % conf.hdfs_path)
         cmd.append('-param tcppath=%s' % conf.tcp_path)
+        cmd.append('-param dnspath=%s' % conf.tcp_path)
 
     if conf.mode == 'local':
         cmd.append('-f %s' % conf.pig_path)
