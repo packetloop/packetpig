@@ -58,7 +58,7 @@ r = JOIN
         packets         BY (ts / $time * $time, ip_src, tcp_sport, ip_dst, tcp_dport);
 
 r = GROUP r BY (conversations::src, conversations::sport, conversations::dst, conversations::dport);
-r = FOREACH r GENERATE group, SUM(r.packets::ip_total_length);
+r = FOREACH r GENERATE SUM(r.packets::ip_total_length);
 
 STORE r INTO 'output/conversations' USING PigStorage(',');
 

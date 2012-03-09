@@ -19,9 +19,8 @@ streams =
     ext:chararray,
     md5:chararray,
     sha1:chararray,
-    sha256:chararray
+    sha256:chararray,
+    size:long
   );
 
---STORE streams INTO 'output/extract_files' USING PigStorage(',');
-DUMP streams;
-
+STORE streams INTO 'output/extract_files';

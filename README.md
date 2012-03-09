@@ -182,10 +182,9 @@ Arguments:
 - pcap: path to the capture (or directory of captures) to work on
 - time: the bin period (default: 60)
 
-### pig/examples/conversation_packet_intervals.pig
+### pig/examples/conversation_info.pig
 
-Conversation info, which includes a list of intervals within the
-conversation.
+Conversation info, which includes a list of intervals within the conversation.
 
 Arguments:
 

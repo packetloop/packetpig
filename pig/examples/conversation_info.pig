@@ -15,4 +15,4 @@ conversations = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.convers
         intervals
     );
 
-STORE conversation INTO 'output/conversation_packet_intervals' USING PigStorage(',');
+STORE conversation INTO 'output/conversation_info';

@@ -31,4 +31,8 @@ snort_http = JOIN
                 snort_alerts BY (src, sport, dst, dport),
                 http_conversations BY (src, sport, dst, dport);
 
-STORE snort_http INTO 'output/snort_http' USING PigStorage(',');
+useragent_frequency = GROUP snort_http BY field;
+summary = FOREACH useragent_frequency GENERATE group, COUNT(snort_http) AS count;
+summary = ORDER summary BY count DESC;
+
+STORE summary INTO 'output/attacker_useragents';

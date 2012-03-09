@@ -57,11 +57,11 @@ public class ConversationFileRecordReader extends ConversationRecordReader {
         Float f = new Float(bits[0]);
         key = f.longValue();
 
-        for (int i = 1; i < 11; i++)
+        for (int i = 1; i < 12; i++)
             tuple.append(bits[i]);
 
         if (shouldDump) {
-            String tempFile = bits[11];
+            String tempFile = bits[12];
             String dst = bits[10] + bits[7];
             fs.moveFromLocalFile(new Path(tempFile), new Path(fileDumpPath, dst));
         }

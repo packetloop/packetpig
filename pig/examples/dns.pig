@@ -6,7 +6,7 @@ dns = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.protocol.DNSConve
 	id:long,
 	mode:chararray,
 	name:chararray,
-  addr:chararray,
+    addr:chararray,
 	ttl:int
 );
 

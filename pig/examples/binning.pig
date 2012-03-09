@@ -1,7 +1,7 @@
 %DEFAULT includepath pig/include.pig
 RUN $includepath;
 
-%DEFAULT time 60
+%DEFAULT time 3600
 
 packets = load '$pcap' using com.packetloop.packetpig.loaders.pcap.packet.PacketLoader() AS (
     ts,
@@ -57,4 +57,4 @@ bw_summary = FOREACH bw_grouped GENERATE group, SUM(packets.ip_total_length) AS 
 joined = JOIN tcp_summary BY group, udp_summary BY group, bw_summary BY group;
 summary = FOREACH joined GENERATE tcp_summary::group, tcp_len, udp_len, bw;
 
-DUMP summary;
+STORE summary INTO 'output/binning' USING PigStorage(',');

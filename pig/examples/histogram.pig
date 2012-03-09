@@ -47,4 +47,5 @@ packets = LOAD '$pcap'
 packet_sizes = GROUP packets BY ip_total_length;
 packet_size_freq = FOREACH packet_sizes GENERATE group, COUNT(packets.ts) AS count;
 result = ORDER packet_size_freq BY count;
-DUMP result;
+
+STORE result INTO 'output/histogram';

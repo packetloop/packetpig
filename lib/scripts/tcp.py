@@ -200,6 +200,7 @@ class HttpBodyDumpEmitter:
                 hashlib.md5(payload).hexdigest(),
                 hashlib.sha1(payload).hexdigest(),
                 hashlib.sha256(payload).hexdigest(),
+                str(os.stat(filename).st_size),
                 ]
 
             if self.config.extract_files:
