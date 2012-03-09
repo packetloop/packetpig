@@ -43,8 +43,17 @@ public class DNSConversationRecordReader extends PcapRecordReader {
 
         ProcessBuilder builder = new ProcessBuilder(cmd.split(" "));
         Process process = builder.start();
+        InputStream err = process.getErrorStream();
         OutputStream os = process.getOutputStream();
-        IOUtils.copyBytes(fsdis, os, config);  // pipe from pcap stream into snort
+        try {
+            IOUtils.copyBytes(fsdis, os, config);  // pipe from pcap stream into snort
+        } catch (IOException ignored) {
+            byte[] buf = new byte[err.available()];
+            err.read(buf);
+            System.err.println(new String(buf));
+        }
+
+        process.waitFor();
 
         reader = new BufferedReader(new FileReader(out));
         out.delete();

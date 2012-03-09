@@ -24,7 +24,6 @@ uniq_all = foreach all_field {
 
 };
 ordered = order uniq_all by count desc; 
---DUMP ordered;
 
 --Get the number of user agents per source IP. Order descending.
 src_http = group http_conversations by (src,field);
@@ -33,7 +32,7 @@ uniq_src  = foreach src_http {
                    uniq_src_field = distinct http_conversations.field;
                    generate group, COUNT(uniq_src_field);
 };
-DUMP uniq_src;
+
 -- Find the countries
 countries = foreach http_conversations GENERATE com.packetloop.packetpig.udf.geoip.Country(src) as country;
 
@@ -42,4 +41,5 @@ countries = GROUP countries BY country;
 countries = FOREACH countries {
                   generate group, COUNT(countries);
 };
---DUMP countries;
+
+STORE countries INTO 'output/http_fields';

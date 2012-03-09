@@ -5,15 +5,15 @@ RUN $includepath;
 %DEFAULT snortconfig 'lib/snort/etc/snort.conf'
 
 snort_alerts = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.detection.SnortLoader('$snortconfig') AS (
-ts:long,
-sig:chararray,
-priority:int,
-message:chararray,
-proto:chararray,
-src:chararray,
-sport:int,
-dst:chararray,
-dport:int
+    ts:long,
+    sig:chararray,
+    priority:int,
+    message:chararray,
+    proto:chararray,
+    src:chararray,
+    sport:int,
+    dst:chararray,
+    dport:int
 );
 
 packets = load '$pcap' using com.packetloop.packetpig.loaders.pcap.packet.PacketLoader() AS (
@@ -64,16 +64,13 @@ conversations = LOAD '$pcap' using com.packetloop.packetpig.loaders.pcap.convers
     end_state:chararray
 );
 
-conversations = FOREACH conversations GENERATE ts, src, sport, dst, dport;
-
 all_packets = GROUP packets all;
 packet_summary = FOREACH all_packets {
     GENERATE
         COUNT(packets)
     ,   SUM(packets.ip_total_length)
-    ,   COUNT(conversations)
     ;
 };
 
-DUMP packet_summary;
+STORE packet_summary INTO 'output/uber';
 

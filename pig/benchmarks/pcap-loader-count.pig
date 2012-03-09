@@ -2,7 +2,7 @@
 RUN $includepath;
 
 packets = LOAD '$pcap'
-  USING com.blackfoundry.pig.loaders.pcap.packet.PacketLoader()
+  USING com.packetloop.packetpig.loaders.pcap.packet.PacketLoader()
   AS (
     ts:long,
 

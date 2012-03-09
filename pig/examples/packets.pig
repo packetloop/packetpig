@@ -1,7 +1,7 @@
 %DEFAULT includepath pig/include.pig
 RUN $includepath;
 
-packets = load '$pcap' using com.packetloop.packetpig.loaders.pcap.packet.PacketLoader() AS (
+packets = LOAD '$pcap' using com.packetloop.packetpig.loaders.pcap.packet.PacketLoader() AS (
     ts:long,
 
     ip_version:int,
@@ -40,4 +40,4 @@ packets = load '$pcap' using com.packetloop.packetpig.loaders.pcap.packet.Packet
     udp_checksum:chararray
 );
 
-DUMP packets;
+STORE packets INTO 'output/packets';

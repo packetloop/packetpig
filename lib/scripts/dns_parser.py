@@ -35,6 +35,8 @@ class DNSProcess:
             print >> sys.stderr, 'Exception', e
             traceback.print_exc(file=sys.stderr)
             sys.exit(-1)
+        finally:
+            self.output.close()
 
     def udp_handler(self, addrs, payload, pkt):
         (src, sport), (dst, dport) = addrs

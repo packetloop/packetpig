@@ -1,7 +1,7 @@
 %DEFAULT includepath pig/include.pig
 RUN $includepath;
 
-packets = LOAD 'data/web.pcap' USING com.packetloop.packetpig.loaders.pcap.packet.PacketLoader() AS (
+packets = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.packet.PacketLoader() AS (
     ts:long,
 
     ip_version:int,

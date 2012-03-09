@@ -1,16 +1,56 @@
-register lib/kraken-pcap-1.6.0.jar;
-register lib/packetloop.packetpig.jar;
+%DEFAULT includepath pig/include.pig
+RUN $includepath;
 
-packets = load 'data/web.pcap'  using com.packetloop.packetpig.pcap.PcapLoader() as (ts:chararray, version:int, ihl:int, tos:int, len:int, id:int, flagsiint, frag:int, ttl:int, proto:int, chksum:int, src:chararray, dst:chararray, sport:int, dport:int, syn:int, tcp_len:int);
+packets = LOAD '$pcap' using com.packetloop.packetpig.loaders.pcap.packet.PacketLoader() AS (
+    ts:long,
 
-syn = filter packets by syn==1;
-tcp = filter packets by proto==6;
+    ip_version:int,
+    ip_header_length:int,
+    ip_tos:int,
+    ip_total_length:int,
+    ip_id:int,
+    ip_flags:int,
+    ip_frag_offset:int,
+    ip_ttl:int,
+    ip_proto:int,
+    ip_checksum:int,
+    ip_src:chararray,
+    ip_dst:chararray,
 
-src_dst_group = group tcp by (src,dst);
+    tcp_sport:int,
+    tcp_dport:int,
+    tcp_seq_id:long,
+    tcp_ack_id:long,
+    tcp_offset:int,
+    tcp_ns:int,
+    tcp_cwr:int,
+    tcp_ece:int,
+    tcp_urg:int,
+    tcp_ack:int,
+    tcp_psh:int,
+    tcp_rst:int,
+    tcp_syn:int,
+    tcp_fin:int,
+    tcp_window:int,
+    tcp_len:int,
 
-cnt = foreach src_dst_group generate group, COUNT(tcp) as cnt_Packets, SUM(tcp.tcp_len) as sum_Packets;
+    udp_sport:int,
+    udp_dport:int,
+    udp_len:int,
+    udp_checksum:chararray
+);
 
-order_cnt = order cnt by sum_Packets DESC;
+syn = FILTER packets BY tcp_syn == 1;
+tcp = FILTER packets BY ip_proto == 6;
 
-store cnt into 'src_dst' using com.packetloop.packetpig.storage.JsonStorage();
+src_dst_group = GROUP tcp BY (ip_src, ip_dst);
+
+cnt = FOREACH src_dst_group
+    GENERATE group,
+        COUNT(tcp) AS cnt_packets,
+        SUM(tcp.tcp_len) as sum_packets;
+
+order_cnt = ORDER cnt BY sum_packets DESC;
+
+STORE cnt INTO 'output/src_dst_tuples';
 

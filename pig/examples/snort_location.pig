@@ -16,4 +16,4 @@ locations = FOREACH snort_alerts
     com.packetloop.packetpig.udf.geoip.LatLon(src),
     priority;
 
-DUMP locations;
+STORE locations INTO 'output/snort_locations';

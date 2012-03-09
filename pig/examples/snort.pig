@@ -23,4 +23,4 @@ snort_alerts =
     dport:int
   );
 
-DUMP snort_alerts;
+STORE snort_alerts INTO 'output/snort';

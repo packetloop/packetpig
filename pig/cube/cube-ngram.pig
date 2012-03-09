@@ -7,5 +7,5 @@ RUN $includepath;
 ngram = LOAD '$pcap'
   USING com.packetloop.packetpig.loaders.pcap.packet.PacketNgramLoader('$filter', '$n');
 
-STORE ngram INTO 'output/ngram' using PigStorage(',');
+STORE ngram INTO 'output/cube-ngram' using PigStorage(',');
 

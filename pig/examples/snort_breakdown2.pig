@@ -57,3 +57,4 @@ events = FOREACH events GENERATE group.$0, group.$1, group.$2, snort_alerts.mess
 events = GROUP snort_alerts BY ((ts/$time*$time),priority,sig);
 events = FOREACH events GENERATE group.$0, group.$1, group.$2, snort_alerts.message, COUNT(snort_alerts) as total;
 
+STORE events INTO 'output/snort_breakdown2';
