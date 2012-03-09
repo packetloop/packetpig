@@ -1,13 +1,16 @@
 package com.packetloop.packetpig.loaders.pcap.protocol;
 
 import com.packetloop.packetpig.loaders.pcap.PcapRecordReader;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.pig.data.TupleFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 
 public class HTTPConversationRecordReader extends PcapRecordReader {
     protected BufferedReader reader;
@@ -23,13 +26,21 @@ public class HTTPConversationRecordReader extends PcapRecordReader {
     public void initialize(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
         super.initialize(split, context);
 
-        String cmd = pathToTcp + " -r " + path + " -om http_headers -of tsv";
+        File out = File.createTempFile("prefix", "suffix");
+        Configuration config = context.getConfiguration();
+        FileSystem dfs = FileSystem.get(config);
+        FSDataInputStream fsdis = dfs.open(new Path(path));
+
+        String cmd = pathToTcp + " -r /dev/stdin -om http_headers -of tsv -o " + out.getPath();
 
         ProcessBuilder builder = new ProcessBuilder(cmd.split(" "));
-        //builder.redirectErrorStream(true);
         Process process = builder.start();
+        OutputStream os = process.getOutputStream();
+        IOUtils.copyBytes(fsdis, os, config);  // pipe from pcap stream into snort
+        process.waitFor();
 
-        reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        reader = new BufferedReader(new FileReader(out));
+        out.delete();
     }
 
     @Override

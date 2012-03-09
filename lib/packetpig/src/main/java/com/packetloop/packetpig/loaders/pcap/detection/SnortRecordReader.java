@@ -48,8 +48,7 @@ public class SnortRecordReader extends PcapRecordReader {
         process.waitFor();
 
         File logFile = new File(logDir.getPath() + File.separatorChar + "alert");
-        FileReader fileReader = new FileReader(logFile);
-        reader = new BufferedReader(fileReader);
+        reader = new BufferedReader(new FileReader(logFile));
 
         for (File f : logDir.listFiles())
             f.delete();

@@ -125,10 +125,4 @@ public class FingerprintRecordReader extends PcapRecordReader {
 
         return false;
     }
-
-    public static void main(String[] args) throws IOException {
-        String cmd = "p0f -r /dev/stdin";
-        ProcessBuilder builder = new ProcessBuilder(cmd.split(" "));
-        Process process = builder.start();
-    }
 }

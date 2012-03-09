@@ -33,10 +33,12 @@ class StreamProcess:
         ap.add_argument('-xf', dest='extract_files', default=False,
             action='store_true')
         ap.add_argument('-i', dest='mime_type', default=None)
+        ap.add_argument('-o', dest='output_file', default='/dev/stdout')
         return ap.parse_args()
 
     def run(self, config):
         self.config = config
+        self.config.output = open(self.config.output_file, 'a')
         nids.chksum_ctl([('0.0.0.0/0', False)])  # disable checksumming
         nids.param('scan_num_hosts', 0)  # disable portscan detection
         if self.config.filename:
@@ -121,7 +123,7 @@ class StreamHandler:
             del(out['sdata'])
 
         if self.config.output_format == 'json':
-            print json.dumps(out, ensure_ascii=False)
+            print >> self.config.output, json.dumps(out, ensure_ascii=False)
 
         if self.config.output_format == 'tsv':
 
@@ -146,11 +148,11 @@ class StreamHandler:
                             b2 = copy(b1)
                             b2 += [header.replace('\n', ' '),
                                     value.replace('\n', ' ')]
-                            print '\t'.join(b2)
+                            print >> self.config.output, '\t'.join(b2)
 
                 return
 
-            print '\t'.join(base)
+            print >> self.config.output, '\t'.join(base)
 
 
 class HttpBodyDumpEmitter:
@@ -208,7 +210,7 @@ class HttpBodyDumpEmitter:
             else:
                 os.unlink(filename)
 
-            print '\t'.join(b)
+            print >> self.config.output, '\t'.join(b)
 
 
 class ParsingException(Exception):

@@ -19,4 +19,5 @@ r = FOREACH conversations GENERATE FLATTEN(com.packetloop.packetpig.udf.util.Exp
 r = FOREACH r GENERATE (int)((double)interval * 1000) AS interval;
 r = GROUP r BY interval;
 r = FOREACH r GENERATE group, COUNT(r.interval);
-DUMP r;
+
+STORE r INTO 'output/packet_latency_histogram';

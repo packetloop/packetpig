@@ -13,10 +13,7 @@ import org.apache.pig.data.TupleFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Iterator;
 
 public class ConversationRecordReader extends PcapRecordReader {
@@ -32,18 +29,21 @@ public class ConversationRecordReader extends PcapRecordReader {
     public void initialize(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
         super.initialize(split, context);
 
+        File out = File.createTempFile("prefix", "suffix");
         Configuration config = context.getConfiguration();
         FileSystem dfs = FileSystem.get(config);
         FSDataInputStream fsdis = dfs.open(new Path(path));
 
-        String cmd = pathToTcp + " -r " + path;
+        String cmd = pathToTcp + " -r /dev/stdin -o " + out.getPath();
 
         ProcessBuilder builder = new ProcessBuilder(cmd.split(" "));
         Process process = builder.start();
         OutputStream os = process.getOutputStream();
         IOUtils.copyBytes(fsdis, os, config);  // pipe from pcap stream into snort
+        process.waitFor();
 
-        reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        reader = new BufferedReader(new FileReader(out));
+        out.delete();
     }
 
     @Override

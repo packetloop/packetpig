@@ -15,10 +15,13 @@ class DNSProcess:
     def __init__(self):
         pass
 
-    def run(self, args):
+    def run(self, conf):
+        self.conf = conf
+        self.output = open(conf.output_file, 'a')
+
         nids.chksum_ctl([('0.0.0.0/0', False)])  # disable checksumming
         nids.param('scan_num_hosts', 0)  # disable portscan detection
-        nids.param('filename', args.filename)
+        nids.param('filename', conf.filename)
         nids.init()
 
         nids.register_udp(self.udp_handler)
@@ -95,12 +98,13 @@ class DNSProcess:
                 while additionals:
                     add_values('additionals', ['qname', 'qtype', 'qclass', 'qttl', 'qrdata'], additionals.pop())
 
-            print json.dumps(res)
+            print >> self.output, json.dumps(res)
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('-r', dest='filename')
-    args = ap.parse_args()
+    ap.add_argument('-o', dest='output_file', default='/dev/stdout')
+    conf = ap.parse_args()
 
     n = DNSProcess()
-    n.run(args)
+    n.run(conf)
