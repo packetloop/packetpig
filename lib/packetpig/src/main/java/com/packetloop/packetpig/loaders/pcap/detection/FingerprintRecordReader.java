@@ -1,12 +1,18 @@
 package com.packetloop.packetpig.loaders.pcap.detection;
 
 import com.packetloop.packetpig.loaders.pcap.PcapRecordReader;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.regex.Matcher;
@@ -21,10 +27,19 @@ public class FingerprintRecordReader extends PcapRecordReader {
     public void initialize(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
         super.initialize(split, context);
 
-        String cmd = "p0f -r " + path;
+        Configuration config = context.getConfiguration();
+        FileSystem dfs = FileSystem.get(config);
+        FSDataInputStream fsdis = dfs.open(new Path(path));
+
+        String cmd = "p0f -r /dev/stdin";
+        System.err.println(cmd);
 
         ProcessBuilder builder = new ProcessBuilder(cmd.split(" "));
+        builder.redirectErrorStream(true);
         Process process = builder.start();
+
+        OutputStream os = process.getOutputStream();
+        IOUtils.copyBytes(fsdis, os, config);  // pipe from pcap stream into snort
 
         reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
     }
@@ -48,6 +63,7 @@ public class FingerprintRecordReader extends PcapRecordReader {
 
         String line;
         while ((line = reader.readLine()) != null) {
+            System.err.println(line);
             if (line.startsWith(".")) {
                 Pattern p = Pattern.compile(" ([^/]+)/([0-9]+) -> ([^/]+)/([[0-9]]+)");
                 Matcher m = p.matcher(line);
@@ -108,5 +124,11 @@ public class FingerprintRecordReader extends PcapRecordReader {
         }
 
         return false;
+    }
+
+    public static void main(String[] args) throws IOException {
+        String cmd = "p0f -r /dev/stdin";
+        ProcessBuilder builder = new ProcessBuilder(cmd.split(" "));
+        Process process = builder.start();
     }
 }
