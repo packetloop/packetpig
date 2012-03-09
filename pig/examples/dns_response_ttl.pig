@@ -1,7 +1,9 @@
 %DEFAULT includepath pig/include.pig
 RUN $includepath;
 
-dns = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.protocol.DNSConversationLoader() AS (
+%DEFAULT dnspath 'lib/scripts/dns_parser.py'
+
+dns = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.protocol.DNSConversationLoader('$dnspath') AS (
     ts:long,
     id:long,
     mode:chararray,
