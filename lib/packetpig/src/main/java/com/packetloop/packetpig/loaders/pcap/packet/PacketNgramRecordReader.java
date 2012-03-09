@@ -166,7 +166,7 @@ public class PacketNgramRecordReader extends PcapRecordReader {
     private int intValue(UnsignedByte[] byteKey) {
         int v = 0;
         for (int i = 0; i < n; i++)
-            v += byteKey[i].intValue() >> 4 * i & 0xFF;
+            v += byteKey[i].intValue() << 8 * (n - i - 1);
 
         return v;
     }
