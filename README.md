@@ -2,17 +2,13 @@
 
 ## Note
 
-If Markdown is painful in your text editor, run lib/scripts/readme.py from this
-directory and it'll generate a README.html for you. You'll need the markdown
-python module installed.
+If Markdown is painful in your text editor, run lib/scripts/readme.py from this directory and it'll generate a README.html for you. You'll need the markdown python module installed.
 
 ## Overview
 
-If you want to run the pig scripts you have to set the pcap parameter for the
-pcap you want to use.
+If you want to run the pig scripts you have to set the pcap parameter for the pcap you want to use.
 
-There is a small, test pcap file called data/web.pcap that you can test prior
-to running on your own pcaps.
+There is a small, test pcap file called data/web.pcap that you can test prior to running on your own pcaps.
 
 You can run locally:
 
@@ -33,9 +29,7 @@ Also edit pig/include-hdfs.pig to specify your HDFS URI.
 
 ### ConversationLoader
 
-A frontend to lib/scripts/tcp.py which gives you a record per TCP connection,
-along with src, dst, end state, timestamps of each packet, and intervals
-between each packet.
+A frontend to lib/scripts/tcp.py which gives you a record per TCP connection, along with src, dst, end state, timestamps of each packet, and intervals between each packet.
 
 ### FingerprintLoader
 
@@ -105,7 +99,7 @@ The `vis/cube/ngram.pig` file outputs a list of ngraphs. A trigram of 256 variat
 
 First, run `vis/cube/ngram.pig' on a pcap, then run the `reduce-trigram.py` script over the output:
 
-    # pig -x local -f pig/cube/ngram.pig -param pcap=data/web.pcap
+    # pig -x local -f pig/cube/cube-ngram.pig -param pcap=data/web.pcap
     # lib/scripts/reduce-trigram.py output/ngram/part-m-00000 > output/ngram/summarised
 
 The generated `output/ngram/summarised` file can now be used in the visualisation at `vis/cube/cube.html`.
@@ -114,10 +108,9 @@ The generated `output/ngram/summarised` file can now be used in the visualisatio
 
 This is a visualisation that uses Ubigraph. It links domains by their subdomain parts.
 
-Download Ubigraph from http://ubietylab.net/ubigraph/content/Downloads/ then extract and run `bin/ubigraph_server`. This will create a window where the visualisation will appear. When that's running, execute the `dns.py` script in `vis/ubigraph/dns.py` with the output of `pig/ubigraph/dns.pig`, e.g.:
+Download Ubigraph from http://ubietylab.net/ubigraph/content/Downloads/ then extract and run `bin/ubigraph_server`. This will create a window where the visualisation will appear. When that's running, execute the `vis/ubigraph/dns.py` with the output of `pig/ubigraph/dns.pig`, e.g.:
 
-    # cd vis/ubigraph
-    # ./dns.py ../../output/ubigraph-dns/part-m-00000
+    # vis/ubigraph/dns.py output/ubigraph-dns/part-m-00000
 
 ### Side-by-Side Charts
 
@@ -125,13 +118,13 @@ These charts allow you to compare different sets of data together.
 
 Use either histogram or timeseries data in this format:
 
-    filter,category,timestmap,value
+    filter,category,timestamp,value
 
 or
 
     filter,category,title,value
 
-The vis is in `vis/charts/main.html` and there are two scripts in `pig/graphs`.
+The vis is in `vis/charts/main.html`.
 
 #### Unigram
 
