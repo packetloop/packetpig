@@ -15,7 +15,7 @@ def parse_args():
         default='local')
     parser.add_argument('-r', dest='pcap_path', default='data/web.pcap')
     parser.add_argument('-p', dest='hdfs_path')
-    parser.add_argument('-s', dest='snort_conf', default='etc/snort.conf')
+    parser.add_argument('-s', dest='snort_conf', default='lib/snort/etc/snort.conf')
     parser.add_argument('-t', dest='tcp_path', default='lib/scripts/tcp.py')
     return parser.parse_args()
 

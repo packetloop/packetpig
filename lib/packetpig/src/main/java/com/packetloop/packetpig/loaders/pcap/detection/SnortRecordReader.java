@@ -34,9 +34,6 @@ public class SnortRecordReader extends PcapRecordReader {
         logDir.delete();
         logDir.mkdir();
 
-        if (configFile == null)
-            configFile = "lib/snort/etc/snort.conf";
-
         Configuration config = context.getConfiguration();
         FileSystem dfs = FileSystem.get(config);
         FSDataInputStream fsdis = dfs.open(new Path(path));

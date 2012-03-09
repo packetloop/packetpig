@@ -14,6 +14,7 @@ public class SnortLoader extends PcapLoader {
     private String configFile = null;
 
     public SnortLoader() {
+        this.configFile = "lib/snort/etc/snort.conf";
     }
 
     public SnortLoader(String configFile) {
