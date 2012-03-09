@@ -99,6 +99,7 @@ Packetloop.Cube.prototype.addCube = function(data)
   mesh.position.z = data[2] - this.zmax / 2
   this.scene.add(mesh)
 
+  if (0)
   if (
     (data[0] == 0 || data[0] == this.xmax) &&
     (data[1] == 0 || data[1] == this.ymax) &&
