@@ -27,6 +27,7 @@
 
       var gui
       var settings
+      var countryCodes
 
       function initGui(settings) {
         gui = new dat.GUI();
@@ -41,6 +42,15 @@
         $('#vis *').remove()
         var rows = d3.csv.parseRows(d)
         Packetloop.MultipleTimeSeries.create(rows)
+
+        $('.aheader').each(function() {
+          var o = $(this)
+          var cc = o.text()
+          if (cc in countryCodes) {
+            o.text(countryCodes[cc] + ' (' + cc + ')')
+          }
+        })
+
       }
 
       $(function() {
@@ -50,6 +60,11 @@
           },
         }
         initGui(settings)
+
+        d3.json('../../data/countries.json', function(c) {
+          countryCodes = c
+        })
+
         Packetloop.Files.init(function(data) {
           parse(data)
         })

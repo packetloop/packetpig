@@ -90,6 +90,7 @@ Packetloop.MultipleTimeSeries.create = function(rows) {
 
   // sort the Packetloop.MultipleTimeSeries.data into Packetloop.MultipleTimeSeries.data[filter][cat] = [{x:, y:}] while keeping track of
   // a list of filters and Packetloop.MultipleTimeSeries.categories
+  var cscale = d3.scale.category10()
   for (var i = 1; i < rows.length; i++) {
 
     var row = rows[i]
@@ -139,6 +140,11 @@ Packetloop.MultipleTimeSeries.create = function(rows) {
 
     var data = chartData[i]
     var ticks = 3
+
+    var max = d3.max(data, function(d) {
+      return d.y
+    })
+    y.domain([0, max])
 
     var vis = d3.select('#vis')
       .append('div')
@@ -202,6 +208,7 @@ Packetloop.MultipleTimeSeries.create = function(rows) {
       vis.append('svg:path')
         .data([data])
         .attr('class', function(d, i) { return 'c' + category } )
+        .attr('fill', cscale(i))
         .attr('d', area(y))
     }
 
@@ -214,6 +221,7 @@ Packetloop.MultipleTimeSeries.create = function(rows) {
         .attr('height', function(d) { return Packetloop.MultipleTimeSeries.h - y(d.y) })
         .attr('y', function(d) { return y(d.y) })
         .attr('width', (x.range()[1] - x.range()[0]) / data.length)
+        .attr('fill', cscale(i))
     }
 
     Packetloop.MultipleTimeSeries.vis = vis
