@@ -1,6 +1,6 @@
 package com.packetloop.packetpig.loaders.pcap.detection;
 
-import com.packetloop.packetpig.loaders.pcap.PcapRecordReader;
+import com.packetloop.packetpig.loaders.pcap.StreamingPcapRecordReader;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -18,7 +18,7 @@ import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class FingerprintRecordReader extends PcapRecordReader {
+public class FingerprintRecordReader extends StreamingPcapRecordReader {
     private BufferedReader reader;
     private ArrayList<FingerprintTuple> fingerprintArray = new ArrayList<FingerprintTuple>();
     private Iterator<FingerprintTuple> fingerprints;
@@ -42,6 +42,7 @@ public class FingerprintRecordReader extends PcapRecordReader {
         IOUtils.copyBytes(fsdis, os, config);  // pipe from pcap stream into snort
 
         reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        reader = streamingProcess("p0f -r /dev/stdin", path, false);
     }
 
     @Override

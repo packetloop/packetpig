@@ -22,6 +22,7 @@ public abstract class PcapRecordReader extends RecordReader<Long, Tuple> {
     public Tuple tuple;
     protected String path;
     protected PcapInputStream is;
+    protected PcapFSDataInputStream fis;
 
     @Override
     public void initialize(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
@@ -32,13 +33,14 @@ public abstract class PcapRecordReader extends RecordReader<Long, Tuple> {
 
         if (p.toUri().getScheme().equals("file")) {
             path = p.toUri().getPath();
-            is = new PcapFileInputStream(new File(path));
+            File file = new File(path);
+            is = new PcapFileInputStream(file);
         } else {
             Configuration config = context.getConfiguration();
-            FileSystem dfs = FileSystem.get(config);
-            FSDataInputStream fsdis = dfs.open(p);
+            FileSystem fs = FileSystem.get(config);
+            FSDataInputStream fsdis = fs.open(p);
             path = p.toString();
-            is = new PcapFSDataInputStream(fsdis);
+            is = new PcapFSDataInputStream(fsdis, fs.getLength(p));
         }
     }
 
@@ -53,8 +55,8 @@ public abstract class PcapRecordReader extends RecordReader<Long, Tuple> {
     }
 
     @Override
-    public float getProgress() throws IOException, InterruptedException {
-        return 0;
+    public float getProgress() {
+        return 0.0f;
     }
 
     @Override

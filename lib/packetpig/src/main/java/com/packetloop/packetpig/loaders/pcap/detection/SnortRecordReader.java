@@ -1,24 +1,22 @@
 package com.packetloop.packetpig.loaders.pcap.detection;
 
-import com.packetloop.packetpig.loaders.pcap.PcapRecordReader;
+import com.packetloop.packetpig.loaders.pcap.StreamingPcapRecordReader;
 import org.apache.commons.lang.StringUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.pig.data.TupleFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class SnortRecordReader extends PcapRecordReader {
+public class SnortRecordReader extends StreamingPcapRecordReader {
     private BufferedReader reader;
     private String configFile;
 
@@ -34,18 +32,7 @@ public class SnortRecordReader extends PcapRecordReader {
         logDir.delete();
         logDir.mkdir();
 
-        Configuration config = context.getConfiguration();
-        FileSystem dfs = FileSystem.get(config);
-        FSDataInputStream fsdis = dfs.open(new Path(path));
-
-        String cmd = "snort -q -c " + configFile + " -A fast -y -l " + logDir + " -r -";
-
-        ProcessBuilder builder = new ProcessBuilder(cmd.split(" "));
-        builder.redirectErrorStream(true);
-        Process process = builder.start();
-        OutputStream os = process.getOutputStream();
-        IOUtils.copyBytes(fsdis, os, config);  // pipe from pcap stream into snort
-        process.waitFor();
+        reader = streamingProcess("snort -q -c " + configFile + " -A fast -y -l " + logDir + " -r -", path, false);
 
         File logFile = new File(logDir.getPath() + File.separatorChar + "alert");
         reader = new BufferedReader(new FileReader(logFile));

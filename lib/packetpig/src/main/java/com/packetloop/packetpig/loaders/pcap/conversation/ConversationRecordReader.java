@@ -1,11 +1,6 @@
 package com.packetloop.packetpig.loaders.pcap.conversation;
 
-import com.packetloop.packetpig.loaders.pcap.PcapRecordReader;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IOUtils;
+import com.packetloop.packetpig.loaders.pcap.StreamingPcapRecordReader;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.pig.data.Tuple;
@@ -13,10 +8,11 @@ import org.apache.pig.data.TupleFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.Iterator;
 
-public class ConversationRecordReader extends PcapRecordReader {
+public class ConversationRecordReader extends StreamingPcapRecordReader {
     protected BufferedReader reader;
     private static final ObjectMapper mapper = new ObjectMapper();
     protected String pathToTcp;
@@ -28,22 +24,7 @@ public class ConversationRecordReader extends PcapRecordReader {
     @Override
     public void initialize(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
         super.initialize(split, context);
-
-        File out = File.createTempFile("prefix", "suffix");
-        Configuration config = context.getConfiguration();
-        FileSystem dfs = FileSystem.get(config);
-        FSDataInputStream fsdis = dfs.open(new Path(path));
-
-        String cmd = pathToTcp + " -r /dev/stdin -o " + out.getPath();
-
-        ProcessBuilder builder = new ProcessBuilder(cmd.split(" "));
-        Process process = builder.start();
-        OutputStream os = process.getOutputStream();
-        IOUtils.copyBytes(fsdis, os, config);  // pipe from pcap stream into snort
-        process.waitFor();
-
-        reader = new BufferedReader(new FileReader(out));
-        out.delete();
+        reader = streamingProcess(pathToTcp + " -r /dev/stdin -o ", path, true);
     }
 
     @Override

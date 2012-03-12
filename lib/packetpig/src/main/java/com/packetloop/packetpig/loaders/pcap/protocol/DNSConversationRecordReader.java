@@ -1,11 +1,6 @@
 package com.packetloop.packetpig.loaders.pcap.protocol;
 
-import com.packetloop.packetpig.loaders.pcap.PcapRecordReader;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IOUtils;
+import com.packetloop.packetpig.loaders.pcap.StreamingPcapRecordReader;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.pig.data.Tuple;
@@ -13,15 +8,15 @@ import org.apache.pig.data.TupleFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class DNSConversationRecordReader extends PcapRecordReader {
+public class DNSConversationRecordReader extends StreamingPcapRecordReader {
     private BufferedReader reader;
     private static final ObjectMapper mapper = new ObjectMapper();
     private ArrayList<Tuple> tupleQueue;
-    private int currentId;
     private String pathToDns;
 
     public DNSConversationRecordReader(String pathToDns) {
@@ -31,32 +26,8 @@ public class DNSConversationRecordReader extends PcapRecordReader {
     @Override
     public void initialize(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
         super.initialize(split, context);
-
-        File out = File.createTempFile("prefix", "suffix");
-        Configuration config = context.getConfiguration();
-        FileSystem dfs = FileSystem.get(config);
-        FSDataInputStream fsdis = dfs.open(new Path(path));
-
         tupleQueue = new ArrayList<Tuple>();
-
-        String cmd = pathToDns + " -r /dev/stdin -o " + out.getPath();
-
-        ProcessBuilder builder = new ProcessBuilder(cmd.split(" "));
-        Process process = builder.start();
-        InputStream err = process.getErrorStream();
-        OutputStream os = process.getOutputStream();
-        try {
-            IOUtils.copyBytes(fsdis, os, config);  // pipe from pcap stream into snort
-        } catch (IOException ignored) {
-            byte[] buf = new byte[err.available()];
-            err.read(buf);
-            System.err.println(new String(buf));
-        }
-
-        process.waitFor();
-
-        reader = new BufferedReader(new FileReader(out));
-        out.delete();
+        reader = streamingProcess(pathToDns + " -r /dev/stdin -o ", path, true);
     }
 
     private boolean getNextTuple() {
@@ -92,7 +63,7 @@ public class DNSConversationRecordReader extends PcapRecordReader {
         JsonNode obj = mapper.readValue(line, JsonNode.class);
 
         key = obj.get("ts").getLongValue();
-        currentId = obj.get("id").getIntValue();
+        int currentId = obj.get("id").getIntValue();
 
         String mode = obj.get("mode").getTextValue();
         if ("query".equals(mode)) {

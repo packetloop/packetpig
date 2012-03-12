@@ -15,10 +15,14 @@ import java.nio.ByteBuffer;
 public class PcapFSDataInputStream implements PcapInputStream {
     private GlobalHeader globalHeader;
     private FSDataInputStream is;
+    private long length;
+    private int offset;
 
-    public PcapFSDataInputStream(FSDataInputStream data) throws IOException {
+    public PcapFSDataInputStream(FSDataInputStream data, long length) throws IOException {
         is = new FSDataInputStream(data);
         globalHeader = readGlobalHeader();
+        this.length = length;
+        this.offset = 0;
     }
 
     @Override
@@ -30,6 +34,7 @@ public class PcapFSDataInputStream implements PcapInputStream {
         int bytesToRead = 4 + 2 + 2 + 4 + 4 + 4 + 4;
         byte[] buffer = new byte[bytesToRead];
         is.readFully(buffer);
+        offset += bytesToRead;
         ByteBuffer buf = ByteBuffer.wrap(buffer);
 
         int magic = buf.getInt();
@@ -62,6 +67,7 @@ public class PcapFSDataInputStream implements PcapInputStream {
         int bytesToRead = 4 + 4 + 4 + 4;
         byte[] buffer = new byte[bytesToRead];
         is.readFully(buffer);
+        offset += bytesToRead;
         ByteBuffer buf = ByteBuffer.wrap(buffer);
 
         int tsSec = buf.getInt();
@@ -82,6 +88,7 @@ public class PcapFSDataInputStream implements PcapInputStream {
     private Buffer readPacketData(int packetLength) throws IOException {
         byte[] packets = new byte[packetLength];
         is.readFully(packets);
+        offset += packetLength;
 
         Buffer payload = new ChainBuffer();
         payload.addLast(packets);
@@ -91,5 +98,13 @@ public class PcapFSDataInputStream implements PcapInputStream {
     @Override
     public void close() throws IOException {
         is.close();
+    }
+
+    public long getOffset() {
+        return offset;
+    }
+
+    public long getLength() {
+        return length;
     }
 }
