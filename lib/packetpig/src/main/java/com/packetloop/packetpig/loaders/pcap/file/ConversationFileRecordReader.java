@@ -73,7 +73,8 @@ public class ConversationFileRecordReader extends ConversationRecordReader {
 
         if (shouldDump) {
             String tempFile = bits[12];
-            String dst = bits[10] + bits[7];
+            String inferredFilename = bits[13];
+            String dst = bits[10] + inferredFilename + bits[7];
             fs.moveFromLocalFile(new Path(tempFile), new Path(fileDumpPath, dst));
         }
 

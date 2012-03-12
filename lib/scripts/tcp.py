@@ -16,10 +16,15 @@ import json
 import re
 import argparse
 import sys
+import string
 
 import nids
 import magic
 import cStringIO as StringIO
+
+
+VALID_FILENAME_CHARS_RE = r"[^-_.() %s%s]" % (string.ascii_letters, string.digits)
+
 
 class StreamProcess:
 
@@ -161,27 +166,37 @@ class HttpBodyDumpEmitter:
         self.config = config
 
     def emit(self, base, out):
-        for convo in out['http']:
+        for offset, convo in enumerate(out['http']):
             b = copy(base)
 
             fp, filename = tempfile.mkstemp(prefix='http-body-dump')
             payload = convo['payload']
+            status = convo['status']
             os.write(fp, payload)
             os.close(fp)
+
+            # Hack a filename from the request string
+            request_filename = ''
+            if convo['direction'] == 'c':
+                # Find the matching request
+                other_status = out['http'][offset - 1]['status']
+                bits = other_status.split(' ')
+                if len(bits) >= 2:
+                    request_filename = re.sub(VALID_FILENAME_CHARS_RE, '_',
+                        bits[1])
+                    request_filename = request_filename[-50:]
+
+            if not request_filename:
+                request_filename = '-'
 
             mag = magic.Magic(mime=True)
             mime = mag.from_file(filename)
             if not mime:
                 mime = ''
             ext = mimetypes.guess_extension(mime)
-
-            filetype = magic.from_file(filename).replace(',', '')
-
-            if ext:
-                os.rename(filename, filename + ext)
-                filename = filename + ext
-            else:
+            if not ext:
                 ext = ''
+            filetype = magic.from_file(filename).replace(',', '')
 
             if self.config.mime_type:
                 if '/' in self.config.mime_type:
@@ -206,7 +221,7 @@ class HttpBodyDumpEmitter:
                 ]
 
             if self.config.extract_files:
-                b += [filename]
+                b += [filename, request_filename]
             else:
                 os.unlink(filename)
 
