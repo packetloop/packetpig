@@ -204,11 +204,13 @@ Packetloop.MultipleTimeSeries.create = function(rows) {
       .attr('text-anchor', 'end')
       .attr('class', 'ticklabel ytick')
 
+    var col = cscale(i)
+
     if (Packetloop.MultipleTimeSeries.type == 'timeseries') {
       vis.append('svg:path')
         .data([data])
         .attr('class', function(d, i) { return 'c' + category } )
-        .attr('fill', cscale(i))
+        .attr('fill', col)
         .attr('d', area(y))
     }
 
@@ -221,7 +223,7 @@ Packetloop.MultipleTimeSeries.create = function(rows) {
         .attr('height', function(d) { return Packetloop.MultipleTimeSeries.h - y(d.y) })
         .attr('y', function(d) { return y(d.y) })
         .attr('width', (x.range()[1] - x.range()[0]) / data.length)
-        .attr('fill', cscale(i))
+        .attr('fill', col)
     }
 
     Packetloop.MultipleTimeSeries.vis = vis
