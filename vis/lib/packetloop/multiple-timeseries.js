@@ -42,9 +42,9 @@ Packetloop.MultipleTimeSeries.create = function(rows) {
   filter,category,histogramkey,value
   */
 
-  var w = 256
+  var w = 256 + 15
   Packetloop.MultipleTimeSeries.h = 95
-  var p = 20
+  var p = 40
 
   Packetloop.MultipleTimeSeries.selectedFilter = rows[1][0]
 
@@ -101,7 +101,7 @@ Packetloop.MultipleTimeSeries.create = function(rows) {
       var filterId = filters.length
       Packetloop.MultipleTimeSeries.data[filter] = []
       filters.push(filter)
-      $('#filters').append('<li id="filter' + filterId + '">' + filter + '</li>')
+      // $('#filters').append('<li id="filter' + filterId + '">' + filter + '</li>')
     }
 
     if ($.inArray(category, Packetloop.MultipleTimeSeries.categories) == -1) {
@@ -148,11 +148,7 @@ Packetloop.MultipleTimeSeries.create = function(rows) {
 
     var vis = d3.select('#vis')
       .append('div')
-        .attr('class', function() {
-          if (i == 1 || i == 5 || i == 9) return 'chart noborder'
-          else if (i == 4 || i == 8 || i == 12) return 'chart endrow'
-          else return 'chart'
-        })
+        .attr('class', 'chart')
       .append('svg:svg')
           .attr('width', w + p * 2)
           .attr('height', Packetloop.MultipleTimeSeries.h + p * 2)
@@ -254,30 +250,45 @@ Packetloop.MultipleTimeSeries.update = function(sorted)
     })
   }
 
-  // timeseries area
-  d3.selectAll('path').each(function(d, i) {
-    d3.select(this)
-      .data([chartData[i]])
-    .transition()
-      .duration(500)
-      .attr('d', area(y))
+  var yticks = d3.selectAll('.ytick')
+  var svgs = d3.selectAll('svg')
+
+  var lotsOfY = chartData.map(function(d) {
+    var m = d3.max(d, function(f) {
+      return f.y
+    })
+    var localY = d3.scale.linear()
+    localY.range([y.range()[0], y.range()[1]])
+    localY.domain([0, m])
+    return localY
   })
 
-  // bar
-  d3.selectAll('svg').each(function(d, i) {
-    d3.select(this).selectAll('rect.bar')
+  for (var i = 0; i < chartData.length; i++) {
+
+    // bar
+    var svg = d3.select(svgs[0][i])
+
+    var bleh = function(myI) {
+      return function(d) { return Packetloop.MultipleTimeSeries.h - lotsOfY[myI](d.y) }
+    }
+    var bleh2 = function(myI) {
+      return function(d) { return lotsOfY[myI](d.y) }
+    }
+
+    // d3.selectAll('path').each(function(d, i) {
+    //   d3.select(this)
+    //     .data([chartData[i]])
+    //   .transition()
+    //     .duration(500)
+    //     .attr('d', area(y))
+    // })
+
+    svg.selectAll('rect.bar')
       .data(chartData[i])
     .transition()
       .duration(500)
-      .attr('height', function(d) { return Packetloop.MultipleTimeSeries.h - y(d.y) })
-      .attr('y', function(d) { return y(d.y) })
-  })
-
-  d3.selectAll('.ytick').each(function(d, i) {
-    d3.select(this)
-    .transition()
-      .duration(0)
-      .text(y.domain()[1])
-  })
+      .attr('height', bleh(i))
+      .attr('y', bleh2(i))
+  }
 }
 

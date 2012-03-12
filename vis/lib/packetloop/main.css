@@ -126,14 +126,19 @@ a { color: #821122; }
 	font-weight: bold;
 }
 .ticklabel { font-size: 0.85em; fill: #888; }
+
 .chart {
     float: left;
-    padding: 16px;
-    border-left: 1px dotted #e2e2e2;
-    border-top: 1px dotted #e2e2e2;
+    display: block;
+    width: 320px;
+    height: 150px;
+    padding: 20px;
+    border-right: 1px dotted #e2e2e2;
+    border-bottom: 1px dotted #e2e2e2;
 }
-.chart.noborder { border-left: none; padding-left: 0; margin-left: 16px; }
-.chart.endrow { padding-right: 0; }
+.chart.endrow {
+}
+
 .rule line {
   stroke: #eee;
   shape-rendering: crispEdges;
