@@ -22,6 +22,12 @@ public class Country extends EvalFunc<String> {
         }
     }
 
+    public List<String> getCacheFiles() {
+        List<String> s = new ArrayList<String>();
+        s.add("hdfs:///packetpig/GeoIP.dat#GeoIP.dat");
+        return s;
+    }
+
     @Override
     public String exec(Tuple input) throws ExecException {
         return cl.getCountry((String)input.get(0)).getCode();

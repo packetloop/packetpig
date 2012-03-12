@@ -5,18 +5,16 @@ RUN $prefix/include.pig;
 %DEFAULT field 'user-agent'
 --%DEFAULT field 'set-cookie'
 
-http_conversations = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.protocol.HTTPConversationLoader('$field') AS
-    (
-        ts:long,
-        src:chararray,
-        sport:int,
-        dst:chararray,
-        dport:int,
-        field:chararray
-    );
+http_conversations = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.protocol.HTTPConversationLoader('$field') AS (
+    ts:long,
+    src:chararray,
+    sport:int,
+    dst:chararray,
+    dport:int,
+    field:chararray
+);
 
-
---Get the number of distinct fields's
+--Get the number of distinct fields
 all_field = group http_conversations by field; 
 
 uniq_all = foreach all_field {
