@@ -91,7 +91,7 @@ Packetloop.MultipleTimeSeries.create = function(rows) {
   // sort the Packetloop.MultipleTimeSeries.data into Packetloop.MultipleTimeSeries.data[filter][cat] = [{x:, y:}] while keeping track of
   // a list of filters and Packetloop.MultipleTimeSeries.categories
   var cscale = d3.scale.category10()
-  for (var i = 1; i < rows.length; i++) {
+  for (var i = 0; i < rows.length; i++) {
 
     var row = rows[i]
     var filter = row[0]
