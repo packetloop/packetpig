@@ -3,6 +3,7 @@ package com.packetloop.packetpig.loaders.pcap.protocol;
 import com.packetloop.packetpig.loaders.pcap.StreamingPcapRecordReader;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.pig.data.Tuple;
 import org.apache.pig.data.TupleFactory;
 
 import java.io.BufferedReader;
@@ -27,6 +28,7 @@ public class HTTPConversationRecordReader extends StreamingPcapRecordReader {
     @Override
     public boolean nextKeyValue() throws IOException, InterruptedException {
         String line;
+        boolean allFields = field == null || field.isEmpty();
 
         while ((line = reader.readLine()) != null) {
             String parts[] = line.split("\t");
@@ -38,12 +40,25 @@ public class HTTPConversationRecordReader extends StreamingPcapRecordReader {
             for (i = 1; i < 5; i++)
                 tuple.append(parts[i]);
 
-            while (i > 0 && i < parts.length) {
-                if (parts[i].equals(field)) {
+            Tuple fields = null;
+            if (allFields) {
+                tuple.append(parts[i++]);
+                fields = TupleFactory.getInstance().newTuple();
+            }
+
+            while (i > 0 && i < parts.length - 1) {
+                if (allFields) {
+                    fields.append(parts[i + 1]);
+                } else if (parts[i].equals(field)) {
                     tuple.append(parts[i + 1]);
                     return true;
                 }
                 i++;
+            }
+
+            if (allFields) {
+                tuple.append(fields);
+                return true;
             }
         }
 
