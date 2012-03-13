@@ -43,12 +43,20 @@ public abstract class StreamingPcapRecordReader extends PcapRecordReader {
         ProcessBuilder builder = new ProcessBuilder(cmd.split(" "));
         process = builder.start();
 
+        // fuck stderr off
+        ignore(process.getErrorStream());
+
         // pipe from pcap stream into snort
         PcapStreamWriter writer = new PcapStreamWriter(config, process, fsdis);
         thread = new Thread(writer);
         thread.start();
 
         out.delete();
+    }
+
+    protected void ignore(InputStream errorStream) {
+        StreamSink sink = new StreamSink(errorStream);
+        new Thread(sink).start();
     }
 
     @Override
