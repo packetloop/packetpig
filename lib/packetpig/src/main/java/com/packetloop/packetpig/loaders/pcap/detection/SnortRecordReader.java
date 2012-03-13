@@ -6,10 +6,7 @@ import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.pig.data.TupleFactory;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -32,10 +29,19 @@ public class SnortRecordReader extends StreamingPcapRecordReader {
         logDir.delete();
         logDir.mkdir();
 
-        reader = streamingProcess("snort -q -c " + configFile + " -A fast -y -l " + logDir + " -r -", path, false);
+        streamingProcess("snort -q -c " + configFile + " -A fast -y -l " + logDir + " -r -", path, false);
 
-        File logFile = new File(logDir.getPath() + File.separatorChar + "alert");
-        reader = new BufferedReader(new FileReader(logFile));
+        while (true) {
+            try {
+                File logFile = new File(logDir.getPath() + File.separatorChar + "alert");
+                if (logFile.length() == 0)
+                    throw new FileNotFoundException();
+                reader = new BufferedReader(new FileReader(logFile));
+                break;
+            } catch (FileNotFoundException ignored) {
+                Thread.sleep(100);
+            }
+        }
 
         for (File f : logDir.listFiles())
             f.delete();
@@ -45,7 +51,16 @@ public class SnortRecordReader extends StreamingPcapRecordReader {
 
     @Override
     public boolean nextKeyValue() throws IOException, InterruptedException {
-        String line = reader.readLine();
+        String line = null;
+
+        while (line == null && thread.isAlive()) {
+            try {
+                line = reader.readLine();
+            } catch (IOException ignored) {
+                return false;
+            }
+        }
+
         if (line == null)
             return false;
 

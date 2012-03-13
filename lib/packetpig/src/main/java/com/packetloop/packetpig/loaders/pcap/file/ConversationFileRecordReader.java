@@ -1,22 +1,21 @@
 package com.packetloop.packetpig.loaders.pcap.file;
 
 import com.packetloop.packetpig.loaders.pcap.conversation.ConversationRecordReader;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.pig.data.TupleFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 public class ConversationFileRecordReader extends ConversationRecordReader {
     private String fileDumpPath;
     private boolean shouldDump;
-    private FileSystem fs;
     private String filter;
+    private FileSystem fs;
 
     public ConversationFileRecordReader(String pathToTcp, String fileDumpPath, String filter) {
         super(pathToTcp);
@@ -28,15 +27,10 @@ public class ConversationFileRecordReader extends ConversationRecordReader {
     public void initialize(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
         super.initialize(split, context);
 
-        File out = File.createTempFile("prefix", "suffix");
-        Configuration config = context.getConfiguration();
-        FileSystem dfs = FileSystem.get(config);
-        FSDataInputStream fsdis = dfs.open(new Path(path));
-
         fs = FileSystem.get(context.getConfiguration());
         shouldDump = fileDumpPath != null && fileDumpPath.isEmpty() == false;
 
-        String cmd = pathToTcp + " -of tsv -om http_body -r /dev/stdin -o " + out.getPath();
+        String cmd = pathToTcp + " -of tsv -om http_body -r /dev/stdin ";
 
         if (filter != null && !filter.isEmpty())
             cmd += " -i " + filter;
@@ -44,15 +38,10 @@ public class ConversationFileRecordReader extends ConversationRecordReader {
         if (shouldDump)
             cmd += " -xf";
 
-        System.err.println(cmd);
-        ProcessBuilder builder = new ProcessBuilder(cmd.split(" "));
-        Process process = builder.start();
+        cmd += " -o ";
 
-        OutputStream os = process.getOutputStream();
-        IOUtils.copyBytes(fsdis, os, config);  // pipe from pcap stream into snort
-
-        reader = new BufferedReader(new FileReader(out));
-        out.delete();
+        streamingProcess(cmd, path, true);
+        reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
     }
 
     @Override

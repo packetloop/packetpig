@@ -10,6 +10,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -27,7 +28,8 @@ public class DNSConversationRecordReader extends StreamingPcapRecordReader {
     public void initialize(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
         super.initialize(split, context);
         tupleQueue = new ArrayList<Tuple>();
-        reader = streamingProcess(pathToDns + " -r /dev/stdin -o ", path, true);
+        streamingProcess(pathToDns + " -r /dev/stdin ", path, false);
+        reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
     }
 
     private boolean getNextTuple() {

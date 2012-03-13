@@ -34,7 +34,7 @@ class StreamProcess:
         ap.add_argument('-of', dest='output_format', default='json',
             help='json or tsv')
         ap.add_argument('-om', dest='output_mode', default='base',
-            help='base, http_headers, http_body')
+            help='base, http_headers, http_body, http_requests')
         ap.add_argument('-xf', dest='extract_files', default=False,
             action='store_true')
         ap.add_argument('-i', dest='mime_type', default=None)
@@ -157,7 +157,27 @@ class StreamHandler:
 
                 return
 
-            print >> self.config.output, '\t'.join(base)
+            if self.config.output_mode == 'http_requests':
+                HttpRequestEmitter(self.config).emit(base, out)
+                return
+
+            #print >> self.config.output, '\t'.join(base)
+
+
+class HttpRequestEmitter:
+
+    VERBS = 'get put post delete head http/1.0 http/1.1'.split()
+
+    def __init__(self, config):
+        self.config = config
+
+    def emit(self, base, out):
+        for offset, convo in enumerate(out['http']):
+            split = convo['status'].split()
+            if len(split) > 1 and split[0].lower() in self.VERBS:
+                if convo['direction'] == 's':
+                    del convo['payload']
+                    print >> self.config.output, json.dumps(convo, ensure_ascii=False)
 
 
 class HttpBodyDumpEmitter:

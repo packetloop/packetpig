@@ -7,6 +7,7 @@ import org.apache.pig.data.TupleFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 public class HTTPConversationRecordReader extends StreamingPcapRecordReader {
     protected BufferedReader reader;
@@ -21,7 +22,8 @@ public class HTTPConversationRecordReader extends StreamingPcapRecordReader {
     @Override
     public void initialize(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
         super.initialize(split, context);
-        reader = streamingProcess(pathToTcp + " -r /dev/stdin -om http_headers -of tsv -o ", path, true);
+        streamingProcess(pathToTcp + " -r /dev/stdin -om http_headers -of tsv -o ", path, true);
+        reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
     }
 
     @Override

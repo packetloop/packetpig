@@ -10,6 +10,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Iterator;
 
 public class ConversationRecordReader extends StreamingPcapRecordReader {
@@ -24,7 +25,8 @@ public class ConversationRecordReader extends StreamingPcapRecordReader {
     @Override
     public void initialize(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
         super.initialize(split, context);
-        reader = streamingProcess(pathToTcp + " -r /dev/stdin -o ", path, true);
+        streamingProcess(pathToTcp + " -r /dev/stdin -o ", path, true);
+        reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
     }
 
     @Override
