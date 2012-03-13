@@ -20,7 +20,9 @@ streams =
     md5:chararray,
     sha1:chararray,
     sha256:chararray,
-    size:long
+    size:long,
+    path:chararray,
+    name:chararray
   );
 
 STORE streams INTO 'output/extract_files';

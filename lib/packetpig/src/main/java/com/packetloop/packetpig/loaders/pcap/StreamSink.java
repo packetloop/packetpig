@@ -14,7 +14,9 @@ public class StreamSink implements Runnable {
     public void run() {
         while (true) {
             try {
-                System.err.print(stream.read());
+                byte[] msg = new byte[stream.available()];
+                stream.read(msg);
+                System.err.print(new String(msg));
             } catch (IOException ignored) {
             }
         }

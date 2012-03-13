@@ -28,19 +28,17 @@ public class ConversationFileRecordReader extends ConversationRecordReader {
         super.initialize(split, context);
 
         fs = FileSystem.get(context.getConfiguration());
-        shouldDump = fileDumpPath != null && fileDumpPath.isEmpty() == false;
+        shouldDump = fileDumpPath != null && !fileDumpPath.isEmpty();
 
         String cmd = pathToTcp + " -of tsv -om http_body -r /dev/stdin ";
 
         if (filter != null && !filter.isEmpty())
-            cmd += " -i " + filter;
+            cmd += "-i " + filter;
 
         if (shouldDump)
-            cmd += " -xf";
+            cmd += "-xf ";
 
-        cmd += " -o ";
-
-        streamingProcess(cmd, path, true);
+        streamingProcess(cmd, path, false);
         reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
     }
 
@@ -65,6 +63,8 @@ public class ConversationFileRecordReader extends ConversationRecordReader {
             String inferredFilename = bits[13];
             String dst = bits[10] + inferredFilename + bits[7];
             fs.moveFromLocalFile(new Path(tempFile), new Path(fileDumpPath, dst));
+            tuple.append(inferredFilename);
+            tuple.append(dst);
         }
 
         return true;
