@@ -6,7 +6,6 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.regex.Matcher;
@@ -20,8 +19,7 @@ public class FingerprintRecordReader extends StreamingPcapRecordReader {
     @Override
     public void initialize(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
         super.initialize(split, context);
-        streamingProcess("p0f -r /dev/stdin", path, false);
-        reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        reader = streamingProcess("p0f -r /dev/stdin", path);
     }
 
     @Override

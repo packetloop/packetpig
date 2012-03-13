@@ -7,9 +7,7 @@ import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.pig.data.TupleFactory;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 public class ConversationFileRecordReader extends ConversationRecordReader {
     private String fileDumpPath;
@@ -38,8 +36,7 @@ public class ConversationFileRecordReader extends ConversationRecordReader {
         if (shouldDump)
             cmd += "-xf ";
 
-        streamingProcess(cmd, path, false);
-        reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        reader = streamingProcess(cmd, path);
     }
 
     @Override

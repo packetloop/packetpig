@@ -25,9 +25,7 @@ public abstract class StreamingPcapRecordReader extends PcapRecordReader {
 
     // TODO use a fifo and thread the piping and reading
     // TODO report actual progress
-    protected void streamingProcess(String cmd, String path, boolean addOutput) throws IOException, InterruptedException {
-        File out = File.createTempFile("packetpig", "stream");
-
+    protected BufferedReader streamingProcess(String cmd, String path) throws IOException, InterruptedException {
         Configuration config = context.getConfiguration();
         FileSystem fs = FileSystem.get(config);
         Path dfsPath = new Path(path);
@@ -36,8 +34,14 @@ public abstract class StreamingPcapRecordReader extends PcapRecordReader {
         len = fs.getLength(dfsPath);
         pos = 0;
 
+        /*
+        File out = File.createTempFile("packetpig", "stream");
+
         if (addOutput)
             cmd += out.getPath();
+
+        out.delete();
+        */
 
         System.err.println("streaming " + path + " to " + cmd);
         ProcessBuilder builder = new ProcessBuilder(cmd.split(" "));
@@ -51,7 +55,7 @@ public abstract class StreamingPcapRecordReader extends PcapRecordReader {
         thread = new Thread(writer);
         thread.start();
 
-        out.delete();
+        return new BufferedReader(new InputStreamReader(process.getInputStream()));
     }
 
     protected void ignore(InputStream errorStream) {

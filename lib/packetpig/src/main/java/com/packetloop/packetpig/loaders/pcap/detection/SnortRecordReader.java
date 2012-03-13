@@ -29,7 +29,7 @@ public class SnortRecordReader extends StreamingPcapRecordReader {
         logDir.delete();
         logDir.mkdir();
 
-        streamingProcess("snort -q -c " + configFile + " -A fast -y -l " + logDir + " -r -", path, false);
+        streamingProcess("snort -q -c " + configFile + " -A fast -y -l " + logDir + " -r -", path);
 
         while (true) {
             try {
