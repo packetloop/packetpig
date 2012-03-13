@@ -72,7 +72,7 @@ public abstract class StreamingPcapRecordReader extends PcapRecordReader {
         }
 
         float progress = (float)pos / (float)len;
-        System.err.println(pos + " / " + len + " = " + progress);
+        System.err.println(progress);
         return progress;
     }
 }

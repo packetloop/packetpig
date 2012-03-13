@@ -18,7 +18,7 @@ def parse_args():
     parser.add_argument('-s', dest='snort_conf', default='lib/snort/etc/snort.conf')
     parser.add_argument('-t', dest='tcp_path', default='lib/scripts/tcp.py')
     parser.add_argument('-d', dest='dns_path', default='lib/scripts/dns_parser.py')
-    parser.add_argument('-n', dest='n', default='60')
+    parser.add_argument('-n', dest='n', default='1')
     return parser.parse_args()
 
 def prepend_hdfs_path(conf, path):

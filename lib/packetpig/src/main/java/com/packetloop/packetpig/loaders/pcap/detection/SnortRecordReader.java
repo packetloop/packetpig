@@ -17,6 +17,8 @@ public class SnortRecordReader extends StreamingPcapRecordReader {
     private BufferedReader reader;
     private String configFile;
 
+    private File logDir;
+
     public SnortRecordReader(String configFile) {
         this.configFile = configFile;
     }
@@ -25,7 +27,7 @@ public class SnortRecordReader extends StreamingPcapRecordReader {
     public void initialize(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
         super.initialize(split, context);
 
-        File logDir = File.createTempFile("prefix", "suffix");
+        logDir = File.createTempFile("prefix", "suffix");
         logDir.delete();
         logDir.mkdir();
 
@@ -42,27 +44,22 @@ public class SnortRecordReader extends StreamingPcapRecordReader {
                 Thread.sleep(100);
             }
         }
-
-        for (File f : logDir.listFiles())
-            f.delete();
-
-        logDir.delete();
     }
 
     @Override
     public boolean nextKeyValue() throws IOException, InterruptedException {
         String line = null;
 
-        while (line == null && thread.isAlive()) {
+        while (line == null) {
             try {
                 line = reader.readLine();
             } catch (IOException ignored) {
                 return false;
             }
-        }
 
-        if (line == null)
-            return false;
+            if (line == null && !thread.isAlive())
+                return false;
+        }
 
         // 11/30/11-20:23:31.674725  [**] [120:3:1] (http_inspect) NO CONTENT-LENGTH OR TRANSFER-ENCODING IN HTTP RESPONSE
         // [**] [Priority: 3] {TCP} 74.125.237.123:80 -> 192.168.0.19:42514
@@ -131,6 +128,12 @@ public class SnortRecordReader extends StreamingPcapRecordReader {
     @Override
     public void close() throws IOException {
         super.close();
+
+        for (File f : logDir.listFiles())
+            f.delete();
+
+        logDir.delete();
+
         reader.close();
     }
 }
