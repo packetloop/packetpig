@@ -47,7 +47,7 @@ snort_all = GROUP snort_alerts
 snort_all = FOREACH snort_all
   GENERATE
     FLATTEN(group),
-    COUNT(snort_all.ts) as attacks;
+    COUNT(snort_alerts.ts) as attacks;
 
 snort_all = FOREACH snort_all
   GENERATE
