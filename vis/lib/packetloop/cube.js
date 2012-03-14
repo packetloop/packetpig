@@ -28,7 +28,6 @@ Packetloop.Cube.prototype.init = function(container)
   this.controls.noPan = false;
   this.controls.staticMoving = true;
   this.controls.dynamicDampingFactor = 0.3;
-
 }
 
 Packetloop.Cube.prototype.animate = function()
@@ -84,12 +83,23 @@ Packetloop.Cube.prototype.createCubes = function(data)
 
 Packetloop.Cube.prototype.addCube = function(data)
 {
-  var s = 1.0
+  var s = 0.5
   var geometry = new THREE.CubeGeometry(s, s, s)
 
+  var color
+  var opac
+
+  if (data[3] == 0) {
+    color = 0
+    opac = 0.1
+  } else {
+    color = 0xFF0000
+    opac = data[3] / this.vmax + 0.3
+  }
+
   var material = new THREE.MeshBasicMaterial({
-    color: 0x10000 * parseInt(parseFloat(0xCC) * data[3] / this.vmax),
-    opacity: data[3] / this.vmax,
+    color: color,
+    opacity: opac,
     transparent: true,
   })
 
