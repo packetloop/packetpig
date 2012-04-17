@@ -14,6 +14,7 @@ visualisations in a browser quickly enough.
 
 Create a new apt source so that we can leverage the Cloudera
 distributions for Hadoop and Pig.
+
     sudo vi /etc/apt/sources.list.d/cloudera.list
 
 Add the following lines.
@@ -32,7 +33,7 @@ the dependencies.
 
 Once all the packages are installed the R packages for time series and
 plotting need to be installed.
-    sudo R
+  sudo R
     chooseCRANmirror()
     install.packages(c("zoo", "xts","ggplot2"))
 
