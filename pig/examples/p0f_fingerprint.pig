@@ -20,5 +20,6 @@ fingerprints = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.detectio
 
 fingerprint_freq = GROUP fingerprints BY os;
 summary = FOREACH fingerprint_freq GENERATE group, COUNT(fingerprints);
+dump fingerprints;
+--STORE summary INTO 'output/p0f_fingerprints';
 
-STORE summary INTO 'output/p0f_fingerprints';

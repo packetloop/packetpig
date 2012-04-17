@@ -16,7 +16,7 @@ Packetloop.Cube.prototype.init = function(container)
   this.scene = new THREE.Scene()
 
   this.camera = new THREE.PerspectiveCamera(45, w / h, 1, 10000)
-  this.camera.position.z = 100
+  this.camera.position.z = 50
   this.scene.add(this.camera)
 
   this.controls = new THREE.TrackballControls(this.camera)

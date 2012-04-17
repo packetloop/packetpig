@@ -12,5 +12,6 @@ dns = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.protocol.DNSConve
 	ttl:int
 );
 
-STORE dns INTO 'output/dns' USING PigStorage(',');
+DUMP dns;
+--STORE dns INTO 'output/dns' USING PigStorage(',');
 

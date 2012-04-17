@@ -3,7 +3,6 @@ RUN $prefix/include.pig;
 
 %DEFAULT time 60
 %DEFAULT field ''
---%DEFAULT field 'set-cookie'
 
 http = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.protocol.HTTPConversationLoader('$field') AS (
     ts:long,

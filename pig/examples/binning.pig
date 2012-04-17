@@ -1,7 +1,8 @@
 %DEFAULT includepath pig/include.pig
 RUN $includepath;
 
-%DEFAULT time 3600
+%DEFAULT time 60 
+--%DEFAULT time 3600
 
 packets = load '$pcap' using com.packetloop.packetpig.loaders.pcap.packet.PacketLoader() AS (
     ts,

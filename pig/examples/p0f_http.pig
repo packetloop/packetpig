@@ -41,5 +41,7 @@ joined = JOIN second_group by group, first_group by group;
 
 summary = FOREACH joined GENERATE FLATTEN(second_group::group), fingerprints.os, http_conversations.field;
 
-DUMP summary;
+--DUMP summary;
+
+STORE summary INTO 'output/p0f_http';
 
