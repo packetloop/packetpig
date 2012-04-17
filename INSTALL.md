@@ -1,0 +1,60 @@
+# Packetpig Installation Instructions
+
+## Note
+
+I will expand this guide over time starting with Ubuntu and then adding
+Mac OSX at some stage in the future.
+
+## Ubuntu 11.10 
+
+Start off with a basic Ubuntu 11.10 32bit or 64bit desktop build. You
+can obviously achieve the same results on Ubuntu Server however the
+desktop comes pre-installed with an X environment allowing you to view
+visualisations in a browser quickly enough.
+
+Create a new apt source so that we can leverage the Cloudera
+distributions for Hadoop and Pig.
+    sudo vi /etc/apt/sources.list.d/cloudera.list
+
+Add the following lines.
+    deb http://archive.cloudera.com/debian maverick-cdh3 contrib
+    deb-src http://archive.cloudera.com/debian maverick-cdh3 contrib
+
+And then add the Cloudera key.
+    sudo curl -s http://archive.cloudera.com/debian/archive.key | sudo apt-key add -
+
+Update the running system
+    sudo apt-get update
+
+Install all the required packages for the Packetpig platform and accept
+the dependencies.
+    sudo apt-get install hadoop-0.20 hadoop-pig git libnids-dev libnids1.21 python-nids chromium-browser libmagic-dev ipython p0f snort snort-rules-default r-base r-base-dev
+
+Once all the packages are installed the R packages for time series and
+plotting need to be installed.
+    sudo R
+    chooseCRANmirror()
+    install.packages(c("zoo", "xts","ggplot2"))
+
+Accept all defaults. You may get an error on ggplot2, I am working on it
+;)
+
+Pig and Hadoop require the JAVA_HOME environment variable to be set.
+    vi /etc/environment
+    JAVA_HOME=/usr/lib/jvm/java-6-openjdk/
+
+Now all the base software is installed we need to install the Packetpig
+platform.
+    cd ~/Documents
+    git clone https://github.com/packetloop/packetpig.git
+    cd packetpig
+    pig -x local -f pig/examples/binning.pig -param pcap=data/web.pcap
+
+This will result in something like this. 
+    2012-04-16 16:15:33,970 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - Success!
+
+You can confirm it has worked by.
+    more output/binning/part-r-00000
+    1322643600,171738,142808,338610
+
+# Mac OSX 10.7 (Lion)
