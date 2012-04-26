@@ -67,5 +67,61 @@ You can confirm it has worked by.
     more output/binning/part-r-00000
     1322643600,171738,142808,338610
 
-# Mac OSX 10.7 (Lion)
-To be completed. 
+## Mac OSX 10.7 (Lion)
+
+Before you start you need XCode installed or more specifically the XCode Command Line Tools. Within XCode Preferences there is a "Downloads" menu that allows you to install the command line tools.
+
+The next step is to make sure you have Java installed. I ran this command to check, if it doesn't find Java it prompts you to install it.
+
+    /usr/libexec/java_home --request
+
+After installing it you should set the JAVA_HOME environment variable using something like.
+
+    export JAVA_HOME=`/usr/libexec/java_home`
+
+The Homebrew package manager allows you to install most of the components required for Packetpig quickly and easily. To install Homebrew run this command.
+
+    /usr/bin/ruby -e "$(/usr/bin/curl -fksSL https://raw.github.com/mxcl/homebrew/master/Library/Contributions/install_homebrew.rb)"
+
+Once Homebrew is installed run the brew doctor and also the brew update command to make sure you have the latest brews.
+
+    brew doctor
+    brew update
+
+Once brew is working correctly you can install the bulk of the requirements for Packetpig.
+
+    brew install git hadoop pig libnids libmagic snort p0f wget
+
+For some of the Python modules you can't use Homebrew so I used the pip package mangaer.
+
+    sudo easy_install pip
+    sudo easy_install ipython
+
+Then lastly you need to install pynids from source.
+
+    wget http://jon.oberheide.org/pynids/downloads/pynids-0.6.1.tar.gz
+    tar -zxvf pynids-0.6.1.tar.gz
+    cd pynids-0.6.1
+    python setup.py build
+    sudo python setup.py install
+
+A good test to ensure that everything on the Python side is working is to clone the Packetpig repository and run the following commands from within the packetpig directory.
+
+    git clone https://github.com/packetloop/packetpig.git
+    cd packetpig
+    lib/scripts/tcp.py -r data/web.pcap -om http_headers -of tsv | less
+    lib/scripts/dns_parser.py -r data/web.pcap
+
+Both tcp.py and dns_parser.py should extract information out of data/web.pcap and display it to the screen. Now you are ready to run some Packetpig queries.
+
+    pig -x local -f pig/examples/binning.pig -param pcap=data/web.pcap
+
+This will result in something like this. 
+
+    2012-04-16 16:15:33,970 [main] INFO  org.apache.pig.backend.hadoop.executionengine.mapReduceLayer.MapReduceLauncher - Success!
+
+You can confirm it has worked by.
+
+    more output/binning/part-r-00000
+    1322643600,171738,142808,338610
+
