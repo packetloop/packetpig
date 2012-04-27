@@ -88,6 +88,10 @@ Once Homebrew is installed run the brew doctor and also the brew update command 
     brew doctor
     brew update
 
+After running brew doctor I received a warning "Your Xcode is configured with an invalid path" to fix it I entered
+
+    sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer/
+
 Once brew is working correctly you can install the bulk of the requirements for Packetpig.
 
     brew install git hadoop pig libnids libmagic snort p0f wget
@@ -125,3 +129,4 @@ You can confirm it has worked by.
     more output/binning/part-r-00000
     1322643600,171738,142808,338610
 
+For some of the visualisations you will want R and RStudio installed. Install the Mac OSX package for R at http://cran.us.r-project.org/ and the RStudio package from http://rstudio.org. Once you have R or RStudio installed you can manually install the 'zoo', 'xts' and 'ggplot2' packages.
