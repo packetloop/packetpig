@@ -10,6 +10,7 @@ import org.krakenapps.pcap.util.ByteOrderConverter;
 import org.krakenapps.pcap.util.ChainBuffer;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 public class PcapFSDataInputStream implements PcapInputStream {
@@ -18,7 +19,7 @@ public class PcapFSDataInputStream implements PcapInputStream {
     private long length;
     private int offset;
 
-    public PcapFSDataInputStream(FSDataInputStream data, long length) throws IOException {
+    public PcapFSDataInputStream(InputStream data, long length) throws IOException {
         is = new FSDataInputStream(data);
         globalHeader = readGlobalHeader();
         this.length = length;
