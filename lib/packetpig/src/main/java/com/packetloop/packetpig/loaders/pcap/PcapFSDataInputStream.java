@@ -1,6 +1,10 @@
 package com.packetloop.packetpig.loaders.pcap;
 
-import org.apache.hadoop.fs.FSDataInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+
 import org.krakenapps.pcap.PcapInputStream;
 import org.krakenapps.pcap.file.GlobalHeader;
 import org.krakenapps.pcap.packet.PacketHeader;
@@ -9,18 +13,14 @@ import org.krakenapps.pcap.util.Buffer;
 import org.krakenapps.pcap.util.ByteOrderConverter;
 import org.krakenapps.pcap.util.ChainBuffer;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-
 public class PcapFSDataInputStream implements PcapInputStream {
     private GlobalHeader globalHeader;
-    private FSDataInputStream is;
+    private DataInputStream is;
     private long length;
     private int offset;
 
     public PcapFSDataInputStream(InputStream data, long length) throws IOException {
-        is = new FSDataInputStream(data);
+        is = new DataInputStream(data);
         globalHeader = readGlobalHeader();
         this.length = length;
         this.offset = 0;
