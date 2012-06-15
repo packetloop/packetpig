@@ -1,21 +1,23 @@
 package com.packetloop.packetpig.loaders.pcap;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.zip.GZIPInputStream;
+
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.compress.bzip2.CBZip2InputStream;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
-
-import java.io.*;
 
 public abstract class StreamingPcapRecordReader extends PcapRecordReader {
     private TaskAttemptContext context;
     protected Thread thread;
     protected Process process;
-    private long pos;
-    private long len;
-    private FSDataInputStream fsdis;
+    private InputStream is;
 
     public void initialize(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
         super.initialize(split, context);
@@ -30,9 +32,16 @@ public abstract class StreamingPcapRecordReader extends PcapRecordReader {
         FileSystem fs = FileSystem.get(config);
         Path dfsPath = new Path(path);
 
-        fsdis = fs.open(dfsPath);
-        len = fs.getLength(dfsPath);
-        pos = 0;
+        is = fs.open(dfsPath);
+        String name = dfsPath.getName().toLowerCase();
+        if(name.endsWith(".gz"))
+        {
+        	is = new GZIPInputStream(is);
+        }
+        else if(name.endsWith(".bz") || name.endsWith(".bz2"))
+        {
+        	is = new CBZip2InputStream(is);
+        }
 
         /*
         File out = File.createTempFile("packetpig", "stream");
@@ -51,7 +60,7 @@ public abstract class StreamingPcapRecordReader extends PcapRecordReader {
         ignore(process.getErrorStream());
 
         // pipe from pcap stream into snort
-        PcapStreamWriter writer = new PcapStreamWriter(config, process, fsdis);
+        PcapStreamWriter writer = new PcapStreamWriter(config, process, is);
         thread = new Thread(writer);
         thread.start();
 
@@ -65,15 +74,7 @@ public abstract class StreamingPcapRecordReader extends PcapRecordReader {
 
     @Override
     public float getProgress() {
-        try {
-            pos = fsdis.getPos();
-        } catch (IOException ignored) {
-            pos = 0;
-        }
-
-        float progress = (float)pos / (float)len;
-        System.err.println(progress);
-        return progress;
+    	return 0.0f;
     }
 }
 
