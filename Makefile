@@ -5,7 +5,7 @@ PIG_JAR=lib/packetpig.jar
 all: $(PIG_JAR) spam_deletion
 
 $(PIG_JAR): $(SRCS)
-	cd lib/packetpig && mvn compile package && cp target/packetpig-*.jar ../../$(PIG_JAR)
+	cd lib/packetpig && mvn compile package && cp target/packetpig-*-with-dependencies.jar ../../$(PIG_JAR)
 
 spam_deletion:
 	@rm -f pig_*.log
