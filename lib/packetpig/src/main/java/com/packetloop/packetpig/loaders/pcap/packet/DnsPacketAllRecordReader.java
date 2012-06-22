@@ -140,9 +140,9 @@ public class DnsPacketAllRecordReader extends PcapRecordReader {
                 	t.set(i++, null);
                 }
                 t.set(i++, rec.getTTL()); // qttl
-                tupleQueue.add(t);
                 t.set(i++, srcIP);
                 t.set(i++, dstIP);
+                tupleQueue.add(t);
             }
             
             clear();
