@@ -155,12 +155,12 @@ public class DnsPacketAllRecordReader extends PcapRecordReader {
                 else if (rec instanceof TXTRecord){
                 	t.set(i++, ((TXTRecord)rec).getStrings().toString());
                 }
-//                else if (rec instanceof SRVRecord){
-//                	t.set(i++, ((SRVRecord)rec).getTarget().toString());
-//                }
-//                else if (rec instanceof AFSDBRecord){
-//                	t.set(i++, ((AFSDBRecord)rec).getName().toString());
-//                }
+                else if (rec instanceof SRVRecord){
+                	t.set(i++, ((SRVRecord)rec).getTarget().toString());
+                }
+                else if (rec instanceof AFSDBRecord){
+                	t.set(i++, ((AFSDBRecord)rec).getName().toString());
+                }
                 else {
                 	t.set(i++, null);
                 }
