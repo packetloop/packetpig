@@ -9,7 +9,8 @@ lib/packetpig/target
 lib/packetpig/.idea/workspace.xml
 *.tsv
 *.csv
-
+*.classpath
+*.project
 README.html
 tmp
 
