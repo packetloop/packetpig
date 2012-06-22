@@ -19,12 +19,16 @@ import org.krakenapps.pcap.decoder.udp.UdpProcessor;
 import org.krakenapps.pcap.packet.PcapPacket;
 import org.krakenapps.pcap.util.Buffer;
 import org.xbill.DNS.AAAARecord;
+import org.xbill.DNS.AFSDBRecord;
 import org.xbill.DNS.ARecord;
 import org.xbill.DNS.Flags;
 import org.xbill.DNS.MXRecord;
 import org.xbill.DNS.Message;
+import org.xbill.DNS.PTRRecord;
 import org.xbill.DNS.Record;
+import org.xbill.DNS.SRVRecord;
 import org.xbill.DNS.Section;
+import org.xbill.DNS.TXTRecord;
 
 import com.packetloop.packetpig.loaders.pcap.PcapRecordReader;
 
@@ -144,6 +148,18 @@ public class DnsPacketAllRecordReader extends PcapRecordReader {
                 	t.set(i++, ((AAAARecord)rec).getAddress().getHostAddress());
                 } else if (rec instanceof MXRecord) {
                 	t.set(i++, ((MXRecord)rec).getTarget().toString());
+                }
+                else if (rec instanceof PTRRecord){
+                	t.set(i++, ((PTRRecord)rec).getTarget().toString());
+                }
+                else if (rec instanceof TXTRecord){
+                	t.set(i++, ((TXTRecord)rec).getStrings());
+                }
+                else if (rec instanceof SRVRecord){
+                	t.set(i++, ((SRVRecord)rec).getTarget().toString());
+                }
+                else if (rec instanceof AFSDBRecord){
+                	t.set(i++, ((AFSDBRecord)rec).getName().toString());
                 }
                 else {
                 	t.set(i++, null);
