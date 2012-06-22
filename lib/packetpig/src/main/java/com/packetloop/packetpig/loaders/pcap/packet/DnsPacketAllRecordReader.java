@@ -21,6 +21,7 @@ import org.krakenapps.pcap.util.Buffer;
 import org.xbill.DNS.AAAARecord;
 import org.xbill.DNS.ARecord;
 import org.xbill.DNS.Flags;
+import org.xbill.DNS.MXRecord;
 import org.xbill.DNS.Message;
 import org.xbill.DNS.Record;
 import org.xbill.DNS.Section;
@@ -139,8 +140,10 @@ public class DnsPacketAllRecordReader extends PcapRecordReader {
                 
                 if (rec instanceof ARecord) {
 					t.set(i++, ((ARecord)rec).getAddress().getHostAddress()); // answer.ip OR null
-				} else if (rec instanceof AAAARecord){
+				} else if (rec instanceof AAAARecord) {
                 	t.set(i++, ((AAAARecord)rec).getAddress().getHostAddress());
+                } else if (rec instanceof MXRecord) {
+                	t.set(i++, ((MXRecord)rec).getTarget());
                 }
                 else {
                 	t.set(i++, null);
