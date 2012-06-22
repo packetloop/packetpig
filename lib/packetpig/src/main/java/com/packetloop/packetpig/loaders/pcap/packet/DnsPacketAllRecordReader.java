@@ -115,7 +115,7 @@ public class DnsPacketAllRecordReader extends PcapRecordReader {
             for(Record rec : dns.getSectionArray(Section.QUESTION))
             {
             	int i = 0;
-            	Tuple t = TupleFactory.getInstance().newTuple(7);
+            	Tuple t = TupleFactory.getInstance().newTuple(9);
             	t.set(i++, id); // transaction id
                 t.set(i++, mode); // mode ('query' or 'response')
                 t.set(i++, rec.getName().toString()); // qname
@@ -123,13 +123,15 @@ public class DnsPacketAllRecordReader extends PcapRecordReader {
                 t.set(i++, 0); // qttl
                 t.set(i++, srcIP);
                 t.set(i++, dstIP);
+                t.set(i++, rec.getDClass());
+                t.set(i++, rec.getTTL());
                 tupleQueue.add(t);
             }
             
             for(Record rec : dns.getSectionArray(Section.ANSWER))
             {	
             	int i = 0;
-            	Tuple t = TupleFactory.getInstance().newTuple(7);
+            	Tuple t = TupleFactory.getInstance().newTuple(9);
                 t.set(i++, id); // transaction id
                 t.set(i++, mode); // mode ('query' or 'response')
                 t.set(i++, rec.getName().toString()); // qname
@@ -142,6 +144,8 @@ public class DnsPacketAllRecordReader extends PcapRecordReader {
                 t.set(i++, rec.getTTL()); // qttl
                 t.set(i++, srcIP);
                 t.set(i++, dstIP);
+                t.set(i++, rec.getDClass());
+                t.set(i++, rec.getTTL());
                 tupleQueue.add(t);
             }
             
