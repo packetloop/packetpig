@@ -6,8 +6,10 @@ dns = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.packet.DnsPacketL
 	id:long,
 	mode:chararray,
 	name:chararray,
-    addr:chararray,
-	ttl:int
+    	addr:chararray,
+	ttl:int,
+	srcIP:chararray,
+	dstIP:chararray
 );
 
 DUMP dns;
