@@ -18,6 +18,7 @@ import org.krakenapps.pcap.decoder.udp.UdpPortProtocolMapper;
 import org.krakenapps.pcap.decoder.udp.UdpProcessor;
 import org.krakenapps.pcap.packet.PcapPacket;
 import org.krakenapps.pcap.util.Buffer;
+import org.xbill.DNS.AAAARecord;
 import org.xbill.DNS.ARecord;
 import org.xbill.DNS.Flags;
 import org.xbill.DNS.Message;
@@ -138,7 +139,10 @@ public class DnsPacketAllRecordReader extends PcapRecordReader {
                 
                 if (rec instanceof ARecord) {
 					t.set(i++, ((ARecord)rec).getAddress().getHostAddress()); // answer.ip OR null
-				}else {
+				} else if (rec instanceof AAAARecord){
+                	t.set(i++, ((AAAARecord)rec).getAddress().getHostAddress());
+                }
+                else {
                 	t.set(i++, null);
                 }
                 t.set(i++, rec.getTTL()); // qttl
