@@ -110,7 +110,7 @@ public class DnsPacketAllRecordReader extends PcapRecordReader {
             key = new Date(ts).getTime() / 1000;
             
             int id = dns.getHeader().getID();
-            String mode = dns.getHeader().getFlag(Flags.QR)?"question":"response";
+            String mode = dns.getHeader().getFlag(Flags.QR)?"response":"question";
             
             for(Record rec : dns.getSectionArray(Section.QUESTION))
             {
