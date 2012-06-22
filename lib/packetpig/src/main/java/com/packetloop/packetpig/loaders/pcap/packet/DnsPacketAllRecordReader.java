@@ -143,7 +143,7 @@ public class DnsPacketAllRecordReader extends PcapRecordReader {
 				} else if (rec instanceof AAAARecord) {
                 	t.set(i++, ((AAAARecord)rec).getAddress().getHostAddress());
                 } else if (rec instanceof MXRecord) {
-                	t.set(i++, ((MXRecord)rec).getTarget());
+                	t.set(i++, ((MXRecord)rec).getTarget().toString());
                 }
                 else {
                 	t.set(i++, null);
