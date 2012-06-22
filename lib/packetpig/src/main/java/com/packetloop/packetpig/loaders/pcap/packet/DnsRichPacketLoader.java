@@ -19,7 +19,7 @@ public class DnsRichPacketLoader extends PcapLoader {
         return new FileInputFormat<Long, Tuple>() {
             @Override
             public RecordReader<Long, Tuple> createRecordReader(InputSplit split, TaskAttemptContext context) {
-                return new DnsPacketRichRecordReader();
+                return new DnsRichPacketRecordReader();
             }
         };
     }
