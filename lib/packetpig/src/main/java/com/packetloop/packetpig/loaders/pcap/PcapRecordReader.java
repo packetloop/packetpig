@@ -4,6 +4,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.compress.bzip2.CBZip2InputStream;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
@@ -15,6 +16,7 @@ import org.krakenapps.pcap.file.PcapFileInputStream;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.zip.GZIPInputStream;
 
 public abstract class PcapRecordReader extends RecordReader<Long, Tuple> {
     protected long key;
@@ -40,7 +42,19 @@ public abstract class PcapRecordReader extends RecordReader<Long, Tuple> {
             FileSystem fs = FileSystem.get(config);
             FSDataInputStream fsdis = fs.open(p);
             path = p.toString();
-            is = new PcapFSDataInputStream(fsdis, fs.getLength(p));
+            
+            if(path.endsWith(".gz"))
+            {
+            	is = new PcapFSDataInputStream(new GZIPInputStream(fsdis), fs.getLength(p));
+            }
+            else if(path.endsWith(".bz") || path.endsWith(".bz2"))
+            {
+            	is = new PcapFSDataInputStream(new CBZip2InputStream(fsdis), fs.getLength(p));
+            }
+            else
+            {
+            	is = new PcapFSDataInputStream(fsdis, fs.getLength(p));
+            }
         }
     }
 
