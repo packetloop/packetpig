@@ -11,9 +11,7 @@ import org.apache.pig.data.Tuple;
 import java.io.IOException;
 
 public class DnsPacketLoader extends PcapLoader {
-	
-	public DnsPacketLoader(){}
-	
+
     @Override
     public InputFormat getInputFormat() throws IOException {
         return new FileInputFormat<Long, Tuple>() {

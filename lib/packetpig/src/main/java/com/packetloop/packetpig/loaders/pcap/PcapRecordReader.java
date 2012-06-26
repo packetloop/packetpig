@@ -42,18 +42,13 @@ public abstract class PcapRecordReader extends RecordReader<Long, Tuple> {
             FileSystem fs = FileSystem.get(config);
             FSDataInputStream fsdis = fs.open(p);
             path = p.toString();
-            
-            if(path.endsWith(".gz"))
-            {
-            	is = new PcapFSDataInputStream(new GZIPInputStream(fsdis), fs.getLength(p));
-            }
-            else if(path.endsWith(".bz") || path.endsWith(".bz2"))
-            {
-            	is = new PcapFSDataInputStream(new CBZip2InputStream(fsdis), fs.getLength(p));
-            }
-            else
-            {
-            	is = new PcapFSDataInputStream(fsdis, fs.getLength(p));
+
+            if (path.endsWith(".gz")) {
+                is = new PcapFSDataInputStream(new GZIPInputStream(fsdis), fs.getLength(p));
+            } else if (path.endsWith(".bz") || path.endsWith(".bz2")) {
+                is = new PcapFSDataInputStream(new CBZip2InputStream(fsdis), fs.getLength(p));
+            } else {
+                is = new PcapFSDataInputStream(fsdis, fs.getLength(p));
             }
         }
     }

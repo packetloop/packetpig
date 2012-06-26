@@ -55,6 +55,7 @@
     <orderEntry type="library" name="Maven: commons-beanutils:commons-beanutils-core:1.8.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.axis:axis:1.4" level="project" />
     <orderEntry type="library" name="Maven: commons-discovery:commons-discovery:20040218.194635" level="project" />
+    <orderEntry type="library" name="Maven: dnsjava:dnsjava:2.0.6" level="project" />
   </component>
 </module>
 

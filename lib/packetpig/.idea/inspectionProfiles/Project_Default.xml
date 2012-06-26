@@ -262,7 +262,6 @@
       <option name="ignoreCollectionLoops" value="false" />
     </inspection_tool>
     <inspection_tool class="GrFieldAlreadyDefined" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="GroovyAccessToStaticFieldLockedOnInstance" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="GroovyAnnotationNamingConvention" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="m_regex" value="[A-Z][A-Za-z\d]*" />
       <option name="m_minLength" value="8" />
@@ -284,19 +283,16 @@
     <inspection_tool class="GroovyConditional" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="GroovyConditionalCanBeConditionalCall" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="GroovyConditionalCanBeElvis" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="GroovyConditionalWithIdenticalBranches" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="GroovyConstantNamingConvention" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="m_regex" value="[A-Z\d]*" />
       <option name="m_minLength" value="4" />
       <option name="m_maxLength" value="32" />
     </inspection_tool>
-    <inspection_tool class="GroovyConstructorNamedArguments" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="GroovyContinue" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="GroovyContinueOrBreakFromFinallyBlock" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="GroovyDoubleCheckedLocking" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="ignoreOnVolatileVariables" value="false" />
     </inspection_tool>
-    <inspection_tool class="GroovyDuplicateSwitchBranch" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="GroovyEmptyCatchBlock" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="GroovyEmptyFinallyBlock" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="GroovyEmptySyncBlock" enabled="true" level="WARNING" enabled_by_default="true" />
@@ -307,7 +303,6 @@
       <option name="m_maxLength" value="64" />
     </inspection_tool>
     <inspection_tool class="GroovyGetterCallCanBePropertyAccess" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="GroovyIfStatementWithIdenticalBranches" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="GroovyIfStatementWithTooManyBranches" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="m_limit" value="3" />
     </inspection_tool>
@@ -391,18 +386,14 @@
       <option name="m_maxLength" value="32" />
     </inspection_tool>
     <inspection_tool class="GroovySwitchStatementWithNoDefault" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="GroovySynchronizationOnNonFinalField" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="GroovySynchronizationOnThis" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="GroovySynchronizationOnVariableInitializedWithLiteral" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="GroovySynchronizedMethod" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="GroovySystemRunFinalizersOnExit" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="GroovyThreadStopSuspendResume" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="GroovyThrowFromFinallyBlock" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="GroovyUnconditionalWait" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="GroovyUnresolvedAccess" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="GroovyUnsynchronizedMethodOverridesSynchronizedMethod" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="GroovyUntypedAccess" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="GroovyUnusedCatchParameter" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="GroovyWaitCallNotInLoop" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="GroovyWaitWhileNotSynchronized" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="GroovyWhileLoopSpinsOnField" enabled="true" level="WARNING" enabled_by_default="true">
@@ -782,7 +773,6 @@
     </inspection_tool>
     <inspection_tool class="StringBufferField" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="StringBufferMustHaveInitialCapacity" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="StringBufferReplaceableByString" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="StringBufferToStringInConcatenation" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="StringCompareTo" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="StringConcatenationInFormatCall" enabled="true" level="WARNING" enabled_by_default="true" />
@@ -851,6 +841,7 @@
     <inspection_tool class="TimeToString" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="TooBroadCatch" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="onlyWarnOnRootExceptions" value="false" />
+      <option name="ignoreInTestCode" value="false" />
     </inspection_tool>
     <inspection_tool class="TransientFieldInNonSerializableClass" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="TransientFieldNotInitialized" enabled="true" level="WARNING" enabled_by_default="true" />
