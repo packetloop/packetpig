@@ -1,20 +1,19 @@
 package com.packetloop.packetpig.loaders.pcap;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.io.IOUtils;
-
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.IOUtils;
+
 public class PcapStreamWriter implements Runnable {
     private Process process;
-    private FSDataInputStream fsdis;
+    private InputStream is;
     private Configuration config;
 
-    public PcapStreamWriter(Configuration config, Process process, FSDataInputStream fsdis) {
+    public PcapStreamWriter(Configuration config, Process process, InputStream is) {
         this.process = process;
-        this.fsdis = fsdis;
+        this.is = is;
         this.config = config;
     }
 
@@ -23,7 +22,7 @@ public class PcapStreamWriter implements Runnable {
         System.err.println("copying fsdis to process...");
 
         try {
-            IOUtils.copyBytes(fsdis, process.getOutputStream(), config);
+            IOUtils.copyBytes(is, process.getOutputStream(), config);
         } catch (IOException ignored) {
             try {
                 InputStream stderr = process.getErrorStream();
