@@ -9,9 +9,12 @@ lib/packetpig/target
 lib/packetpig/.idea/workspace.xml
 *.tsv
 *.csv
-
+lib/packetpig/.classpath
+lib/packetpig/.project
 README.html
 tmp
 
 secret
 output
+*.pyc
+
