@@ -25,7 +25,7 @@ public class ConversationFileRecordReader extends ConversationRecordReader {
     public void initialize(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
         super.initialize(split, context);
 
-        fs = FileSystem.get(context.getConfiguration());
+        fs = FileSystem.get(new Path(path).toUri(), context.getConfiguration());
         shouldDump = fileDumpPath != null && !fileDumpPath.isEmpty();
 
         String cmd = pathToTcp + " -of tsv -om http_body -r /dev/stdin ";

@@ -1,0 +1,26 @@
+Copyright 2008-2011 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License").
+You may not use this file except in compliance with the License. A
+copy of the License is located at
+
+  http://aws.amazon.com/apache2.0/
+
+or in the "license" file accompanying this file. This file is
+distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS
+OF ANY KIND, either express or implied. See the License for the
+specific language governing permissions and limitations under the
+License.
+
+**********************
+THIRD PARTY COMPONENTS
+**********************
+
+This software includes third party software subject to the following copyrights:
+
+  - json-1.1.2          Copyright (c) 2003,2005 Rafael R. Sevilla
+  - uuidtools-1.0.3     Copyright (c) 2005-2008 Robert Aman
+  - amazon/ec-2.0.9.15  Copyright (c) 2007-2009 Glenn Rempe, distributes under the same terms as Ruby
+
+The licenses for these third party components are included in LICENSE.txt 
+

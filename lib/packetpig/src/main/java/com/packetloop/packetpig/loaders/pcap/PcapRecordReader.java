@@ -39,7 +39,7 @@ public abstract class PcapRecordReader extends RecordReader<Long, Tuple> {
             is = new PcapFileInputStream(file);
         } else {
             Configuration config = context.getConfiguration();
-            FileSystem fs = FileSystem.get(config);
+            FileSystem fs = FileSystem.get(p.toUri(), config);
             FSDataInputStream fsdis = fs.open(p);
             path = p.toString();
 

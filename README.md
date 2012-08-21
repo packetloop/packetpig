@@ -59,6 +59,24 @@ This will generate the command:
 
 The list of available arguments are listed when running `--help` as an argument, and checking out the source code is handy too.
 
+### lib/run_emr
+
+    # lib/run_emr -f PIG_SCRIPT -r S3_LOCATION [-c INSTANCE_COUNT] [-t INSTANCE_TYPE] [-b BID_PRICE] [-i]
+
+    e.g.
+
+    # lib/run_emr -f s3://your-data/analyse.pig -r s3://your-data/captures/ -c 4 -t m1.large -b 0.01
+
+Specify -i to get an interactive pig shell on the emr cluster.
+
+The following environment variables will configure the emr credentials for you:
+    # AWS_ACCESS_KEY_ID
+    # AWS_SECRET_ACCESS_KEY
+    # EMR_KEYPAIR
+    # EMR_KEYPAIR_PATH
+    # LOG_URI
+    # EC2_REGION (optional, defaults to us-east-1)
+
 ### put.sh
 
 Upload a single file into HDFS into a predetermined location. You should specify the env variable HDFS_MASTER to specify where the destination is. The env

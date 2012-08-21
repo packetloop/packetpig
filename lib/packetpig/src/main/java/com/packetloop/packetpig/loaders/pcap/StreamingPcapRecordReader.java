@@ -1,17 +1,17 @@
 package com.packetloop.packetpig.loaders.pcap;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.zip.GZIPInputStream;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.compress.bzip2.CBZip2InputStream;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.zip.GZIPInputStream;
 
 public abstract class StreamingPcapRecordReader extends PcapRecordReader {
     private TaskAttemptContext context;
@@ -29,8 +29,8 @@ public abstract class StreamingPcapRecordReader extends PcapRecordReader {
     // TODO report actual progress
     protected BufferedReader streamingProcess(String cmd, String path) throws IOException, InterruptedException {
         Configuration config = context.getConfiguration();
-        FileSystem fs = FileSystem.get(config);
         Path dfsPath = new Path(path);
+        FileSystem fs = FileSystem.get(dfsPath.toUri(), config);
 
         is = fs.open(dfsPath);
         String name = dfsPath.getName().toLowerCase();

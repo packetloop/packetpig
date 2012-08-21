@@ -1,0 +1,1001 @@
+= Amazon Elastic Map Reduce Ruby Client Readme 
+
+Location of the Ruby Client: 
+
+  http://elasticmapreduce.s3.amazonaws.com/elastic-mapreduce-ruby.zip
+
+Welcome the Amazon Elastic MapReduce Ruby client. This package
+contains a pure Ruby client for the Amazon Elastic MapReduce Web
+Service. Amazon Elastic MapReduce is a service that makes it easy for
+researchers, data analysts, and developers to efficiently and
+cost-effectively process vast amounts of data using the Amazon EC2 service.
+The service launches the EC2 instances on your behalf to
+process data, monitor execution and, when the processing is over,
+shut down EC2 instances.
+
+It is assumed that the reader is already familiar with Hadoop and the
+creation of MapReduce jobs. Additional information on how to write
+Map Reduce jobs can be found at the Hadoop website
+(http://hadoop.apache.org/).
+
+The version of Hadoop used by Amazon Elastic MapReduce is 0.20.
+We also support Hadoop version 0.18.
+
+== Conventions Used in this Document 
+
+Commands that you execute from a bash shell are indented and begin
+with $.
+
+  $ echo "This is an example"
+  This is an example
+
+The output of the command is sometimes shown directly below the
+command.
+
+Sometimes examples contain a value that you should modify for your own
+situation, for example:
+
+  $ elastic-mapreduce --jobflow j-ABABABABAB --terminate
+
+In this example, you should replace j-ABABABABAB with the id of the
+jobflow that you wish to terminate. Another common example is
+s3://mybucket/input. You should replace this with a path in to S3
+that contains the data that you want to process.
+
+Other times a value for replacement will be enclosed in angle
+brackets. For example, <insert_your_aws_access_id_here>. You should
+replace this with your AWS access id including the angle brackets.
+For example:
+
+  "access-id": "<insert your AWS access id here>",
+
+becomes
+
+  "access-id": "AAAAAJABASBASBJASAAA",
+
+== Installation and Dependencies
+
+The Amazon Elastic MapReduce Ruby client requires Ruby version 1.8.
+It has been tested on Linux computers. The Ruby client can be run on Windows computers,  but has not been fully tested.
+
+To run the client you will need to have signed up for Amazon Elastic
+MapReduce Service at http://aws.amazon.com. Amazon Elastic MapReduce
+uses Amazon Elastic Compute Cloud (EC2) to run your job flows and Amazon
+Simple Storage Service (S3) to store and access your data.  After
+completing the sign-up process, you can use Amazon
+Elastic Compute Cloud and Simple Storage Service.
+
+=== Step 1: Download and Install Ruby
+
+If you already have Ruby installed, you can skip this step. On Ubuntu
+and Debian computers you install Ruby with:
+
+  $ apt-get install ruby1.8
+
+On Redhat computers you can install Ruby with
+
+  yum install ruby
+
+On Macintosh computersyou should already have Ruby installed.
+
+On Windows computers you can install Ruby using the 1-click Windows installer
+for Ruby. We recommend you install the final release available at:
+
+  http://rubyinstaller.rubyforge.org/wiki/wiki.pl
+
+You can verify that Ruby is installed by typing
+
+  ruby -v
+
+at the command prompt.
+
+=== Step 2: Download the Amazon Elastic MapReduce Ruby Client
+
+The latest version of the Ruby client can be obtained by
+
+  $ mkdir elastic-mapreduce-ruby
+  $ cd elastic-mapreduce-ruby
+  $ wget http://elasticmapreduce.s3.amazonaws.com/elastic-mapreduce-ruby.zip
+
+Unzip the archive
+
+  $ unzip elastic-mapreduce-ruby.zip
+
+=== Step 2a: Edit Your Path
+
+If you're running bash or zsh as your shell, then you can add the directory
+where you installed the elastic-mapreduce program to your path with the command:
+
+   $ export PATH=$PATH:<directory_where_you_unzipped_elastic_mapreduce_client>
+
+For csh or tcsh
+
+   $ set path = ($path <directory_where_you_unzipped_elastic_mapreduce_client>
+
+=== Step 3: Create a Credentials File
+
+Ensure you are already in the elastic-mapreduce-ruby
+directory. Use your AWS access key and private key in the
+following command. These credentials are available on the
+http://aws.amazon.com website under "Your Account/Access Identifiers"
+(top right).
+
+  $ cat > credentials.json
+  {
+    "access-id": "<insert your AWS access id here>",
+    "private-key": "<insert your AWS secret access key here>",
+    "key-pair": "<insert the name of your Amazon ec2 key-pair here>",
+    "key-pair-file": "<insert the path to the .pem file for your Amazon ec2 key pair here>",
+    "region": "<The region where you wish to launch your job flows. Should be one of us-east-1, us-west-1, us-west-2, eu-west-1, ap-southeast-1, or ap-northeast-1, sa-east-1>"    
+  }
+
+Windows Users: If you are running a Windows computer then create a
+credentials.json file using notepad.exe with the content above inserted between 
+the braces.
+
+You do not have to include a key-pair in the credentials file, but it
+is a good idea to include it so that when you run job flows you will
+be able to log onto the master node to see the log files.
+
+If you don't have an EC2 key-pair, you can create one at:
+
+  https://console.aws.amazon.com/ec2/home#c=EC2&s=KeyPairs
+
+Save the pem file somewhere safe for use later. You will need it to log onto
+the master node running your job flow.
+
+If region is not specified, the client will default to us-east-1. Because you 
+pay for cross-region data transfer, the region you create your job flows 
+should be the one where your S3 input data exists. 
+
+Note: If you have credentials in a file other than credentials.json which is located 
+in the current directory, then you can specify a credentials file on the command
+line with the following command:
+
+  $ elastic-mapreduce -c <yourcredentialsfile>.json --list
+
+Windows Users: Windows users must specify "ruby" on the command line
+instead of "./". The command would be:
+
+  C:\> ruby elastic-mapreduce -c <yourcredentialsfile>.json --list
+
+You can also specify and AWS access id and private key and key pair on the command line.
+
+  $ elastic-mapreduce -a <access-id> -k <private-key> --key-pair <key-pair> --list
+
+Similarly, you can specify a region on the command line.
+
+  $ elastic-mapreduce --region us-east-1 --list
+
+Note that job flow listings are region specific. If you create a job 
+flow with region eu-west-1 then you will not be able to see it in the list if you
+specify us-east-1. 
+
+== Basic Usage
+
+You can get a summary of supported command line options with:
+
+  $ elastic-mapreduce --help                             
+
+=== Listing Job Flows
+
+The web service supports the following operations: --list, --describe, 
+--create, --terminate, --stream, and --jar. To list job flows created in the
+last 2 days:
+
+  $ elastic-mapreduce --list
+  j-1YE2DN7RXJBWU     FAILED                                                      Example Job Flow
+     CANCELLED      Custom Jar                    
+  j-3GJ4FRRNKGY97     COMPLETED      ec2-67-202-3-73.compute-1.amazonaws.com      Example job flow
+  j-5XXFIQS8PFNW      COMPLETED      ec2-67-202-51-30.compute-1.amazonaws.com     demo 3/24 s1
+     COMPLETED      Custom Jar                    
+
+If you have not created any job flows in the last two days 
+no output returns from the command. 
+
+The example above shows three job flows created in the last two days. The
+indented lines are job flow steps. The columns for a job flow line are
+Job Flow Id, Job Flow State, Master Node DNS Name, and Job Flow
+Name. The columns for a job flow step line are Step State, and Step
+Name.
+
+To get more information about a specific job flow use --describe and
+supply the job flow id with the --jobflow parameters.
+
+  $ elastic-mapreduce --describe --jobflow <job_flow_id>
+  {
+    "JobFlows": [
+      {
+        "LogUri": null,
+        "Name": "Development Job Flow",
+        "ExecutionStatusDetail": {
+          "EndDateTime": 1237948135.0,
+          "CreationDateTime": 1237947852.0,
+          "LastStateChangeReason": null,
+          "State": "COMPLETED",
+          "StartDateTime": 1237948085.0,
+          "ReadyDateTime": 1237948085.0
+        },
+        "Steps": [],
+        "Instances": {
+          "Ec2KeyName": null,
+          "InstanceCount": 1.0,
+          "Placement": {
+            "AvailabilityZone": "us-east-1a"
+          },
+          "KeepJobFlowAliveWhenNoSteps": false,
+          "TerminationProtected": false,
+          "MasterInstanceType": "m1.small",
+          "SlaveInstanceType": "m1.small",
+          "MasterPublicDnsName": "ec2-67-202-3-73.compute-1.amazonaws.com",
+          "MasterInstanceId": "i-39325750",
+          "NormalizedInstanceHours": 6,
+          "InstanceCount": 3
+        },
+        "JobFlowId": "j-3GJ4FRRNKGY97"
+      }
+    ]
+  }
+
+You can also list running and starting jobs with:
+
+  $ elastic-mapreduce --list --active
+
+This will list job flows that are starting, running, or shutting
+down. You can also list job flows that are in one of several states
+with:
+
+  $ elastic-mapreduce --list --state RUNNING --state TERMINATED
+
+This will list job flows that are either running or terminated.
+
+=== Running a Development Job Flow
+
+When developing steps for a job flow it is handy to keep a job flow
+running and to add steps to it. This way if the step fails you can
+add another step without having to incur the startup cost of a
+job flow.
+
+The following command will start a job flow that will continue running and consuming resources until you terminate it.
+
+  $ elastic-mapreduce --create --alive --log-uri s3://my-example-bucket/logs
+  Created job flow j-36U2JMAE73054
+
+By default, this command will launch a job flow running on a single m1.small
+instance using Hadoop version 0.20. Later, when you have your steps 
+running correctly on small set of sample data, you will want to launch job flows 
+running on more instance. You can specify the number of instance and 
+the type of instance to run with the --num-instances and --instance-type 
+options.
+
+The --alive option tells the job flow to keep running even when it has
+finished all its steps. The log-uri specifies a location in Amazon S3 for
+the log files from your job flow to be pushed. 
+
+--alive option can be safely omitted if you have not yet created a bucket in Amazon
+S3. Log files are not pushed to Amazon S3 until 5 minutes after the
+step is complete. 
+
+For debugging sessions, you will likely log onto
+the master node of your job flow. Specifying a log-uri is required if
+you want to be able to read log files from Amazon S3 after the job flow has
+terminated.
+
+You can use Hadoop version 0.18 by specifying the --hadoop-version option.
+
+  $ elastic-mapreduce --create --alive --log-uri s3://my-example-bucket/logs \
+    --hadoop-version "0.18"
+
+Now that your job flow is created, you can add a streaming step
+to the job flow.
+
+  $ elastic-mapreduce --jobflow <j-insert your job id here> --stream
+  Added steps to <j-insert your job id here>
+
+Default parameters are added to the streaming step. The name is set to
+"Example Streaming Step". The action on failure is set to
+"CANCEL_AND_WAIT". This means that if the step fails then subsequent
+steps will be cancelled and the job flow will wait for additional
+steps to be added before proceeding. The streaming task is a word count
+example written in Python and reads input from:
+
+  s3://elasticmapreduce/samples/wordcount/input
+
+You can list the job flow to see the default parameters that have been
+set.
+
+  $ elastic-mapreduce --jobflow j-36U2JMAE73054 --describe
+  { "JobFlows": [{ 
+      "LogUri": null,
+      "Name": "Example job flow",
+      "ExecutionStatusDetail": { ... },
+      "Steps": [
+        { "StepConfig": { ... },
+          "ExecutionStatusDetail": { ... }
+        }
+      ],
+      "Instances": { ... }
+    }]
+  }
+
+=== Debugging a Failed Step
+
+First, add a step to the job flow that will fail. If you do not
+have a running job flow, look at the section on running job flows above to
+see how to start a job flow that will wait for you to add steps.
+
+  $ elastic-mapreduce --jobflow j-36U2JMAE73054 --stream --output hdfs://examples/output
+  Added steps to j-36U2JMAE73054
+
+This job will fail because the HDFS path is wrong. It should have
+three slashes rather than two after the colon. Now log onto the
+master node where the job flow is running to find the log files associated with this step.
+
+If you entered a keypair and a keypair file into the credentials
+file you can now log onto the master node with:
+
+  $ elastic-mapreduce --jobflow j-ABABABABABA --ssh 
+
+For this command to work, you are require to have an ssh client installed on
+your local computer. Most unix and linux
+machines have an ssh client installed. On a Windows computer you will need to install Cygwin, including the Ruby and
+openssh-client and execute the elastic-mapreduce client from within
+Cygwin.
+
+You can also use PuTTY, but this is significantly more work. See the
+tutorial at http://developer.amazonwebservices.com/connect/entry.jspa?externalID=2729.
+
+Once logged into the master node where your job flow is running, you can see log files for your steps in:
+
+  $ ls /mnt/var/log/hadoop/steps/
+  1
+  $ ls /mnt/var/log/hadoop/steps/1
+  controller  stderr  stdout  syslog
+  $ cat /mnt/var/log/hadoop/steps/1/syslog
+  2009-03-25 18:43:27,145 WARN org.apache.hadoop.mapred.JobClient (main): Use 
+    GenericOptionsParser for parsing the arguments. Applications should implement Tool for the same.
+  2009-03-25 18:43:28,828 ERROR org.apache.hadoop.streaming.StreamJob (main): Error 
+    Launching job : unknown host: examples
+  $ exit
+
+The error from Hadoop indicates that it was trying to look for a host
+called examples. Look back at our request and see that the output
+path was set to hdfs://examples/output. This is incorrect
+since we want Hadoop to access the local HDFS system with the path
+/examples/output. We need to specify hdfs:///examples/output,
+as below.
+
+To fix this, specify the output of the streaming job on the
+command line and submit another step to our job flow.
+
+  $ elastic-mapreduce --jobflow j-36U2JMAE73054 --stream --output hdfs:///examples/output
+
+Now list the job flows and watch it complete:
+
+  $ elastic-mapreduce --list -n 5 
+  j-36U2JMAE73054     WAITING        ec2-67-202-20-49.compute-1.amazonaws.com     Example job flow
+     FAILED         Example Streaming Step        
+     COMPLETED      Example Streaming Step        
+
+This time the job succeeded. We can run the job again but this time
+output the result to a bucket in Amazon S3. First, create a bucket
+in Amazon S3. Note that buckets in Amazon S3 are unique so you will
+need to choose a unique name for your bucket.
+
+You can create a bucket using s3cmd which is available on Debian and
+Ubuntu systems via apt-get, or using Amazon S3 Organizer which is a
+plug-in for Firefox.
+
+If you're not on a Debian or Ubuntu system then s3cmd can be
+downloaded from http://freshmeat.net/projects/s3cmd
+
+Amazon S3 Organizer is available at 
+https://addons.mozilla.org/en-US/firefox/addon/3247 
+
+To create an Amazon S3 bucket using s3cmd do the following:
+
+  $ s3cmd mb s3://my-example-bucket
+  Bucket 's3://my-example-bucket/' created
+
+Note: s3cmd requires s3 paths to be specified using the prefix s3://.
+Amazon Elastic MapReduce follows Hadoop’s convention which requires the
+prefix s3:// for files in stored in Amazon S3.
+
+Add a step to the job flow to put results into the bucket
+you created on S3:
+
+  $ elastic-mapreduce -j j-36U2JMAE73054 --stream \
+      --output s3://my-example-bucket/output/1
+  Added steps to j-36U2JMAE73054
+
+Note that the protocol of the output URL is s3. This tells Hadoop to
+use the S3 Native File System for the output location. The 'host' part
+of the URL is the bucket and this is followed by path.
+
+Once you've finished with your job flow, don't forget to terminate it with:
+
+  $ elastic-mapreduce --jobflow j-36U2JMAE73054 --terminate 
+
+And see that it is shutting down with:
+
+  $ elastic-mapreduce --list -n 5
+
+There are other options that you can specify when creating and adding
+steps to job flows. Use the "--help" option to list them.
+
+You can also list the log files from the last step in your jobflow
+using the --logs argument.
+
+  $ elastic-mapreduce --jobflow j-ABABABABABA --logs
+
+This command requires that you are running on a unix-like
+computer with access to an ssh client because it fetches the logs from
+the job flow. It also requires that the job flow is still running. If
+the job flow has shutdown then the client may hang while attempting to
+connect to the master node because the master node has already been
+shut down.
+
+==== Enabling Hadoop Debugging
+
+The Amazon Elastic MapReduce tab in the AWS Management Console
+(http://console.aws.amazon.com/elasticmapreduce/home) has a debugging
+feature that provides access to Hadoop jobs, tasks, and task attempts
+as well as log files for steps and task attempts.
+
+Note: To use this feature you must be signed up for SimpleDB. You can sign
+up your account for Simple DB at http://aws.amazon.com/simpledb/.
+
+Note: When enabling debugging, you must always specify a log-uri
+either in your credentials file, on the command line, or as an
+environment variable.
+
+To enable Hadoop Debugging on a job flow run your job flow with the
+--enable-debugging option.
+
+  $ elastic-mapreduce --create \
+      --name "$USER's Flow with Debugging Enabled" --alive \
+      --log-uri s3://mybucket/logs
+      --enable-debugging
+  Created jobflow j-ABABABABA
+
+Make sure that you sepcified a log-uri on the command line as above or
+in your credentials file. This command install a component on your job
+flow that pushes information from Hadoop into Amazon Simple DB.
+
+Next add a job flow step to your job flow
+
+  $ elastic-mapreduce --jobflow j-ABABABABA \
+    --stream --output hdfs:///output/1
+
+Now you can watch the progress of our job flow in Amazon Elastic
+MapReduce tab of the AWS Management Console, by first selecting the
+job flow (click refresh if your job flow has not appeared) and then
+clicking the "Debug" button.
+
+==== Adding a JAR Step
+
+To add a JAR step you should already have started a job flow. If you have not, see
+the "Running a Job Flow" section in this document. 
+
+First start a development job flow
+
+  $ elastic-mapreduce --list --active
+  j-36U2JMAE73054     WAITING        ec2-67-202-20-49.compute-1.amazonaws.com     Example job flow
+    FAILED         Example Streaming Step        
+    COMPLETED      Example Streaming Step        
+    COMPLETED      Example Streaming Step        
+
+You can add a JAR step to your job flow with:
+
+  $ elastic-mapreduce --job flow j-36U2JMAE73054 \
+    --jar s3://elasticmapreduce/samples/cloudburst/cloudburst.jar \
+    --arg s3://elasticmapreduce/samples/cloudburst/input/s_suis.br \
+    --arg s3://elasticmapreduce/samples/cloudburst/input/100k.br \
+    --arg hdfs:///cloudburst/output/1 \
+    --arg 36 --arg 3 --arg 0 --arg 1 --arg 240 --arg 48 --arg 24 \
+    --arg 24 --arg 128 --arg 16
+
+Windows Users: The Windows command-line interface does not allow multi-line
+commands using the “\” character. You will have to edit these multi-line
+examples in notepad to remove the “\” characters and the line breaks.
+
+This will run an example job flow step that downloads and runs the
+JAR file. The arguments are passed to the main function in the JAR file.
+
+If your JAR file doesn't have a manifest.mf specifying the main class you will
+need to specify the main class on the command line as:
+
+  $ elastic-mapreduce -j j-36U2JMAE73054 \
+    --jar        s3://my-example-bucket/wordcount.jar \
+    --main-class org.myorg.WordCount \
+    --arg        s3://elasticmapreduce/samples/wordcount/input/ \
+    --arg        hdfs:///wordcount/output/1
+
+If your job fails then log onto the master node as explained in the
+section "Running a JobFlow" and look at the log files to find out why.
+
+==== Adding a JobFlow from JSON
+
+The samples directory included in with Elastic Map Reduce Ruby Client
+contains several mutli-step job flows that can be run using the --json
+command.
+
+The json files contain variables for bucket names etc that you need to
+replace with your own bucket.
+
+  $ elastic-mapreduce -j j-36U2JMAE73054 \
+    --json   samples/similarity/lastfm_jobflow.json \
+    --param  '<bucket>=my-example-bucket'
+
+This will add the job flow steps described in
+samples/freebase/code/freebase_jobflow.json with <bucket> replaced by
+my-example-bucket.
+
+=== Samples
+
+The samples directory contains the following sample job flows:
+
+* LastFM Example
+** Description: Calculation of Artist Similarity using data From LastFM
+** URL: samples/similarity/lastfm_jobflow.json
+** Parameters
+*** <bucket>  : name of the output bucket
+
+* Freebase Example
+** Description: Load popular entries from Freebase into Amazon SimpleDB
+** URL: samples/freebase/code/freebase_jobflow.json
+** Parameters
+*** <bucket>  : name of the output bucket
+
+Additionally there are the following articles explaining how to use
+Amazon Elastic MapReduce.
+
+* Sample Job Flows
+    http://developer.amazonwebservices.com/connect/kbcategory.jspa?categoryID=263
+
+* CloudBurst Sample Job Flow 
+    http://developer.amazonwebservices.com/connect/entry.jspa?externalID=2272
+
+* WordCount Sample Job Flow 
+    http://developer.amazonwebservices.com/connect/entry.jspa?externalID=2273
+
+* Similarities Sample Job Flow 
+    http://developer.amazonwebservices.com/connect/entry.jspa?externalID=2274
+
+* Freebase Sample Job Flow 
+    http://developer.amazonwebservices.com/connect/entry.jspa?externalID=2275
+
+=== Running a Custom Jar
+
+This section assumes that you have already run a streaming jar and
+that you are comfortable starting and debugging job flows.
+
+==== Compiling and Uploading a Jar
+
+First download a copy of Hadoop 0.18.3 from the Hadoop website. 
+
+  http://hadoop.apache.org/core/
+
+Unpack the tar.gz archive somewhere handy like
+/home/name/hadoop-0.18.3 or c:\hadoop if you are running on windows.
+
+Download Eclipse from http://www.eclipse.org/downloads/, choosing the "Eclipse IDE
+for Java Developers" version.
+
+In Eclipse, create a new Java Project. In the libraries tab of the
+build path settings, add all of the Hadoop JAR files from the directory where
+you unpacked Hadoop.
+
+Next, create a main class in your project. An example main class is
+available here:
+
+  http://hadoop.apache.org/core/docs/r0.18.3/mapred_tutorial.html. 
+
+You can cut and paste the WordCount v1.0 source code from the browser
+into Eclipse.
+
+Now get Eclipse to export a JAR file by selecting "Export" from the File
+Menu and then choosing Jar. Select an output location for the JAR file on
+your disk and click through the next several pages until you are able to specify a
+Main-Class in the Java manifest. Choose the main function you added in
+the previous step.
+
+
+Upload your JAR file to s3. To upload a file, you can use s3cmd which is
+available under Debian and Ubuntu. On Windows computers, a good option is S3
+Organizer which is a Firefox plugin. For this example, I'm going to use
+s3cmd.
+
+You will have to select your own unique bucket name when running this
+example as the my-example-bucket already exists.
+
+  $ s3cmd mb s3://my-example-bucket
+  Bucket 's3://my-example-bucket/' created
+
+  $ s3cmd put --force build/wordcount.jar s3://my-example-bucket/wordcount.jar
+
+Note that by default s3cmd sets the access control on the created bucket
+and uploaded file to private which is probably what is wanted. If you want
+to make your step accessible to other people, you will need to set the
+access control on the bucket and the file to make them readable.
+
+Now you are ready to execute a jar step on one of your job flows. If you
+don't have job flow running, look at the section on running a job flow
+to learn how to start a job flow.
+
+Remember to replace your own job flow id and the name
+of your own bucket in the jar name and the second --arg parameter.
+
+  $ elastic-mapreduce --jobflow j-C019299B1X \
+    --jar s3://my-example-bucket/wordcount.jar \
+    --arg s3://elasticmapreduce/samples/wordcount/input 
+    --arg s3://my-example-bucket/output
+
+If you didn't specify the main-class in the manifest then you can
+specify that now on the command line with the --main-class option.
+
+  $ elastic-mapreduce --jobflow j-C019299B1X \
+    --jar        s3://my-example-bucket/wordcount.jar \
+    --main-class org.myorg.WordCount \
+    --arg        s3://elasticmapreduce/samples/wordcount/input \
+    --arg        s3://my-example-bucket/output
+
+You can watch the job flow by listing it.
+
+  $ elastic-mapreduce --list j-C019299B1X
+
+If the step fails then take a look at the section on debugging a
+job flow to find out how to log onto the master node and look at the
+logs.
+
+=== Running a Pig Program 
+
+Pig provides a high level data manipulation language called Pig
+Latin. Amazon Elastic MapReduce supports Pig version 0.3.0 See
+http://hadoop.apache.org/pig/ for additional details.
+
+==== Running Pig in Interactive Mode
+
+To run a pig program in interactive mode you need to create a jobflow
+that will stay alive until you terminate it.
+
+  $ elastic-mapreduce --create --alive --name "Testing PIG -- $USER" \
+      --num-instances 5 --instance-type c1.large \
+      --hive-interactive
+  Created jobflow j-ABABABABABAB
+
+Next ssh to the master node and run pig
+
+  $ elastic-mapreduce --jobflow j-ABABABABABAB --ssh 
+  ...
+  ec2-12.13.14 $ pig
+  grunt>
+
+You are now running Pig in interactive mode and can execute Pig Latin statements.
+
+==== Running Pig in Batch Mode
+
+To run Pig in batch mode by adding a step to a development job flow you
+run:
+
+  $ elastic-mapreduce --jobflow j-ABABABABABA \
+     --pig-script --args s3://mybucket/myscript.pig
+
+Or to run a job flow that will execute a Pig script run:
+
+  $ elastic-mapreduce --create \
+     --pig-script \
+       --args -p,INPUT=s3://mybucket/input,-p,OUTPUT=s3://mybucket/output \
+       --args s3://mybucket/myscript.pig
+
+Note that the script argument must come last, after the parameters that
+are passed to the script. These parameters become available within the
+Pig script being executed as $variable. In the above example, the
+script can make reference to $input and $output within Pig string
+literals.
+
+You can also execute multiple Pig scripts
+within a single job flow as
+
+  $ elastic-mapreduce --create \
+     --pig-script --step-name "Script 1" --args s3://mybucket/myscript.pig \
+     --pig-script --step-name "Script 2" --args s3://mybucket/mysecondscript.pig
+
+You can also specify multiple scripts to be added to a development
+Job flow in the same way.
+
+=== Running a Hive Program
+
+Hive is a high level data processing language quite similar to SQL but
+with a number of map reduce extensions. Amazon Elastic MapReduce
+supports Hive version 0.5 on Hadoop version 0.20 and Hive version 0.4
+on Hadoop version 0.18. For both the versions of Hive, we provide additional 
+patches that allow better integration with Amazon S3.
+
+Please note that Hive automatically defaults to 0.5 for Hadoop 0.20 and
+0.4 for Hadoop 0.18. Currently Amazon Elastic MapReduce does not support specifying the Hive
+version.
+
+Hive 0.5 provides additional features like Percentile function, faster
+recovery of partitions from S3, insert query results into an s3 directory
+location, and reading lzo, bzip compressed input files.
+
+==== Running Hive in Interactive Mode
+
+To run in interactive mode you need to create a job flow that will stay
+alive until you terminate it.
+
+  $ elastic-mapreduce --create --alive --name "Testing Hive -- $USER" \
+      --num-instances 5 --instance-type c1.large \
+      --hive-interactive
+  Created jobflow j-ABABABABABAB
+
+Next ssh to the master node and run hive
+
+  $ elastic-mapreduce --jobflow j-ABABABABABAB --ssh 
+  ...
+  ec2-12.13.14 $ hive
+  hive>
+
+You are now running Hive in interactive mode and execute Hive queries.
+
+==== Running Hive in Batch Mode
+
+To execute a Hive script stored in S3 as a part of a job flow create the
+Job flow with a step that executes the Hive script
+
+  $ elastic-mapreduce --create \
+     --hive-script --args s3://mybucket/myquery.q \
+     --args -d,INPUT=s3://mybucket/input,-d,OUTPUT=s3://mybucket/output
+
+The --args option provides arguments to the Hive script. The first
+argument is the location of the script on S3. Next,the -d argument provides a method to pass values into the script.
+
+Within Hive scripts these parameters are available as ${variable}. In the above example ${INPUT} and ${OUTPUT} would be replaced with
+the values that were passed in. These variables are substituted as a
+pre-processing step and so may occur anywhere within a Hive script.
+
+You can also add a Hive script to a development job flow, for example:
+
+  $ elastic-mapreduce --jobflow j-ABABABABABA \
+     --hive-script --args s3://mybucket/myquery.q \
+     --args -d,INPUT=s3://mybucket/input,-d,OUTPUT=s3://mybucket/output
+
+This is useful when developing and testing scripts as in the case where
+the script fails. You can add a new step to the development job flow
+without having to wait for a new job flow to start.
+
+=== Terminating a Job Flow
+
+All job flows that have been created with the --alive option will run,
+consuming instance hours until they are terminated.
+
+A job flow can be terminated by specifying the job flow id.
+
+  $ elastic-mapreduce --terminate --jobflow j-C019299B1X
+
+=== Environment Variables
+
+The command line client accepts configuration via environment
+variables. The following environment variables are supported:
+
+    ELASTIC_MAPREDUCE_ACCESS_ID
+    ELASTIC_MAPREDUCE_PRIVATE_KEY
+    ELASTIC_MAPREDUCE_KEY_PAIR
+    ELASTIC_MAPREDUCE_KEY_PAIR_FILE
+    ELASTIC_MAPREDUCE_LOG_URI
+    ELASTIC_MAPREDUCE_REGION
+    ELASTIC_MAPREDUCE_ENABLE_DEBUGGING
+
+The environment variables will override settings in the credentials
+file, but will be overridden by options passed in on the command line.
+
+=== Bootstrap Actions
+
+A bootstrap action is a script that is run on all nodes of a job flow
+prior to Hadoop starting on that node. A job flow will fail if
+bootstrap action fails by returning a non-zero exit code on the master
+node, or on more than 10% of the slave nodes. A job flow will also
+fail if Hadoop fails to start on the master node after the bootstrap
+action has run.
+
+For example, to execute a bootstrap action, first upload your script, called 
+action.sh, to your bucket in S3 called s3://mybucket
+
+  $ s3cmd put action.sh s3://mybucket/bootstrap-actions/action.sh
+
+Next, start a job flow and specify the bootstrap action:
+
+  $ elastic-mapreduce --create --alive \
+     --name "My Boostrap Action" \
+     --bootstrap-action s3://mybucket/bootstrap-actions/action.sh \
+     --arg first-argument \
+     --arg second-argument
+
+Bootstrap actions may only be specified when a job flow is
+created. This is different to steps which may be specified for a
+running job flow. When creating a job flow however one may combine
+several bootstrap actions and job flow steps. The bootstrap actions
+will be executed in the order they are presented.
+
+  $ BUCKET=s3://mybucket/
+  $ INPUT=$BUCKET/input
+  $ OUTPUT=$BUCKET/output
+  $ elastic-mapreduce --create \
+      --name "My Example Job Flow" \
+      --boostrap-action $BUCKET/bootstrap-actions/action.sh \
+        --arg hello  \
+        --arg world \
+      --hive-script \
+        --args s3://mybucket/hive-queries/myquery.q \
+        --args -d,INPUT=$INPUT,-d,OUTPUT=$OUTPUT \
+      --bootstrap-action $BUCKET/bootstrap-actions/action.sh \
+        --args hello,world
+
+Note that the bootstrap actions are always executed before steps and
+before Hadoop is running on the node.
+
+Log files from bootstrap actions are located on each node in the
+directory:
+
+  /mnt/var/log/bootstrap-actions/<action_number>
+
+where <action_number> is the number of the bootstrap action that was
+run. For example,. 1 for the first action, 2 for the second etc. The bootstrap
+action logs are also pushed to your LogURI if you specified one in
+the directory
+
+  s3://<log_uri>/<jobflow_id>/node/<node_id>/bootstrap-actions/<action_number>
+
+If a bootstap action fails, then an error message containing the
+failure condition is located in the LastStateChangeReason field
+available when using --describe on the job flow that failed.
+
+=== Example Bootstrap Actions
+
+This section contains a list of example bootstrap actions that are
+provided by Amazon Elastic MapReduce.
+
+==== Configure Hadoop
+
+The configure-hadoop bootstrap action allows you specify Hadoop site
+configuration that must be set before Hadoop starts. It may be called
+as:
+
+  $ elastic-mapreduce --create --alive \
+      --name "My Example Jobflow" \
+      --bootstrap-actions s3://elasticmapreduce/bootstrap-actions/configure-hadoop
+        --arg --site-config-file
+        --arg s3://mybucket/config.xml
+        --arg -s 
+        --arg mapred.tasktracker.map.tasks.maximum=2
+
+This will merge setting from the file s3://mybucket/config.xml into
+the Hadoop site config file and will additionally set the value of
+mapred.tasktracker.map.tasks.maximum to 2 in the Hadoop site config
+file.
+
+For more usage information you can download the script and run it
+with no arguments. In this case it will output its usage information.
+
+==== Configure Daemons
+
+The configure daemons script allows you to control the amount of
+memory allocated to different Hadoop daemons. It may be called as:
+
+  $ elastic-mapreduce --create --alive \
+      --name "My Example Jobflow" \
+      --bootstrap-actions s3://elasticmapreduce/bootstrap-actions/configure-daemons \
+       --arg --namenode-heap-size=2048 \
+       --arg --namenode-opts=-XX:GCTimeRatio=19 \
+
+This will set the heap size allocated to the NameNode to be 2048
+megabytes and it will set the GCTimeRatio used by the java's garbage
+collector to be 19.
+
+For more usage information you can download the script onto an
+instance and run it with no arguments. In this case it will output its
+usage information.
+
+==== Run-if
+
+The run-if script allows you to run another script conditionally. It may be called as:
+
+   elastic-mapreduce --create --alive \
+      --name "My Example Jobflow" \
+      --bootstrap-actions s3://elasticmapreduce/bootstrap-actions/run-if
+      --args instance.isMaster=true,s3://mybucket/myscript,hello,world
+
+This will run the script located at s3://mybucket/myscript, passing the
+arguments "hello" and "world" only on the master node. If myscript
+fails then run-if command will fail and so the job flow will fail.
+
+For more usage information, you can download the script onto an
+instance and run it with no arguments. In this case it will output its
+usage information onto screen.
+
+The first argument is a conditional that reads from one of the JSON
+configuration files available on every instance. The files contain
+information that may be useful for bootstrap action authors and with
+the run-if script. The file locations and their contents are listed
+below. When referencing files from the run-if script, you only need
+to specify the file name, excluding ".json".
+
+/mnt/var/lib/info/instance.json
+ boolean  isMaster
+ boolean  isRunningNameNode
+ boolean  isRunningDataNode
+ boolean  isRunningJobTracker
+ boolean  isRunningTaskTracker
+
+/mnt/var/lib/info/job-flow.json
+ string   jobFlowId
+ long     jobFlowCreationInstance
+ integer  instanceCount
+ string   masterInstanceId
+ string   masterPrivateDnsName
+ string   masterInstanceType
+ string   slaveInstanceType
+ string   hadoopVersion
+
+== Using the Ruby Client as a Library
+
+The program elastic-mapreduce is an example of how to use the
+Amazon Elastic MapReduce Ruby library. Most of the library is
+devoted to parsing command line arguments and translating them into
+web service calls. 
+
+To use the web service directly in your Ruby programs you need:
+
+  $LOAD_PATH << File.dirname(__FILE__)
+  require 'amazon/coral/elasticmapreduceclient'
+
+  config = {
+    :endpoint            => "https://elasticmapreduce.amazonaws.com",
+    :ca_file             => File.join(File.dirname(__FILE__), "cacert.pem"),
+    :aws_access_key      => my_access_id,
+    :aws_secret_key      => my_secret_key,
+    :signature_algorithm => :V2
+  }
+  client = Amazon::Coral::ElasticMapReduceClient.new_aws_query(config)
+
+  puts client.DescribeJobFlows.inspect
+  puts client.DescribeJobFlows('JobFlowId' => 'j-ABAYAS1019012').inspect
+
+You can use the retry delegator to make your client retry if it gets
+connection failures.
+
+  $LOAD_PATH << File.dirname(__FILE__)
+  require 'amazon/coral/elasticmapreduceclient'
+  require 'amazon/retry_delegator'
+
+  config = {
+    :endpoint            => "https://elasticmapreduce.amazonaws.com",
+    :ca_file             => File.join(File.dirname(__FILE__), "cacert.pem"),
+    :aws_access_key      => my_access_id,
+    :aws_secret_key      => my_secret_key,
+    :signature_algorithm => :V2
+  }
+  client = Amazon::Coral::ElasticMapReduceClient.new_aws_query(config)
+
+  is_retryable_error_response = Proc.new do |response| 
+    if response == nil then
+      false
+    else
+      ret = false
+      if response['Error'] then 
+        # don't retry on 'Timeout' because the call might have succeeded
+        ret ||= ['InternalFailure', 'Throttling', 'ServiceUnavailable'].include?(response['Error']['Code'])
+      end
+      ret 
+    end
+  end
+
+  client = Amazon::RetryDelegator.new(client, :retry_if => is_retryable_error_response)
+
+  puts client.DescribeJobFlows.inspect
+  puts client.DescribeJobFlows('JobFlowId' => 'j-ABAYAS1019012').inspect
+
+More information about the operations of the Amazon Elastic MapReduce
+Web Service is available in the technical documentation found at http://aws.amazon.com/documentation/elasticmapreduce/.
+

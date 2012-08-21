@@ -1,0 +1,78 @@
+[ 
+  { 
+    "Name": "MR Step 1: Count number of ratings for each item, use single reducer", 
+    "ActionOnFailure": "TERMINATE_JOB_FLOW", 
+    "HadoopJarStep": { 
+      "Jar": "/home/hadoop/contrib/streaming/hadoop-0.18-streaming.jar", 
+      "Args": [ 
+         "-input",     "s3n://elasticmapreduce/samples/similarity/lastfm/input/", 
+         "-output",    "s3n://<bucket>/lastfm/item-counts/", 
+         "-mapper",    "python similarity.py mapper1", 
+         "-reducer",   "python similarity.py reducer1",
+         "-cacheFile", "s3n://elasticmapreduce/samples/similarity/similarity.py#similarity.py",
+         "-jobconf",   "mapred.map.tasks=36", 
+         "-jobconf",   "mapred.reduce.tasks=1",     
+         "-jobconf", "mapred.compress.map.output=true"         
+      ] 
+    } 
+  },
+  { 
+    "Name": "MR Step 2: Generate sorted item postings with KeyFieldBasedPartitioner", 
+    "ActionOnFailure": "TERMINATE_JOB_FLOW", 
+    "HadoopJarStep": { 
+      "Jar": "/home/hadoop/contrib/streaming/hadoop-0.18-streaming.jar", 
+      "Args": [ 
+         "-input",     "s3n://elasticmapreduce/samples/similarity/lastfm/input/", 
+         "-output",    "hdfs:///home/hadoop/output2/", 
+         "-mapper",    "python similarity.py mapper2 log", 
+         "-reducer",   "python similarity.py reducer2",
+         "-cacheFile", "s3n://elasticmapreduce/samples/similarity/similarity.py#similarity.py",
+         "-jobconf",   "mapred.map.tasks=36", 
+         "-jobconf",   "mapred.reduce.tasks=18",     
+         "-partitioner", "org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner",
+         "-jobconf", "map.output.key.field.separator=,",
+         "-jobconf", "num.key.fields.for.partition=1",
+         "-jobconf", "mapred.compress.map.output=true"         
+      ] 
+    } 
+  },          
+  { 
+    "Name": "MR Step 3: Item Similarity using Random Sampling & Distributed Cache", 
+    "ActionOnFailure": "TERMINATE_JOB_FLOW", 
+    "HadoopJarStep": { 
+      "Jar": "/home/hadoop/contrib/streaming/hadoop-0.18-streaming.jar", 
+      "Args": [ 
+         "-input",     "hdfs:///home/hadoop/output2/", 
+         "-output",    "hdfs:///home/hadoop/output3/", 
+         "-mapper",    "python similarity.py mapper3 90 item_rating_counts.txt", 
+         "-reducer",   "python similarity.py reducer3 147160",
+         "-cacheFile", "s3n://elasticmapreduce/samples/similarity/similarity.py#similarity.py",
+         "-cacheFile",    "s3n://<bucket>/lastfm/item-counts/part-00000#item_rating_counts.txt",             
+         "-jobconf",   "mapred.map.tasks=36", 
+         "-jobconf",   "mapred.reduce.tasks=18",
+         "-jobconf", "mapred.compress.map.output=true"                          
+      ] 
+    } 
+  },
+  { 
+    "Name": "MR Step 4: For each item, emit K=25 most similar items with KeyFieldBasedPartitioner", 
+    "ActionOnFailure": "TERMINATE_JOB_FLOW", 
+    "HadoopJarStep": { 
+      "Jar": "/home/hadoop/contrib/streaming/hadoop-0.18-streaming.jar", 
+      "Args": [ 
+         "-input",     "hdfs:///home/hadoop/output3/", 
+         "-output",    "s3n://<bucket>/lastfm/output-large-50/", 
+         "-mapper",    "python similarity.py mapper4 5", 
+         "-reducer",   "python similarity.py reducer4 25 artist_data.txt",
+         "-cacheFile",    "s3n://elasticmapreduce/samples/similarity/lastfm/artist_data.txt#artist_data.txt",                 
+         "-cacheFile", "s3n://elasticmapreduce/samples/similarity/similarity.py#similarity.py",
+         "-jobconf",   "mapred.map.tasks=36", 
+         "-jobconf",   "mapred.reduce.tasks=18",     
+         "-partitioner", "org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner",
+         "-jobconf", "map.output.key.field.separator=,",
+         "-jobconf", "num.key.fields.for.partition=1",
+         "-jobconf", "mapred.compress.map.output=true"         
+      ] 
+    } 
+  }           
+] 

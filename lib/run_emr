@@ -1,0 +1,225 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require 'ostruct'
+
+CREDENTIALS_PATH = File.join(File.dirname(__FILE__),
+                             'elastic-mapreduce-ruby/credentials.json')
+
+class RunEmr
+  def initialize(options)
+    @options = options
+    write_credentials
+  end
+
+  def run
+    jobflow = nil
+
+    if @options.shell
+      get_shell(@options.jobflow)
+    else
+      create_cluster
+    end
+  end
+
+  def ruby
+    ruby = '/usr/bin/env ruby'
+
+    if RUBY_VERSION =~ /^1.9/
+      # fall back to /usr/bin/ruby which is probably 1.8.
+      ruby = '/usr/bin/ruby'
+    end
+
+    ruby
+  end
+
+  def create_cluster
+    cmd = [
+      ruby,
+      'lib/elastic-mapreduce-ruby/elastic-mapreduce',
+      '--create',
+      '--name', "\"#{ENV['USER']}'s pig jobflow\"",
+      '--num-instances', @options.instance_count,
+      '--instance-type', @options.instance_type,
+      '--bootstrap-action', 's3://packetpig/bootstrap.sh',
+    ]
+
+    if @options.file
+      cmd += ['--args', @options.file]
+    end
+
+    if @options.path
+      cmd += ['--args', "-d,INPUT=#{@options.path}"]
+    end
+
+    if @options.output
+      cmd += ['--args', "-d,OUTPUT=#{@options.output}"]
+    end
+
+    if @options.interactive
+      cmd << '--pig-interactive'
+      cmd << '--alive'
+    else
+      cmd << '--pig-script'
+      cmd += ['--args', @options.file]
+    end
+
+    cmd += [
+      '--ami-version', '2.2',
+      '--hadoop-version', '1.0.3',
+      '--pig-version', '0.9.2.2',
+    ]
+
+    r = `#{cmd.join(' ')}`
+    puts r
+    r.match(/(j-.*)/)[1]
+  end
+
+  def get_shell(jobflow)
+    pig = [
+      'pig',
+      '-param snortconfig=/mnt/var/lib/snort/etc/snort.conf',
+      '-param dnspath=/mnt/var/lib/packetpig/lib/scripts/dns_parser.py',
+      '-param tcppath=/mnt/var/lib/packetpig/lib/scripts/tcp.py',
+      '-param includepath=s3://packetpig/include-emr.pig',
+    ].join(' ')
+
+    cmd = [
+      ruby,
+      'lib/elastic-mapreduce-ruby/elastic-mapreduce',
+      '--jobflow', jobflow,
+      '--ssh',
+    ]
+
+    if @options.interactive
+      cmd += ['--ssh', "\"#{pig}\""]
+    end
+
+    system(cmd.join(' '))
+  end
+
+  def write_credentials
+    fn = CREDENTIALS_PATH
+
+    ENV['EC2_REGION'] ||= 'us-east-1'
+
+    opts = Hash[
+      [ :AWS_ACCESS_KEY_ID,
+        :AWS_SECRET_ACCESS_KEY,
+        :EC2_REGION,
+        :EMR_KEYPAIR,
+        :EMR_KEYPAIR_PATH,
+        :LOG_URI,
+      ].map do |k|
+        if v = ENV[k.to_s]
+          [k, v]
+        else
+          STDERR.write "env var #{k} not defined.\n"
+          exit 1
+        end
+      end
+    ]
+
+    tpl = <<-EOT
+    {
+      "access_id": "#{opts[:AWS_ACCESS_KEY_ID]}",
+      "private_key": "#{opts[:AWS_SECRET_ACCESS_KEY]}",
+      "keypair": "#{opts[:EMR_KEYPAIR]}",
+      "key-pair-file": "#{opts[:EMR_KEYPAIR_PATH]}",
+      "log_uri": "#{opts[:LOG_URI]}",
+      "region": "#{opts[:EC2_REGION]}"
+    }
+    EOT
+
+    File.open(fn, 'w') do |f|
+      f << tpl
+    end
+  end
+end
+
+if __FILE__ == $0
+  options = OpenStruct.new
+
+  optparse = OptionParser.new do |opts|
+    #opts.banner = "Usage: #{__FILE__} -f PIG_SCRIPT -r S3_LOCATION [-c INSTANCE_COUNT] [-t INSTANCE_TYPE] [-b BID_PRICE] [-i]"
+
+    options.file = nil
+    opts.on('-f FILE', 'pig script') do |file|
+      options.file =  file
+    end
+
+    options.path = nil
+    opts.on('-r PATH', 's3 path or directory') do |path|
+      options.path = path
+    end
+
+    options.output = nil
+    opts.on('-o PATH', 's3 path or directory') do |path|
+      options.output = path
+    end
+
+    options.instance_count = 1
+    opts.on('-c INSTANCE_COUNT', Integer, 'number of ec2 instances (default: 1)') do |c|
+      options.instance_count = c
+    end
+
+    options.instance_type = 'm1.large'
+    opts.on('-t INSTANCE_TYPE', 'type of ec2 instances (default: m1.large)') do |t|
+      options.instance_type = t
+    end
+
+    options.bid_price = 0
+    opts.on('-b BID_PRICE', Float, 'bid price (optional, defaults to on-demand instances') do |b|
+      options.bid_price = b
+    end
+
+    options.interactive = false
+    opts.on('-i', 'interactive pig shell') do
+      options.interactive = true
+    end
+
+    options.shell = false
+    opts.on('-s JOBFLOW_ID', 'run shell only') do |job|
+      options.shell = true
+      options.jobflow = job
+    end
+
+    opts.on('-h', '--help', 'Display this screen') do
+      puts opts
+      puts
+      puts "Environment variables:"
+      puts <<-EOE
+    AWS_ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY
+    EMR_KEYPAIR
+    EMR_KEYPAIR_PATH
+    LOG_URI
+    EC2_REGION (optional, defaults to us-east-1)
+      EOE
+      exit
+    end
+  end
+
+  optparse.parse!
+
+  unless options.file
+    puts "-f must be specified"
+    puts optparse
+    exit 1
+  end
+
+  unless options.path
+    puts "-r must be specified"
+    puts optparse
+    exit 1
+  end
+
+  unless options.output || options.interactive || options.shell
+    puts "-o must be specified"
+    puts optparse
+    exit 1
+  end
+
+  RunEmr.new(options).run
+end
+

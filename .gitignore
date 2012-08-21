@@ -18,3 +18,4 @@ secret
 output
 *.pyc
 
+lib/elastic-mapreduce-ruby/credentials.json

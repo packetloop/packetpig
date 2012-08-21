@@ -1,0 +1,61 @@
+= ChangeLog
+
+== 2010-04-07 Support for Bootstrap Actions
+
+* Added support for bootstrap actions including a new command line parameter
+  --bootstrap-action
+
+* Added some extra command line options such as --plain-output, --ssh, 
+  and --scp. The --ssh command now waits for the jobflow to be running
+  before contacting unless the --no-wait flag is passed.
+
+== 2010-05-27 Support for Hadoop 0.20 and Hive 0.5
+
+* Added support for specifying Hadoop version using --hadoop-version option.  
+  Hadoop 0.20 supports Hive 0.5 and Hadoop 0.18 supports Hive 0.4. The default
+  Hadoop version is 0.20. 
+
+* Added support for installing Hive using hive-script instead of directly 
+  installing a particular version of Hive.
+  
+* Added support for streaming arguments of Hadoop 0.20 (-files, -archives, -D).
+
+== 2010-09-16 Support for fetching files from EMR
+
+* Added --get option to scp from files EMR. Added symmetric --put option that 
+  behaves exactly like --scp.
+
+== 2010-10-19 Added support for resizing running job flows. 
+
+* Added new arguments for resizing running job flows --add-instance-group, 
+  --modify-instance-group, and --unarrest-instance-group.
+
+* Added a new step for resizing a job flow at a particular point.
+
+* Substantially reworked processing arguments to be more consistent and unit testable.
+
+== 2010-11-11 Bug fixes
+
+* Fixed processing of Pig and Hive script commands to allow
+  --hive-script CMD and --hive-script --args CMD as well 
+
+* Fixed processing of --main-class
+
+== 2011-01-24 Bug fixes
+
+* Fix list option so that it retrieves jobflows created in the last 2
+  days rather than the last day
+
+* Fix the --json command processing so that it works now.
+
+== 2011-08-05 Added Support for running JobFlow in the Spot Market
+
+* You may now specify a bit price when creating instance groups, 
+  e.g. --bid-price 0.10 to specify a spot bid price of 10 cents.
+
+== 2011-11-23 Elastic IP Bug Fix
+
+* Fixed the Elastic IP code and associated --eip command line option which
+  were broken by the last release.
+
+== 2012-06-12 Added Support for HBase and MapR.

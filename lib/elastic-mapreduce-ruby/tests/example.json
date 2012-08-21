@@ -1,0 +1,14 @@
+[
+  {
+    "Name": "Example Step",
+        "ActionOnFailure": "CONTINUE",
+        "HadoopJarStep": {
+        "Jar": "/home/hadoop/contrib/streaming/hadoop-0.18-streaming.jar",
+            "Args": [
+                "-input", "s3n://elasticmapreduce/samples/wordcount/input",
+                "-output", "s3n://<bucket>/result",
+                "-mapper", "s3://<bucket>/lib/mapper"
+            ]
+        }
+  }
+]
