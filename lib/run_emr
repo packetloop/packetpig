@@ -44,6 +44,10 @@ class RunEmr
       '--bootstrap-action', 's3://packetpig/bootstrap.sh',
     ]
 
+    if @options.bid_price != 0
+      cmd += ['--bid-price', @options.bid_price]
+    end
+
     if @options.file
       cmd += ['--args', @options.file]
     end
@@ -56,13 +60,10 @@ class RunEmr
       cmd += ['--args', "-d,OUTPUT=#{@options.output}"]
     end
 
-    if @options.bid_price
-      cmd += ['--bid-price', @options.bid_price]
-    end
+    cmd << '--alive'
 
     if @options.interactive
       cmd << '--pig-interactive'
-      cmd << '--alive'
     else
       cmd << '--pig-script'
       cmd += [
