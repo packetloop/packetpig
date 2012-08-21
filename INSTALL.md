@@ -99,7 +99,8 @@ Once brew is working correctly you can install the bulk of the requirements for 
 For some of the Python modules you can't use Homebrew so I used the pip package mangaer.
 
     sudo easy_install pip
-    sudo easy_install ipython
+    sudo pip insatll ipython
+    sudo pip install python-magic
 
 Then lastly you need to install pynids from source.
 
