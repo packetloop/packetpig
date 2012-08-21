@@ -56,12 +56,22 @@ class RunEmr
       cmd += ['--args', "-d,OUTPUT=#{@options.output}"]
     end
 
+    if @options.bid_price
+      cmd += ['--bid-price', @options.bid_price]
+    end
+
     if @options.interactive
       cmd << '--pig-interactive'
       cmd << '--alive'
     else
       cmd << '--pig-script'
-      cmd += ['--args', @options.file]
+      cmd += [
+        '--args', @options.file,
+        '--args', '-param,snortconfig=/mnt/var/lib/snort/etc/snort.conf',
+        '--args', '-param,dnspath=/mnt/var/lib/packetpig/lib/scripts/dns_parser.py',
+        '--args', '-param,tcppath=/mnt/var/lib/packetpig/lib/scripts/tcp.py',
+        '--args', '-param,includepath=s3://packetpig/include-emr.pig',
+      ]
     end
 
     cmd += [
@@ -202,16 +212,18 @@ if __FILE__ == $0
 
   optparse.parse!
 
-  unless options.file
-    puts "-f must be specified"
-    puts optparse
-    exit 1
-  end
+  unless options.shell
+    unless options.file
+      puts "-f must be specified"
+      puts optparse
+      exit 1
+    end
 
-  unless options.path
-    puts "-r must be specified"
-    puts optparse
-    exit 1
+    unless options.path
+      puts "-r must be specified"
+      puts optparse
+      exit 1
+    end
   end
 
   unless options.output || options.interactive || options.shell
