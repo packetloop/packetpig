@@ -51,4 +51,4 @@ uniqcnt = FOREACH port_group {
                    GENERATE group, COUNT(uniq_dst);
 };
 
-STORE uniqcnt INTO 'output/src_distinct_destinations';
+STORE uniqcnt INTO '$output/src_distinct_destinations';

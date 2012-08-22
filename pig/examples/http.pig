@@ -1,5 +1,5 @@
-%DEFAULT prefix pig
-RUN $prefix/include.pig;
+%DEFAULT includepath pig/include.pig
+RUN $includepath;
 
 %DEFAULT time 60
 %DEFAULT field ''
@@ -14,5 +14,5 @@ http = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.protocol.HTTPCon
     fields:tuple()
 );
 
-STORE http INTO 'output/http';
+STORE http INTO '$output/http';
 

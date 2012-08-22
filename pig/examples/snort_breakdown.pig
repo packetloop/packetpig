@@ -45,4 +45,4 @@ summary = FOREACH joined GENERATE prio1_summary::group, prio1_count, prio3_count
 --summary = FOREACH joined GENERATE prio1_summary::group, prio1_count, prio2_count, prio3_count;
 
 
-STORE summary INTO 'output/snort_breakdown';
+STORE summary INTO '$output/snort_breakdown';

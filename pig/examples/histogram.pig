@@ -48,4 +48,4 @@ packet_sizes = GROUP packets BY ip_total_length;
 packet_size_freq = FOREACH packet_sizes GENERATE group, COUNT(packets.ts) AS count;
 result = ORDER packet_size_freq BY count;
 
-STORE result INTO 'output/histogram';
+STORE result INTO '$output/histogram';

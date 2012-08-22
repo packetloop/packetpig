@@ -72,5 +72,5 @@ packet_summary = FOREACH all_packets {
     ;
 };
 
-STORE packet_summary INTO 'output/uber';
+STORE packet_summary INTO '$output/uber';
 

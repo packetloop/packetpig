@@ -52,4 +52,4 @@ port_cnt = FOREACH port_group
 
 port_result = ORDER port_cnt BY sum_tcp DESC;
 
-STORE port_result INTO 'output/ports_ordered_sum';
+STORE port_result INTO '$output/ports_ordered_sum';

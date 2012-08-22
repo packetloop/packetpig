@@ -31,6 +31,7 @@ def generate_cmd(conf):
     cmd = []
     cmd.append('pig -v')
     cmd.append('-x ' + conf.mode)
+    cmd.append('-param output=output')
 
     if conf.mode == 'mapreduce':
         pig_path = prepend_hdfs_path(conf, conf.pig_path)

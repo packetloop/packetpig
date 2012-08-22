@@ -19,6 +19,6 @@ domain_grouped = GROUP response BY (name,ttl);
 
 cnt_by_ttl = FOREACH domain_grouped GENERATE FLATTEN(group), COUNT(response);
 
-STORE cnt_by_ttl INTO 'output/dns_response_ttl' USING PigStorage(',');
+STORE cnt_by_ttl INTO '$output/dns_response_ttl' USING PigStorage(',');
 
 -- Check r/examples/dns_ttl.r for plots

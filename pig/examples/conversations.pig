@@ -60,5 +60,5 @@ r = JOIN
 r = GROUP r BY (conversations::src, conversations::sport, conversations::dst, conversations::dport);
 r = FOREACH r GENERATE SUM(r.packets::ip_total_length);
 
-STORE r INTO 'output/conversations' USING PigStorage(',');
+STORE r INTO '$output/conversations' USING PigStorage(',');
 

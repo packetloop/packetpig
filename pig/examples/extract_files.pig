@@ -25,4 +25,4 @@ streams =
     name:chararray
   );
 
-STORE streams INTO 'output/extract_files';
+STORE streams INTO '$output/extract_files';

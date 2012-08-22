@@ -31,4 +31,4 @@ joined = JOIN outgoing BY group, incoming BY group;
 
 lengths = FOREACH joined GENERATE outgoing::group, SUM(outgoing::packets.ip_total_length) + SUM(incoming::packets.ip_total_length);
 
-STORE lengths INTO 'output/protocol_size_histogram';
+STORE lengths INTO '$output/protocol_size_histogram';

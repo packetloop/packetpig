@@ -48,4 +48,4 @@ src_summary = FOREACH src_grouped
 
 ordered_by_sum = ORDER src_summary BY sum DESC;
 
-STORE ordered_by_sum INTO 'output/protocol';
+STORE ordered_by_sum INTO '$output/protocol';

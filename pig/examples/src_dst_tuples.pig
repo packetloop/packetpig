@@ -52,5 +52,5 @@ cnt = FOREACH src_dst_group
 
 order_cnt = ORDER cnt BY sum_packets DESC;
 
-STORE cnt INTO 'output/src_dst_tuples';
+STORE cnt INTO '$output/src_dst_tuples';
 

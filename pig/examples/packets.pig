@@ -40,4 +40,4 @@ packets = LOAD '$pcap' using com.packetloop.packetpig.loaders.pcap.packet.Packet
     udp_checksum:chararray
 );
 
-STORE packets INTO 'output/packets';
+STORE packets INTO '$output/packets';

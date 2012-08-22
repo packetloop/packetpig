@@ -1,5 +1,5 @@
-%DEFAULT prefix pig
-RUN $prefix/include.pig;
+%DEFAULT includepath pig/include.pig
+RUN $includepath;
 
 %DEFAULT snortconfig 'lib/snort/etc/snort.conf'
 

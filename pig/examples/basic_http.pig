@@ -1,5 +1,5 @@
-%DEFAULT prefix pig
-RUN $prefix/include.pig;
+%DEFAULT includepath pig/include.pig
+RUN $includepath;
 
 %DEFAULT time 60
 --%DEFAULT field 'etag'

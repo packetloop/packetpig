@@ -32,8 +32,8 @@ countries = FOREACH countries
     COUNT(countries.priority) as attacks;
 
 countries_by_attacks = ORDER countries BY attacks;
-STORE countries_by_attacks into 'output/snort_countries_by_attacks';
+STORE countries_by_attacks into '$output/snort_countries_by_attacks';
 
 countries_by_severity = ORDER countries BY average_severity;
-STORE countries_by_severity into 'output/snort_countries_by_severity';
+STORE countries_by_severity into '$output/snort_countries_by_severity';
 

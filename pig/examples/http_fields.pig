@@ -1,5 +1,5 @@
-%DEFAULT prefix pig
-RUN $prefix/include.pig;
+%DEFAULT includepath pig/include.pig
+RUN $includepath;
 
 %DEFAULT time 60
 %DEFAULT field 'user-agent'
@@ -40,4 +40,4 @@ countries = FOREACH countries {
                   generate group, COUNT(countries);
 };
 
-STORE countries INTO 'output/http_fields';
+STORE countries INTO '$output/http_fields';

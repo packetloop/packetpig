@@ -43,5 +43,5 @@ summary = FOREACH joined GENERATE FLATTEN(second_group::group), fingerprints.os,
 
 --DUMP summary;
 
-STORE summary INTO 'output/p0f_http';
+STORE summary INTO '$output/p0f_http';
 

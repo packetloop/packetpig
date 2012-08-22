@@ -51,4 +51,4 @@ uniqcnt  = FOREACH port_group {
                    --sort = order by cnt_dst_port;
 };
 
-STORE uniqcnt INTO 'output/src_distinct_ports';
+STORE uniqcnt INTO '$output/src_distinct_ports';

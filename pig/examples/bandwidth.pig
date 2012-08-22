@@ -50,5 +50,5 @@ bandwidth = FOREACH bins
                     group,
                     SUM(packets.ip_total_length);
 
-STORE bandwidth INTO 'output/bandwidth' USING PigStorage(',');
+STORE bandwidth INTO '$output/bandwidth' USING PigStorage(',');
 
