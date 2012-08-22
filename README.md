@@ -68,13 +68,13 @@ The list of available arguments are listed when running `--help` as an argument,
     # lib/run_emr -f s3://your-data/analyse.pig -r s3://your-data/captures/ -c 4 -t m1.large -b 0.01
 
 Specify -i to get an interactive pig shell on the emr cluster.
+Check -h for full options or refer to X for examples.
 
 The following environment variables will configure the emr credentials for you:
     # AWS_ACCESS_KEY_ID
     # AWS_SECRET_ACCESS_KEY
     # EMR_KEYPAIR
     # EMR_KEYPAIR_PATH
-    # LOG_URI
     # EC2_REGION (optional, defaults to us-east-1)
 
 ### put.sh

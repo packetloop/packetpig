@@ -35,4 +35,4 @@ useragent_frequency = GROUP snort_http BY field;
 summary = FOREACH useragent_frequency GENERATE group, COUNT(snort_http) AS count;
 summary = ORDER summary BY count DESC;
 
-STORE summary INTO 'output/attacker_useragents';
+STORE summary INTO '$output/attacker_useragents';

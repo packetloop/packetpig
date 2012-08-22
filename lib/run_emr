@@ -19,16 +19,17 @@ class RunEmr
       create_cluster
     end
 
-    if @options.shell
+    watch_thread = nil
+    if @options.watch
+      watch_thread = Thread.new { watch_job }
+    end
+
+    if @options.shell || @options.interactive
       get_shell
     end
 
     if @options.tracker
       forward_tracker
-    end
-
-    if @options.watch
-      watch_job
     end
 
     if @options.terminate
@@ -37,6 +38,10 @@ class RunEmr
 
     if @options.list
       list_jobs
+    end
+
+    if watch_thread
+      watch_thread.join
     end
   end
 
@@ -51,11 +56,14 @@ class RunEmr
     ruby
   end
 
+  def emr
+    "#{ruby} lib/elastic-mapreduce-ruby/elastic-mapreduce"
+  end
+
   def create_cluster
     write_credentials
     cmd = [
-      ruby,
-      'lib/elastic-mapreduce-ruby/elastic-mapreduce',
+      emr,
       '--create',
       '--name', "\"#{ENV['USER']}'s pig jobflow\"",
       '--num-instances', @options.instance_count,
@@ -68,8 +76,8 @@ class RunEmr
     end
 
     if @options.interactive
-      cmd << '--pig-interactive'
       cmd << '--alive'
+      cmd << '--pig-interactive'
     else
       cmd += ['--pig-script', @options.file]
       cmd += ['--step-name', File.basename(@options.file)]
@@ -96,13 +104,13 @@ class RunEmr
       if args.any?
         cmd += ['--args', args.join(',')]
       end
-    end
 
-    cmd += [
-      '--ami-version', '2.2',
-      '--hadoop-version', '1.0.3',
-      '--pig-version', '0.9.2.2',
-    ]
+      cmd += [
+        '--ami-version', '2.2',
+        '--hadoop-version', '1.0.3',
+        '--pig-version', '0.9.2.2',
+      ]
+    end
 
     puts cmd.join(' ')
     r = `#{cmd.join(' ')}`
@@ -112,8 +120,7 @@ class RunEmr
 
   def get_shell(options={})
     cmd = [
-      ruby,
-      'lib/elastic-mapreduce-ruby/elastic-mapreduce',
+      emr,
       '--jobflow', @options.jobflow,
       '--ssh',
     ]
@@ -121,10 +128,10 @@ class RunEmr
     if @options.interactive
       pig = [
         'pig',
-        '-param snortconfig=/mnt/var/lib/snort/etc/snort.conf',
-        '-param dnspath=/mnt/var/lib/packetpig/lib/scripts/dns_parser.py',
-        '-param tcppath=/mnt/var/lib/packetpig/lib/scripts/tcp.py',
-        '-param includepath=s3://packetpig/pig/include-emr.pig',
+        '-p includepath=s3://packetpig/pig/include-emr.pig',
+        '-p snortconfig=/mnt/var/lib/snort/etc/snort.conf',
+        '-p dnspath=/mnt/var/lib/packetpig/lib/scripts/dns_parser.py',
+        '-p tcppath=/mnt/var/lib/packetpig/lib/scripts/tcp.py',
       ].join(' ')
 
       cmd += ["\"#{pig}\""]
@@ -134,27 +141,33 @@ class RunEmr
       cmd += ["\"#{options[:cmd]}\""]
     end
 
-    system(cmd.join(' '))
+
+    r = false
+    while !r do
+      r = system(cmd.join(' '))
+      sleep 1
+    end
   end
 
   def get_host
     cmd = [
-      ruby,
-      'lib/elastic-mapreduce-ruby/elastic-mapreduce',
+      emr,
       '--jobflow', @options.jobflow,
       '--describe',
     ]
 
-    @state = nil
     data = JSON.parse(`#{cmd.join(' ')}`)
-    host = data['JobFlows'][0]['Instances']['MasterPublicDnsName']
-    data['JobFlows'][0]['Instances']['InstanceGroups'].each do |ig|
-      state = ig['State']
-      if state != @state
-        puts state
-      end
-    end
-    host
+    data['JobFlows'][0]['Instances']['MasterPublicDnsName']
+  end
+
+  def ssh
+    [
+      'ssh',
+      '-o', 'ServerAliveInterval=10',
+      '-o', 'StrictHostKeyChecking=no',
+      '-o', 'KbdInteractiveDevices=none',
+      '-i', ENV['EMR_KEYPAIR_PATH'],
+    ]
   end
 
   def forward_tracker
@@ -162,12 +175,7 @@ class RunEmr
     get_shell(:cmd => "echo 'Connect to http://localhost:9100/jobtracker.jsp - hit ctrl-c to stop the ssh forwarder'")
     host = get_host
 
-    cmd = [
-      'ssh',
-      '-o', 'ServerAliveInterval=10',
-      '-o', 'StrictHostKeyChecking=no',
-      '-o', 'KbdInteractiveDevices=none',
-      '-i', ENV['EMR_KEYPAIR_PATH'],
+    cmd = ssh + [
       '-L', '9100:localhost:9100',
       "hadoop@#{host}",
       '-N',
@@ -179,19 +187,13 @@ class RunEmr
   def watch_job
     host = get_host
     while !host
-      sleep 10
+      sleep 30
       host = get_host
     end
 
-    cmd = [
-      'ssh',
-      '-q',
-      '-o', 'ServerAliveInterval=10',
-      '-o', 'StrictHostKeyChecking=no',
-      '-o', 'KbdInteractiveDevices=none',
-      '-i', ENV['EMR_KEYPAIR_PATH'],
+    cmd = ssh + [
       "hadoop@#{host}",
-      '"/mnt/var/lib/packetpig/lib/tailer /mnt/var/log/bootstrap-actions/*/std* /mnt/var/log/hadoop/steps/*/std*"',
+      '"/mnt/var/lib/packetpig/lib/tailer /mnt/var/log/bootstrap-actions/*/std* /mnt/var/log/hadoop/steps/*/std*" 2>/dev/null',
     ]
 
     r = false
@@ -203,8 +205,7 @@ class RunEmr
 
   def terminate_job
     cmd = [
-      ruby,
-      'lib/elastic-mapreduce-ruby/elastic-mapreduce',
+      emr,
       '--jobflow', @options.jobflow,
       '--terminate',
     ]
@@ -214,8 +215,7 @@ class RunEmr
 
   def list_jobs
     cmd = [
-      ruby,
-      'lib/elastic-mapreduce-ruby/elastic-mapreduce',
+      emr,
       '--describe',
     ]
 
@@ -372,7 +372,7 @@ if __FILE__ == $0
 
   optparse.parse!
 
-  if options.create
+  if !options.interactive && options.create
     unless options.file
       puts "-f must be specified"
       puts optparse
