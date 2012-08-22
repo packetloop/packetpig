@@ -4,7 +4,7 @@ RUN $includepath;
 %DEFAULT time 60
 %DEFAULT field ''
 
-http = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.protocol.HTTPConversationLoader('$field') AS (
+http = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.protocol.HTTPConversationLoader('$field', '$tcppath') AS (
     ts:long,
     src:chararray,
     sport:int,

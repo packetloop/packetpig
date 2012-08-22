@@ -5,7 +5,7 @@ RUN $includepath;
 %DEFAULT field 'user-agent'
 --%DEFAULT field 'set-cookie'
 
-http_conversations = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.protocol.HTTPConversationLoader('$field') AS (
+http_conversations = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.protocol.HTTPConversationLoader('$field', '$tcppath') AS (
     ts:long,
     src:chararray,
     sport:int,
