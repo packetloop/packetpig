@@ -34,6 +34,10 @@ class RunEmr
     if @options.terminate
       terminate_job
     end
+
+    if @options.list
+      list_jobs
+    end
   end
 
   def ruby
@@ -63,10 +67,9 @@ class RunEmr
       cmd += ['--bid-price', @options.bid_price]
     end
 
-    cmd << '--alive'
-
     if @options.interactive
       cmd << '--pig-interactive'
+      cmd << '--alive'
     else
       cmd += ['--pig-script', @options.file]
       cmd += ['--step-name', File.basename(@options.file)]
@@ -209,6 +212,28 @@ class RunEmr
     puts `#{cmd.join(' ')}`
   end
 
+  def list_jobs
+    cmd = [
+      ruby,
+      'lib/elastic-mapreduce-ruby/elastic-mapreduce',
+      '--describe',
+    ]
+
+    JSON.parse(`#{cmd.join(' ')}`)['JobFlows'].each do |jobflow|
+      state = jobflow['ExecutionStatusDetail']['State']
+      name = jobflow['Name']
+      unless ['TERMINATED', 'FAILED', 'COMPLETED'].include?(state)
+        puts "#{jobflow['JobFlowId']}\t#{state}\t#{name}"
+        jobflow['Steps'].each do |step|
+          t0 = Time.at(step['ExecutionStatusDetail']['StartDateTime']).to_i rescue Time.now.to_i
+          t1 = Time.at(step['ExecutionStatusDetail']['EndDateTime']).to_i rescue Time.now.to_i
+          state = step['ExecutionStatusDetail']['State']
+          printf "\t%-60s%-20s%10ds\n", step['StepConfig']['Name'], state, t1 - t0
+        end
+      end
+    end
+  end
+
   def write_credentials
     fn = CREDENTIALS_PATH
 
@@ -322,6 +347,12 @@ if __FILE__ == $0
         options.create = false
         options.jobflow = job
       end
+    end
+
+    options.list = false
+    opts.on('-e', '--list', 'list non-terminated jobflows') do
+      options.list = true
+      options.create = false
     end
 
     opts.on('-h', '--help', 'Display this screen') do
