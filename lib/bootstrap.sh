@@ -12,6 +12,7 @@ echo debs
 echo "****************************************"
 
 echo "deb http://mirror.cse.iitk.ac.in/debian/ testing main contrib" | sudo sh -c "cat >> /etc/apt/sources.list"
+sudo sed -i -s 's/Pin-Priority: 900/Pin-Priority: 1020/' /etc/apt/preferences
 
 sudo apt-get update -q
 sudo apt-get install -qy --force-yes python2.7 tcpdump libnids1.21 libglib2.0-dev pkg-config libnet1-dev libpcap-dev libmagic-dev p0f 

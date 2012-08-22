@@ -178,7 +178,6 @@ class RunEmr
     while !host
       sleep 10
       host = get_host
-      p host
     end
 
     cmd = [
@@ -195,7 +194,6 @@ class RunEmr
     r = false
     while !r do
       r = system(cmd.join(' '))
-      p r
       sleep 1
     end
   end
