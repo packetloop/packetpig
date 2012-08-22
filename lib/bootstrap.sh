@@ -1,8 +1,19 @@
 echo "****************************************"
+echo pig
+echo "****************************************"
+
+hadoop fs -copyToLocal s3n://packetpig/pig/include-emr.pig $HOME/.pigbootup
+hadoop fs -copyToLocal s3n://packetpig/scripts.tar.gz scripts.tar.gz
+mkdir -p /mnt/var/lib/packetpig
+tar -zvxf scripts.tar.gz -C /mnt/var/lib/packetpig
+
+echo "****************************************"
 echo debs
 echo "****************************************"
 
-sudo apt-get install -y tcpdump libnids1.21 libglib2.0-dev pkg-config libnet1-dev libyaml-dev libpcap-dev libmagic-dev p0f 
+echo "deb http://mirror.cse.iitk.ac.in/debian/ testing main contrib" | sudo sh -c "cat >> /etc/apt/sources.list"
+
+sudo apt-get install -qy --force-yes python2.7 tcpdump libnids1.21 libglib2.0-dev pkg-config libnet1-dev libpcap-dev libmagic-dev p0f 
 
 hadoop fs -copyToLocal s3n://packetloop-emr/libdnet_1.12-1_amd64.deb libdnet_1.12-1_amd64.deb
 hadoop fs -copyToLocal s3n://packetloop-emr/daq_0.5-1_amd64.deb daq_0.5-1_amd64.deb
@@ -13,20 +24,6 @@ sudo dpkg -i snort_2.9.0.5-1_amd64.deb
 
 sudo ln -sf /usr/lib/snort_dynamicengine /usr/local/lib/snort_dynamicengine
 sudo ln -sf /usr/lib/snort_dynamicpreprocessor /usr/local/lib/snort_dynamicpreprocessor
-
-echo "****************************************"
-echo python
-echo "****************************************"
-
-wget http://python.org/ftp/python/2.7.2/Python-2.7.2.tar.bz2
-tar jfx Python-2.7.2.tar.bz2
-cd Python-2.7.2
-./configure --with-threads --enable-shared
-make -j 4
-sudo make install
-sudo ln -s /usr/local/lib/libpython2.7.so.1.0 /usr/lib/
-sudo ln -s /usr/local/lib/libpython2.7.so /usr/
-cd ..
 
 echo "****************************************"
 echo easy_install
@@ -45,14 +42,7 @@ echo "****************************************"
 echo pips
 echo "****************************************"
 
-# TODO: use requirements.txt
-sudo pip install pycassa==1.6.0
-sudo pip install mrjob==0.3.3.2
-sudo pip install PyYaml==3.10
-sudo pip install python-daemon==1.5.5
-sudo pip install lockfile==0.9.1
-sudo pip install six==1.1.0
-sudo pip install bulbs==0.3
+sudo pip install python-magic
 
 echo "****************************************"
 echo scapy
@@ -83,10 +73,4 @@ echo "****************************************"
 
 hadoop fs -copyToLocal s3n://packetloop-emr/snort.tar.gz snort.tar.gz
 tar -xzf snort.tar.gz -C /mnt/var/lib
-
-echo "****************************************"
-echo pig
-echo "****************************************"
-
-hadoop fs -copyToLocal s3n://packetpig/.pigbootup $HOME/.pigbootup
 

@@ -2,6 +2,7 @@
 
 require 'optparse'
 require 'ostruct'
+require 'json'
 
 CREDENTIALS_PATH = File.join(File.dirname(__FILE__),
                              'elastic-mapreduce-ruby/credentials.json')
@@ -9,16 +10,29 @@ CREDENTIALS_PATH = File.join(File.dirname(__FILE__),
 class RunEmr
   def initialize(options)
     @options = options
-    write_credentials
   end
 
   def run
     jobflow = nil
 
-    if @options.shell
-      get_shell(@options.jobflow)
-    else
+    if @options.create
       create_cluster
+    end
+
+    if @options.shell
+      get_shell
+    end
+
+    if @options.tracker
+      forward_tracker
+    end
+
+    if @options.watch
+      watch_job
+    end
+
+    if @options.terminate
+      terminate_job
     end
   end
 
@@ -34,6 +48,7 @@ class RunEmr
   end
 
   def create_cluster
+    write_credentials
     cmd = [
       ruby,
       'lib/elastic-mapreduce-ruby/elastic-mapreduce',
@@ -48,31 +63,36 @@ class RunEmr
       cmd += ['--bid-price', @options.bid_price]
     end
 
-    if @options.file
-      cmd += ['--args', @options.file]
-    end
-
-    if @options.path
-      cmd += ['--args', "-d,INPUT=#{@options.path}"]
-    end
-
-    if @options.output
-      cmd += ['--args', "-d,OUTPUT=#{@options.output}"]
-    end
-
     cmd << '--alive'
 
     if @options.interactive
       cmd << '--pig-interactive'
     else
-      cmd << '--pig-script'
-      cmd += [
-        '--args', @options.file,
-        '--args', '-param,snortconfig=/mnt/var/lib/snort/etc/snort.conf',
-        '--args', '-param,dnspath=/mnt/var/lib/packetpig/lib/scripts/dns_parser.py',
-        '--args', '-param,tcppath=/mnt/var/lib/packetpig/lib/scripts/tcp.py',
-        '--args', '-param,includepath=s3://packetpig/include-emr.pig',
+      cmd += ['--pig-script', @options.file]
+      cmd += ['--step-name', File.basename(@options.file)]
+
+      #if @options.continue
+      #  cmd += ['--step-action', 'CONTINUE']
+      #end
+
+      args = [
+        '-p,includepath=s3://packetpig/pig/include-emr.pig',
+        '-p,snortconfig=/mnt/var/lib/snort/etc/snort.conf',
+        '-p,dnspath=/mnt/var/lib/packetpig/lib/scripts/dns_parser.py',
+        '-p,tcppath=/mnt/var/lib/packetpig/lib/scripts/tcp.py',
       ]
+
+      if @options.path
+        args << "-p,pcap=#{@options.path}"
+      end
+
+      if @options.output
+        args << "-p,output=#{File.join(@options.output, "output-#{Time.now.to_i}")}"
+      end
+
+      if args.any?
+        cmd += ['--args', args.join(',')]
+      end
     end
 
     cmd += [
@@ -81,32 +101,114 @@ class RunEmr
       '--pig-version', '0.9.2.2',
     ]
 
+    puts cmd.join(' ')
     r = `#{cmd.join(' ')}`
     puts r
-    r.match(/(j-.*)/)[1]
+    @options.jobflow = r.match(/(j-.*)/)[1]
   end
 
-  def get_shell(jobflow)
-    pig = [
-      'pig',
-      '-param snortconfig=/mnt/var/lib/snort/etc/snort.conf',
-      '-param dnspath=/mnt/var/lib/packetpig/lib/scripts/dns_parser.py',
-      '-param tcppath=/mnt/var/lib/packetpig/lib/scripts/tcp.py',
-      '-param includepath=s3://packetpig/include-emr.pig',
-    ].join(' ')
-
+  def get_shell(options={})
     cmd = [
       ruby,
       'lib/elastic-mapreduce-ruby/elastic-mapreduce',
-      '--jobflow', jobflow,
+      '--jobflow', @options.jobflow,
       '--ssh',
     ]
 
     if @options.interactive
-      cmd += ['--ssh', "\"#{pig}\""]
+      pig = [
+        'pig',
+        '-param snortconfig=/mnt/var/lib/snort/etc/snort.conf',
+        '-param dnspath=/mnt/var/lib/packetpig/lib/scripts/dns_parser.py',
+        '-param tcppath=/mnt/var/lib/packetpig/lib/scripts/tcp.py',
+        '-param includepath=s3://packetpig/pig/include-emr.pig',
+      ].join(' ')
+
+      cmd += ["\"#{pig}\""]
+    end
+
+    if options[:cmd]
+      cmd += ["\"#{options[:cmd]}\""]
     end
 
     system(cmd.join(' '))
+  end
+
+  def get_host
+    cmd = [
+      ruby,
+      'lib/elastic-mapreduce-ruby/elastic-mapreduce',
+      '--jobflow', @options.jobflow,
+      '--describe',
+    ]
+
+    @state = nil
+    data = JSON.parse(`#{cmd.join(' ')}`)
+    host = data['JobFlows'][0]['Instances']['MasterPublicDnsName']
+    data['JobFlows'][0]['Instances']['InstanceGroups'].each do |ig|
+      state = ig['State']
+      if state != @state
+        puts state
+      end
+    end
+    host
+  end
+
+  def forward_tracker
+    # wait for boot, just reuse the get_shell with a cool command to let us know it's ready
+    get_shell(:cmd => "echo 'Connect to http://localhost:9100/jobtracker.jsp - hit ctrl-c to stop the ssh forwarder'")
+    host = get_host
+
+    cmd = [
+      'ssh',
+      '-o', 'ServerAliveInterval=10',
+      '-o', 'StrictHostKeyChecking=no',
+      '-o', 'KbdInteractiveDevices=none',
+      '-i', ENV['EMR_KEYPAIR_PATH'],
+      '-L', '9100:localhost:9100',
+      "hadoop@#{host}",
+      '-N',
+    ]
+
+    `#{cmd.join(' ')}`
+  end
+
+  def watch_job
+    host = get_host
+    while !host
+      sleep 10
+      host = get_host
+      p host
+    end
+
+    cmd = [
+      'ssh',
+      '-q',
+      '-o', 'ServerAliveInterval=10',
+      '-o', 'StrictHostKeyChecking=no',
+      '-o', 'KbdInteractiveDevices=none',
+      '-i', ENV['EMR_KEYPAIR_PATH'],
+      "hadoop@#{host}",
+      '"/mnt/var/lib/packetpig/lib/tailer /mnt/var/log/bootstrap-actions/*/std* /mnt/var/log/hadoop/steps/*/std*"',
+    ]
+
+    r = false
+    while !r do
+      r = system(cmd.join(' '))
+      p r
+      sleep 1
+    end
+  end
+
+  def terminate_job
+    cmd = [
+      ruby,
+      'lib/elastic-mapreduce-ruby/elastic-mapreduce',
+      '--jobflow', @options.jobflow,
+      '--terminate',
+    ]
+
+    puts `#{cmd.join(' ')}`
   end
 
   def write_credentials
@@ -120,7 +222,6 @@ class RunEmr
         :EC2_REGION,
         :EMR_KEYPAIR,
         :EMR_KEYPAIR_PATH,
-        :LOG_URI,
       ].map do |k|
         if v = ENV[k.to_s]
           [k, v]
@@ -137,7 +238,7 @@ class RunEmr
       "private_key": "#{opts[:AWS_SECRET_ACCESS_KEY]}",
       "keypair": "#{opts[:EMR_KEYPAIR]}",
       "key-pair-file": "#{opts[:EMR_KEYPAIR_PATH]}",
-      "log_uri": "#{opts[:LOG_URI]}",
+      "log_uri": "#{@options.log_uri}",
       "region": "#{opts[:EC2_REGION]}"
     }
     EOT
@@ -150,49 +251,79 @@ end
 
 if __FILE__ == $0
   options = OpenStruct.new
+  options.create = true
 
   optparse = OptionParser.new do |opts|
     #opts.banner = "Usage: #{__FILE__} -f PIG_SCRIPT -r S3_LOCATION [-c INSTANCE_COUNT] [-t INSTANCE_TYPE] [-b BID_PRICE] [-i]"
 
     options.file = nil
-    opts.on('-f FILE', 'pig script') do |file|
+    opts.on('-f FILE', '--file', 'pig script') do |file|
       options.file =  file
     end
 
     options.path = nil
-    opts.on('-r PATH', 's3 path or directory') do |path|
+    opts.on('-r PATH', '--read', 's3 path or directory') do |path|
       options.path = path
     end
 
+    options.log_uri = nil
+    opts.on('-l PATH', '--log-uri', 's3 path or directory') do |path|
+      options.log_uri = path
+    end
+
     options.output = nil
-    opts.on('-o PATH', 's3 path or directory') do |path|
+    opts.on('-o PATH', '--output', 's3 path or directory') do |path|
       options.output = path
     end
 
     options.instance_count = 1
-    opts.on('-c INSTANCE_COUNT', Integer, 'number of ec2 instances (default: 1)') do |c|
+    opts.on('-c INSTANCE_COUNT', Integer, '--instance-count', 'number of ec2 instances (default: 1)') do |c|
       options.instance_count = c
     end
 
     options.instance_type = 'm1.large'
-    opts.on('-t INSTANCE_TYPE', 'type of ec2 instances (default: m1.large)') do |t|
+    opts.on('-t INSTANCE_TYPE', '--instance-type', 'type of ec2 instances (default: m1.large)') do |t|
       options.instance_type = t
     end
 
     options.bid_price = 0
-    opts.on('-b BID_PRICE', Float, 'bid price (optional, defaults to on-demand instances') do |b|
+    opts.on('-b BID_PRICE', Float, '--bid-price', 'bid price (optional, defaults to on-demand instances') do |b|
       options.bid_price = b
     end
 
     options.interactive = false
-    opts.on('-i', 'interactive pig shell') do
+    opts.on('-i', '--interactive', 'interactive pig shell') do
       options.interactive = true
     end
 
     options.shell = false
-    opts.on('-s JOBFLOW_ID', 'run shell only') do |job|
+    opts.on('-s JOBFLOW_ID', '--shell', 'run shell only') do |job|
       options.shell = true
       options.jobflow = job
+      options.create = false
+    end
+
+    options.tracker = false
+    opts.on('-x JOBFLOW_ID', '--forward', 'forward the jobtracker port locally. access on http://localhost:8888/') do |job|
+      options.tracker = true
+      options.jobflow = job
+      options.create = false
+    end
+
+    options.terminate = false
+    opts.on('-d JOBFLOW_ID', '--terminate', 'terminate the job') do |job|
+      options.terminate = true
+      options.jobflow = job
+      options.create = false
+    end
+
+    options.watch = false
+    opts.on('-w [JOBFLOW_ID]', '--watch', 'watch the job') do |job|
+      options.watch = true
+      if job
+        options.create = false
+        options.jobflow = job
+      end
     end
 
     opts.on('-h', '--help', 'Display this screen') do
@@ -204,7 +335,6 @@ if __FILE__ == $0
     AWS_SECRET_ACCESS_KEY
     EMR_KEYPAIR
     EMR_KEYPAIR_PATH
-    LOG_URI
     EC2_REGION (optional, defaults to us-east-1)
       EOE
       exit
@@ -213,7 +343,7 @@ if __FILE__ == $0
 
   optparse.parse!
 
-  unless options.shell
+  if options.create
     unless options.file
       puts "-f must be specified"
       puts optparse
@@ -225,12 +355,18 @@ if __FILE__ == $0
       puts optparse
       exit 1
     end
-  end
 
-  unless options.output || options.interactive || options.shell
-    puts "-o must be specified"
-    puts optparse
-    exit 1
+    unless options.output
+      puts "-o must be specified"
+      puts optparse
+      exit 1
+    end
+
+    unless options.log_uri
+      puts "-l must be specified"
+      puts optparse
+      exit 1
+    end
   end
 
   RunEmr.new(options).run

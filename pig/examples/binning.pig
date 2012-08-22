@@ -58,4 +58,4 @@ bw_summary = FOREACH bw_grouped GENERATE group, SUM(packets.ip_total_length) AS 
 joined = JOIN tcp_summary BY group, udp_summary BY group, bw_summary BY group;
 summary = FOREACH joined GENERATE tcp_summary::group, tcp_len, udp_len, bw;
 
-STORE summary INTO 'output/binning' USING PigStorage(',');
+STORE summary INTO '$output/binning' USING PigStorage(',');

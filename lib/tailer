@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+
+trap('SIGINT') do
+  exit!
+end
+
+paths = ARGV
+tails = {}
+
+t = Thread.new do
+  while true
+    paths.each do |path|
+      Dir[path].each do |file|
+        tails[file] ||= begin
+          fork do
+            exec "tail -f #{file}"
+          end
+        end
+      end
+    end
+
+    sleep 1
+  end
+end
+
+t.join

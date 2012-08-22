@@ -23,4 +23,5 @@ snort_alerts =
     dport:int
   );
 
-STORE snort_alerts INTO 'output/snort';
+STORE snort_alerts INTO '$output/snort';
+
