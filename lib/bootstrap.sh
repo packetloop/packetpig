@@ -5,7 +5,7 @@ echo "****************************************"
 hadoop fs -copyToLocal s3n://packetpig/pig/include-emr.pig $HOME/.pigbootup
 hadoop fs -copyToLocal s3n://packetpig/scripts.tar.gz scripts.tar.gz
 mkdir -p /mnt/var/lib/packetpig
-tar -zvxf scripts.tar.gz -C /mnt/var/lib/packetpig
+tar -zxf scripts.tar.gz -C /mnt/var/lib/packetpig
 
 echo "****************************************"
 echo debs
@@ -13,6 +13,7 @@ echo "****************************************"
 
 echo "deb http://mirror.cse.iitk.ac.in/debian/ testing main contrib" | sudo sh -c "cat >> /etc/apt/sources.list"
 
+sudo apt-get update -q
 sudo apt-get install -qy --force-yes python2.7 tcpdump libnids1.21 libglib2.0-dev pkg-config libnet1-dev libpcap-dev libmagic-dev p0f 
 
 hadoop fs -copyToLocal s3n://packetloop-emr/libdnet_1.12-1_amd64.deb libdnet_1.12-1_amd64.deb
