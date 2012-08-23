@@ -66,9 +66,10 @@ class RunEmr
       emr,
       '--create',
       '--name', "\"#{ENV['USER']}'s pig jobflow\"",
-      '--num-instances', @options.instance_count,
-      '--instance-type', @options.instance_type,
       '--bootstrap-action', 's3://packetpig/bootstrap.sh',
+      '--instance-group', 'core',
+      '--instance-count', @options.instance_count,
+      '--instance-type', @options.instance_type,
     ]
 
     if @options.bid_price != 0
