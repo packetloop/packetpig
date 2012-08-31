@@ -67,6 +67,19 @@ class RunEmr
       '--create',
       '--name', "\"#{ENV['USER']}'s pig jobflow\"",
       '--bootstrap-action', 's3://packetpig/bootstrap.sh',
+    ]
+
+    cmd += [
+      '--instance-group', 'master',
+      '--instance-count', '1',
+      '--instance-type', 'm1.large',
+    ]
+
+    if @options.bid_price != 0
+      cmd += ['--bid-price', @options.bid_price]
+    end
+
+    cmd += [
       '--instance-group', 'core',
       '--instance-count', @options.instance_count,
       '--instance-type', @options.instance_type,
@@ -83,9 +96,9 @@ class RunEmr
       cmd += ['--pig-script', @options.file]
       cmd += ['--step-name', File.basename(@options.file)]
 
-      #if @options.continue
-      #  cmd += ['--step-action', 'CONTINUE']
-      #end
+      if @options.continue
+        cmd += ['--step-action', 'CONTINUE']
+      end
 
       args = [
         '-p,includepath=s3://packetpig/pig/include-emr.pig',
