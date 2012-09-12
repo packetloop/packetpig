@@ -15,7 +15,7 @@ echo "deb http://mirror.cse.iitk.ac.in/debian/ testing main contrib" | sudo sh -
 sudo sed -i -s 's/Pin-Priority: 900/Pin-Priority: 1020/' /etc/apt/preferences
 
 sudo apt-get update -q
-sudo apt-get install -qy --force-yes python2.7 tcpdump libnids1.21 libglib2.0-dev pkg-config libnet1-dev libpcap-dev libmagic-dev p0f 
+sudo DEBIAN_PRIORITY=critical DEBIAN_FRONTEND=noninteractive apt-get install -qy --force-yes python2.7 tcpdump libnids1.21 libglib2.0-dev pkg-config libnet1-dev libpcap-dev libmagic-dev p0f
 
 hadoop fs -copyToLocal s3n://packetloop-emr/libdnet_1.12-1_amd64.deb libdnet_1.12-1_amd64.deb
 hadoop fs -copyToLocal s3n://packetloop-emr/daq_0.5-1_amd64.deb daq_0.5-1_amd64.deb
