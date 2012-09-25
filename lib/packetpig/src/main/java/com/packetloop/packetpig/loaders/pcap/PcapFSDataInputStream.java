@@ -1,10 +1,5 @@
 package com.packetloop.packetpig.loaders.pcap;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-
 import org.krakenapps.pcap.PcapInputStream;
 import org.krakenapps.pcap.file.GlobalHeader;
 import org.krakenapps.pcap.packet.PacketHeader;
@@ -13,17 +8,25 @@ import org.krakenapps.pcap.util.Buffer;
 import org.krakenapps.pcap.util.ByteOrderConverter;
 import org.krakenapps.pcap.util.ChainBuffer;
 
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.nio.ByteBuffer;
+
 public class PcapFSDataInputStream implements PcapInputStream {
     private GlobalHeader globalHeader;
     private DataInputStream is;
     private long length;
     private int offset;
+    private URI uri;
 
-    public PcapFSDataInputStream(InputStream data, long length) throws IOException {
+    public PcapFSDataInputStream(InputStream data, long length, URI uri) throws IOException {
         is = new DataInputStream(data);
         globalHeader = readGlobalHeader();
         this.length = length;
         this.offset = 0;
+        this.uri = uri;
     }
 
     @Override
@@ -87,6 +90,8 @@ public class PcapFSDataInputStream implements PcapInputStream {
     }
 
     private Buffer readPacketData(int packetLength) throws IOException {
+        //if (packetLength < 0)
+        System.err.println("packetLength: " + packetLength + " in " + uri);
         byte[] packets = new byte[packetLength];
         is.readFully(packets);
         offset += packetLength;

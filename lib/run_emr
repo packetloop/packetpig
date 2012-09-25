@@ -93,11 +93,12 @@ class RunEmr
       cmd << '--alive'
       cmd << '--pig-interactive'
     else
+      cmd << '--alive'
       cmd += ['--pig-script', @options.file]
       cmd += ['--step-name', File.basename(@options.file)]
 
-      if @options.continue
-        cmd += ['--step-action', 'CONTINUE']
+      if @options.keepalive
+        cmd += ['--step-action', 'CANCEL_AND_WAIT']
       end
 
       args = [
@@ -209,6 +210,7 @@ class RunEmr
       "hadoop@#{host}",
       '"/mnt/var/lib/packetpig/lib/tailer /mnt/var/log/bootstrap-actions/*/std* /mnt/var/log/hadoop/steps/*/std*" 2>/dev/null',
     ]
+    puts cmd
 
     r = false
     while !r do
@@ -283,6 +285,8 @@ class RunEmr
     File.open(fn, 'w') do |f|
       f << tpl
     end
+
+    `chmod 0600 #{ENV['EMR_KEYPAIR_PATH']}`
   end
 end
 
@@ -353,6 +357,12 @@ if __FILE__ == $0
       options.jobflow = job
       options.create = false
     end
+
+    options.keepalive = false
+    opts.on('-k', '--keepalive', 'do not terminate on failure') do |job|
+      options.keepalive = true
+    end
+
 
     options.watch = false
     opts.on('-w [JOBFLOW_ID]', '--watch', 'watch the job') do |job|
