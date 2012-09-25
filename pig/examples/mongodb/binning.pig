@@ -1,7 +1,5 @@
 %DEFAULT includepath pig/include.pig
 RUN $includepath;
-%DEFAULT mongopath pig/mongo.pig
-RUN $mongopath;
 
 %DEFAULT time 60 
 --%DEFAULT time 3600
