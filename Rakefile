@@ -15,7 +15,7 @@ end
 
 task :default => :upload
 
-task :upload => [:pig, :lib, :scripts, :bootstrap]
+task :upload => [:pig, :lib, :packetpig, :scripts, :bootstrap]
 
 task :pig do
   Dir['pig/examples/*.pig'].each do |pig|
@@ -32,11 +32,15 @@ task :bootstrap do
 end
 
 task :lib do
-  libs = Dir['lib/*.jar'] - ['lib/packetpig-with-dependencies.jar']
+  libs = Dir['lib/*.jar'] - ['lib/packetpig.jar', 'lib/packetpig-with-dependencies.jar']
   libs.each do |lib|
     dst = File.basename(lib)
     upload(lib, dst)
   end
+end
+
+task :packetpig do
+  upload('lib/packetpig.jar', 'packetpig.jar')
 end
 
 task :scripts do

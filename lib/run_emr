@@ -66,13 +66,26 @@ class RunEmr
       emr,
       '--create',
       '--name', "\"#{ENV['USER']}'s pig jobflow\"",
+
+      '--bootstrap-action',
+        's3://elasticmapreduce/bootstrap-actions/configure-daemons',
+        '--args', '--namenode-opts=-XX:GCTimeRatio=19',
+
+      '--bootstrap-action',
+        's3://elasticmapreduce/bootstrap-actions/configure-hadoop',
+        '--args', '-m,mapreduce.task.timeout=0',
+        '--args', '-m,mapred.task.timeout=0',
+        '--args', '-m,tasktracker.http.threads=40',
+        '--args', '-m,mapred.map.tasks.speculative.execution=false',
+        '--args', '-s,mapred.map.tasks.speculative.execution=false',
+
       '--bootstrap-action', 's3://packetpig/bootstrap.sh',
     ]
 
     cmd += [
       '--instance-group', 'master',
       '--instance-count', '1',
-      '--instance-type', 'm1.large',
+      '--instance-type', @options.instance_type,
     ]
 
     if @options.bid_price != 0
@@ -187,11 +200,12 @@ class RunEmr
 
   def forward_tracker
     # wait for boot, just reuse the get_shell with a cool command to let us know it's ready
-    get_shell(:cmd => "echo 'Connect to http://localhost:9100/jobtracker.jsp - hit ctrl-c to stop the ssh forwarder'")
+    local_port = (1024 + rand * (2**16 - 1024)).to_i
+    get_shell(:cmd => "echo 'Connect to http://localhost:#{local_port}/jobtracker.jsp - hit ctrl-c to stop the ssh forwarder'")
     host = get_host
 
     cmd = ssh + [
-      '-L', '9100:localhost:9100',
+      '-L', "#{local_port}:localhost:9100",
       "hadoop@#{host}",
       '-N',
     ]
@@ -210,7 +224,6 @@ class RunEmr
       "hadoop@#{host}",
       '"/mnt/var/lib/packetpig/lib/tailer /mnt/var/log/bootstrap-actions/*/std* /mnt/var/log/hadoop/steps/*/std*" 2>/dev/null',
     ]
-    puts cmd
 
     r = false
     while !r do
@@ -244,7 +257,8 @@ class RunEmr
           t0 = Time.at(step['ExecutionStatusDetail']['StartDateTime']).to_i rescue Time.now.to_i
           t1 = Time.at(step['ExecutionStatusDetail']['EndDateTime']).to_i rescue Time.now.to_i
           state = step['ExecutionStatusDetail']['State']
-          printf "\t%-60s%-20s%10ds\n", step['StepConfig']['Name'], state, t1 - t0
+          name = step['StepConfig']['Name'][0..39]
+          printf "\t%-40s %-20s%10ds\n", name, state, t1 - t0
         end
       end
     end

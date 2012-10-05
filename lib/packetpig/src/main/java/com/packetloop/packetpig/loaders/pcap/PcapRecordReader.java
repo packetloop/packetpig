@@ -44,11 +44,11 @@ public abstract class PcapRecordReader extends RecordReader<Long, Tuple> {
             path = p.toString();
 
             if (path.endsWith(".gz")) {
-                is = new PcapFSDataInputStream(new GZIPInputStream(fsdis), fs.getLength(p), p.toUri());
+                is = new PcapFSDataInputStream(new GZIPInputStream(fsdis), fs.getLength(p));
             } else if (path.endsWith(".bz") || path.endsWith(".bz2")) {
-                is = new PcapFSDataInputStream(new CBZip2InputStream(fsdis), fs.getLength(p), p.toUri());
+                is = new PcapFSDataInputStream(new CBZip2InputStream(fsdis), fs.getLength(p));
             } else {
-                is = new PcapFSDataInputStream(fsdis, fs.getLength(p), p.toUri());
+                is = new PcapFSDataInputStream(fsdis, fs.getLength(p));
             }
         }
     }

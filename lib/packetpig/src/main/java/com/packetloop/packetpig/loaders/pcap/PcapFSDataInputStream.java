@@ -11,7 +11,6 @@ import org.krakenapps.pcap.util.ChainBuffer;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.nio.ByteBuffer;
 
 public class PcapFSDataInputStream implements PcapInputStream {
@@ -19,14 +18,13 @@ public class PcapFSDataInputStream implements PcapInputStream {
     private DataInputStream is;
     private long length;
     private int offset;
-    private URI uri;
+    private int snaplen;
 
-    public PcapFSDataInputStream(InputStream data, long length, URI uri) throws IOException {
+    public PcapFSDataInputStream(InputStream data, long length) throws IOException {
         is = new DataInputStream(data);
         globalHeader = readGlobalHeader();
         this.length = length;
         this.offset = 0;
-        this.uri = uri;
     }
 
     @Override
@@ -46,13 +44,15 @@ public class PcapFSDataInputStream implements PcapInputStream {
         short minor = buf.getShort();
         int tz = buf.getInt();
         int sigfigs = buf.getInt();
-        int snaplen = buf.getInt();
+        snaplen = buf.getInt();
         int network = buf.getInt();
 
         globalHeader = new GlobalHeader(magic, major, minor, tz, sigfigs, snaplen, network);
 
         if (globalHeader.getMagicNumber() == 0xD4C3B2A1)
             globalHeader.swapByteOrder();
+
+        snaplen = ByteOrderConverter.swap(snaplen);
 
         return globalHeader;
     }
@@ -90,9 +90,7 @@ public class PcapFSDataInputStream implements PcapInputStream {
     }
 
     private Buffer readPacketData(int packetLength) throws IOException {
-        //if (packetLength < 0)
-        System.err.println("packetLength: " + packetLength + " in " + uri);
-        byte[] packets = new byte[packetLength];
+        byte[] packets = new byte[snaplen];
         is.readFully(packets);
         offset += packetLength;
 

@@ -74,5 +74,5 @@ echo snort
 echo "****************************************"
 
 hadoop fs -copyToLocal s3n://packetloop-emr/snort.tar.gz snort.tar.gz
-tar -xzf snort.tar.gz -C /mnt/var/lib
+tar -xvzf snort.tar.gz -C /mnt/var/lib
 

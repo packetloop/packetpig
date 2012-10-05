@@ -32,12 +32,24 @@ public class SnortRecordReader extends StreamingPcapRecordReader {
         logDir.mkdir();
 
         streamingProcess("snort -q -c " + configFile + " -A fast -y -l " + logDir + " -r -", path);
+        String logPath = logDir.getPath() + File.separatorChar + "alert";
 
         while (true) {
             try {
-                File logFile = new File(logDir.getPath() + File.separatorChar + "alert");
-                if (logFile.length() == 0)
+                File logFile = new File(logPath);
+
+                if (logFile.length() == 0) {
+                    try {
+                        if (process.exitValue() != 0) {
+                            reader = null;
+                            return;
+                        }
+                    } catch (IllegalThreadStateException ignored) {
+                    }
+
                     throw new FileNotFoundException();
+                }
+
                 reader = new BufferedReader(new FileReader(logFile));
                 break;
             } catch (FileNotFoundException ignored) {
@@ -51,6 +63,9 @@ public class SnortRecordReader extends StreamingPcapRecordReader {
         String line = null;
 
         while (line == null) {
+            if (reader == null)
+                return false;
+
             try {
                 line = reader.readLine();
             } catch (IOException ignored) {
@@ -134,6 +149,7 @@ public class SnortRecordReader extends StreamingPcapRecordReader {
 
         logDir.delete();
 
-        reader.close();
+        if (reader != null)
+            reader.close();
     }
 }
