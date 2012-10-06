@@ -56,6 +56,6 @@ bw_grouped = GROUP packets BY (ts / $time * $time);
 bw_summary = FOREACH bw_grouped GENERATE group, SUM(packets.ip_total_length) AS bw;
 
 joined = JOIN tcp_summary BY group, udp_summary BY group, bw_summary BY group;
-summary = FOREACH joined GENERATE tcp_summary::group, tcp_len, udp_len, bw;
+summary = FOREACH joined GENERATE tcp_summary::group as timestamp, tcp_len as tcp_bandwidth, udp_len as udp_bandwidth, bw as total_bandwidth;
 
 STORE summary INTO 'mongodb://localhost/packetpig.bandwidth' USING com.mongodb.hadoop.pig.MongoStorage();
