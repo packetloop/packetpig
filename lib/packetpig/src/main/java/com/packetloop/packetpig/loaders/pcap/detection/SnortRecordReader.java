@@ -37,23 +37,20 @@ public class SnortRecordReader extends StreamingPcapRecordReader {
         while (true) {
             try {
                 File logFile = new File(logPath);
+                int exitValue = process.exitValue();
 
-                if (logFile.length() == 0) {
-                    try {
-                        if (process.exitValue() != 0) {
-                            reader = null;
-                            return;
-                        }
-                    } catch (IllegalThreadStateException ignored) {
-                    }
-
-                    throw new FileNotFoundException();
+                if (logFile.length() > 0 || exitValue == 0) {
+                    reader = new BufferedReader(new FileReader(logFile));
+                    return;
+                } else if (exitValue != 0) {
+                    reader = null;
+                    return;
                 }
 
-                reader = new BufferedReader(new FileReader(logFile));
-                break;
+            } catch (IllegalThreadStateException ignored) {
+                Thread.sleep(1000);
             } catch (FileNotFoundException ignored) {
-                Thread.sleep(100);
+                Thread.sleep(1000);
             }
         }
     }
@@ -83,8 +80,7 @@ public class SnortRecordReader extends StreamingPcapRecordReader {
 
         tuple = TupleFactory.getInstance().newTuple();
 
-        Pattern p = Pattern.compile(
-                "([^ ]+)  [^ ]+ " +                 // ts
+        Pattern p = Pattern.compile("([^ ]+)  [^ ]+ " +                 // ts
                 "\\[(\\d+):(\\d+):(\\d+)\\] " +     // sig
                 "(.*?) \\[\\*\\*\\].*?" +           // message
                 "\\[Priority: ([\\d+])\\] " +       // priority
