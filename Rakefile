@@ -13,9 +13,7 @@ def upload(src, dst)
   $stdout.flush
 end
 
-task :default => :upload
-
-task :upload => [:snort, :pig, :lib, :packetpig, :scripts, :bootstrap]
+task :all => [:snort, :pig, :lib, :packetpig, :scripts, :bootstrap, :srcs]
 
 task :pig do
   Dir['pig/examples/*.pig'].each do |pig|
@@ -59,3 +57,8 @@ task :scripts do
   upload('lib/scripts.tar.gz', 'scripts.tar.gz')
 end
 
+task :srcs do
+  Dir['lib/src/*'].each do |f|
+    upload(f, f)
+  end
+end

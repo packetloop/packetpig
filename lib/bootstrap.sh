@@ -18,7 +18,7 @@ echo libpcap
 echo "****************************************"
 
 cd
-wget http://www.tcpdump.org/release/libpcap-1.3.0.tar.gz
+hadoop fs -copyToLocal s3n://packetpig/libpcap-1.3.0.tar.gz libpcap-1.3.0.tar.gz
 tar zxf libpcap-1.3.0.tar.gz
 cd libpcap-1.3.0
 ./configure --prefix=/usr/local
@@ -31,7 +31,7 @@ echo libdnet
 echo "****************************************"
 
 cd
-wget http://libdnet.googlecode.com/files/libdnet-1.12.tgz
+hadoop fs -copyToLocal s3n://packetpig/libdnet-1.12.tgz libdnet-1.12.tgz
 tar zxf libdnet-1.12.tgz
 cd libdnet-1.12
 rm aclocal.m4
@@ -48,7 +48,7 @@ echo daq
 echo "****************************************"
 
 cd
-wget http://www.snort.org/dl/snort-current/daq-1.1.1.tar.gz
+hadoop fs -copyToLocal s3n://packetpig/daq-1.1.1.tar.gz daq-1.1.1.tar.gz
 tar zxf daq-1.1.1.tar.gz
 cd daq-1.1.1
 ./configure --prefix=/usr/local
@@ -61,7 +61,7 @@ echo snort
 echo "****************************************"
 
 cd
-wget http://www.snort.org/dl/snort-current/snort-2.9.3.1.tar.gz -O snort-2.9.3.1.tar.gz
+hadoop fs -copyToLocal s3n://packetpig/snort-2.9.3.1.tar.gz snort-2.9.3.1.tar.gz
 tar zxf snort-2.9.3.1.tar.gz
 cd snort-2.9.3.1
 ./configure --prefix=/usr/local --enable-sourcefire
@@ -81,7 +81,7 @@ echo python
 echo "****************************************"
 
 cd
-wget http://python.org/ftp/python/2.7.2/Python-2.7.2.tar.bz2
+hadoop fs -copyToLocal s3n://packetpig/Python-2.7.2.tar.bz2 Python-2.7.2.tar.bz2
 tar jfx Python-2.7.2.tar.bz2
 cd Python-2.7.2
 ./configure --prefix=/usr/local --with-threads --enable-shared
@@ -95,7 +95,7 @@ echo easy_install
 echo "****************************************"
 
 cd
-wget http://peak.telecommunity.com/dist/ez_setup.py
+hadoop fs -copyToLocal s3n://packetpig/ez_setup.py ez_setup.py
 sudo python ez_setup.py
 
 echo "****************************************"
@@ -115,7 +115,7 @@ echo scapy
 echo "****************************************"
 
 cd
-wget http://www.secdev.org/projects/scapy/files/scapy-latest.tar.gz
+hadoop fs -copyToLocal s3n://packetpig/scapy-latest.tar.gz scapy-latest.tar.gz
 tar zxvf scapy-latest.tar.gz
 cd scapy-2.1.0
 sudo python setup.py install
@@ -125,7 +125,7 @@ echo nids
 echo "****************************************"
 
 cd
-wget http://jon.oberheide.org/pynids/downloads/pynids-0.6.1.tar.gz
+hadoop fs -copyToLocal s3n://packetpig/pynids-0.6.1.tar.gz pynids-0.6.1.tar.gz
 tar zxvf pynids-0.6.1.tar.gz
 cd pynids-0.6.1
 python setup.py build
