@@ -11,26 +11,90 @@ echo "****************************************"
 echo debs
 echo "****************************************"
 
-echo "deb http://mirror.cse.iitk.ac.in/debian/ testing main contrib" | sudo sh -c "cat >> /etc/apt/sources.list"
-sudo sed -i -s 's/Pin-Priority: 900/Pin-Priority: 1020/' /etc/apt/preferences
+sudo DEBIAN_PRIORITY=critical DEBIAN_FRONTEND=noninteractive aptitude -q -y install tcpdump libglib2.0-dev pkg-config libmagic-dev p0f flex bison build-essential libnet-dev libtool
 
-sudo apt-get update -q
-sudo DEBIAN_PRIORITY=critical DEBIAN_FRONTEND=noninteractive apt-get install -qy --force-yes python2.7 tcpdump libnids1.21 libglib2.0-dev pkg-config libnet1-dev libpcap-dev libmagic-dev p0f
+echo "****************************************"
+echo libpcap
+echo "****************************************"
 
-hadoop fs -copyToLocal s3n://packetloop-emr/libdnet_1.12-1_amd64.deb libdnet_1.12-1_amd64.deb
-hadoop fs -copyToLocal s3n://packetloop-emr/daq_0.5-1_amd64.deb daq_0.5-1_amd64.deb
-hadoop fs -copyToLocal s3n://packetloop-emr/snort_2.9.0.5-1_amd64.deb snort_2.9.0.5-1_amd64.deb
-sudo dpkg -i libdnet_1.12-1_amd64.deb
-sudo dpkg -i daq_0.5-1_amd64.deb
-sudo dpkg -i snort_2.9.0.5-1_amd64.deb
+cd
+wget http://www.tcpdump.org/release/libpcap-1.3.0.tar.gz
+tar zxf libpcap-1.3.0.tar.gz
+cd libpcap-1.3.0
+./configure --prefix=/usr/local
+make -j 8
+sudo make install
+sudo ldconfig
 
-sudo ln -sf /usr/lib/snort_dynamicengine /usr/local/lib/snort_dynamicengine
-sudo ln -sf /usr/lib/snort_dynamicpreprocessor /usr/local/lib/snort_dynamicpreprocessor
+echo "****************************************"
+echo libdnet
+echo "****************************************"
+
+cd
+wget http://libdnet.googlecode.com/files/libdnet-1.12.tgz
+tar zxf libdnet-1.12.tgz
+cd libdnet-1.12
+rm aclocal.m4
+libtoolize --copy --force
+aclocal
+autoconf
+./configure --prefix=/usr/local --enable-shared
+make -j 8
+sudo make install
+sudo ldconfig
+
+echo "****************************************"
+echo daq
+echo "****************************************"
+
+cd
+wget http://www.snort.org/dl/snort-current/daq-1.1.1.tar.gz
+tar zxf daq-1.1.1.tar.gz
+cd daq-1.1.1
+./configure --prefix=/usr/local
+make
+sudo make install
+sudo ldconfig
+
+echo "****************************************"
+echo snort
+echo "****************************************"
+
+cd
+wget http://www.snort.org/dl/snort-current/snort-2.9.3.1.tar.gz -O snort-2.9.3.1.tar.gz
+tar zxf snort-2.9.3.1.tar.gz
+cd snort-2.9.3.1
+./configure --prefix=/usr/local --enable-sourcefire
+make -j 8
+sudo make install
+
+cd
+hadoop fs -copyToLocal s3n://packetpig/snort-2905.tar.gz snort-2905.tar.gz
+tar xzf snort-2905.tar.gz -C /mnt/var/lib
+
+cd
+hadoop fs -copyToLocal s3n://packetpig/snort-2931.tar.gz snort-2931.tar.gz
+tar xzf snort-2931.tar.gz -C /mnt/var/lib
+
+echo "****************************************"
+echo python
+echo "****************************************"
+
+cd
+wget http://python.org/ftp/python/2.7.2/Python-2.7.2.tar.bz2
+tar jfx Python-2.7.2.tar.bz2
+cd Python-2.7.2
+./configure --prefix=/usr/local --with-threads --enable-shared
+make -j 8
+sudo make install
+sudo ln -s /usr/local/lib/libpython2.7.so.1.0 /usr/lib/
+sudo ln -s /usr/local/lib/libpython2.7.so /usr/
 
 echo "****************************************"
 echo easy_install
 echo "****************************************"
 
+cd
 wget http://peak.telecommunity.com/dist/ez_setup.py
 sudo python ez_setup.py
 
@@ -50,29 +114,26 @@ echo "****************************************"
 echo scapy
 echo "****************************************"
 
+cd
 wget http://www.secdev.org/projects/scapy/files/scapy-latest.tar.gz
 tar zxvf scapy-latest.tar.gz
 cd scapy-2.1.0
 sudo python setup.py install
-cd ..
 
 echo "****************************************"
 echo nids
 echo "****************************************"
 
+cd
 wget http://jon.oberheide.org/pynids/downloads/pynids-0.6.1.tar.gz
 tar zxvf pynids-0.6.1.tar.gz
 cd pynids-0.6.1
 python setup.py build
 sudo python setup.py install
-cd ..
+
+echo "****************************************"
+echo path hackery
+echo "****************************************"
 
 sudo ln -s /usr/sbin/tcpdump /usr/bin/tcpdump
-
-echo "****************************************"
-echo snort
-echo "****************************************"
-
-hadoop fs -copyToLocal s3n://packetloop-emr/snort.tar.gz snort.tar.gz
-tar -xvzf snort.tar.gz -C /mnt/var/lib
 

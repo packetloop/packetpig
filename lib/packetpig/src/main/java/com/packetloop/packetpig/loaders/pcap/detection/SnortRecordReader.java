@@ -27,9 +27,10 @@ public class SnortRecordReader extends StreamingPcapRecordReader {
     public void initialize(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
         super.initialize(split, context);
 
-        logDir = File.createTempFile("prefix", "suffix");
-        logDir.delete();
-        logDir.mkdir();
+        //logDir = File.createTempFile("prefix", "suffix");
+        //logDir.delete();
+        //logDir.mkdir();
+        logDir = new File("/tmp/alerts");
 
         streamingProcess("snort -q -c " + configFile + " -A fast -y -l " + logDir + " -r -", path);
         String logPath = logDir.getPath() + File.separatorChar + "alert";
@@ -140,10 +141,10 @@ public class SnortRecordReader extends StreamingPcapRecordReader {
     public void close() throws IOException {
         super.close();
 
-        for (File f : logDir.listFiles())
-            f.delete();
+        //for (File f : logDir.listFiles())
+        //    f.delete();
 
-        logDir.delete();
+        //logDir.delete();
 
         if (reader != null)
             reader.close();

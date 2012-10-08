@@ -116,7 +116,7 @@ class RunEmr
 
       args = [
         '-p,includepath=s3://packetpig/pig/include-emr.pig',
-        '-p,snortconfig=/mnt/var/lib/snort/etc/snort.conf',
+        "-p,snortconfig=/mnt/var/lib/snort-#{@options.snort_version}/etc/snort.conf",
         '-p,dnspath=/mnt/var/lib/packetpig/lib/scripts/dns_parser.py',
         '-p,tcppath=/mnt/var/lib/packetpig/lib/scripts/tcp.py',
       ]
@@ -373,7 +373,7 @@ if __FILE__ == $0
     end
 
     options.keepalive = false
-    opts.on('-k', '--keepalive', 'do not terminate on failure') do |job|
+    opts.on('-k', '--keepalive', 'do not terminate on failure') do
       options.keepalive = true
     end
 
@@ -391,6 +391,11 @@ if __FILE__ == $0
     opts.on('-e', '--list', 'list non-terminated jobflows') do
       options.list = true
       options.create = false
+    end
+
+    options.snort_version = '2931'
+    opts.on('-y SNORT_VERSION', '--snort_version', 'version of snort to use') do |version|
+      options.snort_version = version
     end
 
     opts.on('-h', '--help', 'Display this screen') do

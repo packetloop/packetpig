@@ -15,7 +15,7 @@ end
 
 task :default => :upload
 
-task :upload => [:pig, :lib, :packetpig, :scripts, :bootstrap]
+task :upload => [:snort, :pig, :lib, :packetpig, :scripts, :bootstrap]
 
 task :pig do
   Dir['pig/examples/*.pig'].each do |pig|
@@ -36,6 +36,17 @@ task :lib do
   libs.each do |lib|
     dst = File.basename(lib)
     upload(lib, dst)
+  end
+end
+
+task :snort do
+  Dir['lib/snort*'].each do |path|
+    if File.directory?(path)
+      fn = "#{path}.tar.gz"
+      dir = File.basename(path)
+      `tar czf #{fn} -C lib #{dir}`
+      upload(fn, File.basename(fn))
+    end
   end
 end
 
