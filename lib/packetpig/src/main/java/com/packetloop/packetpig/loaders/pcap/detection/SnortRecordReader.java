@@ -6,7 +6,10 @@ import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.pig.data.TupleFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -16,7 +19,6 @@ import java.util.regex.Pattern;
 public class SnortRecordReader extends StreamingPcapRecordReader {
     private BufferedReader reader;
     private String configFile;
-
     private File logDir;
 
     public SnortRecordReader(String configFile) {
@@ -32,45 +34,41 @@ public class SnortRecordReader extends StreamingPcapRecordReader {
         logDir.mkdir();
 
         streamingProcess("snort -q -c " + configFile + " -A fast -y -l " + logDir + " -r -", path);
+        process.waitFor();
+        System.err.println("exit: " + process.exitValue());
+
         String logPath = logDir.getPath() + File.separatorChar + "alert";
+        File logFile = new File(logPath);
+        System.err.println(logPath + ": " + logFile.length() + " bytes");
 
-        while (true) {
-            try {
-                File logFile = new File(logPath);
-                int exitValue = process.exitValue();
-
-                if (logFile.length() > 0 || exitValue == 0) {
-                    reader = new BufferedReader(new FileReader(logFile));
-                    return;
-                } else if (exitValue != 0) {
-                    reader = null;
-                    return;
-                }
-
-            } catch (IllegalThreadStateException ignored) {
-                Thread.sleep(1000);
-            } catch (FileNotFoundException ignored) {
-                Thread.sleep(1000);
-            }
+        if (logFile.length() > 0) {
+            reader = new BufferedReader(new FileReader(logFile));
+            return;
+        } else {
+            reader = null;
+            return;
         }
     }
 
     @Override
     public boolean nextKeyValue() throws IOException, InterruptedException {
-        String line = null;
+        if (reader == null) {
+            System.err.println("reader == null");
+            return false;
+        }
 
-        while (line == null) {
-            if (reader == null)
-                return false;
+        String line;
 
-            try {
-                line = reader.readLine();
-            } catch (IOException ignored) {
-                return false;
-            }
+        try {
+            line = reader.readLine();
+        } catch (IOException ignored) {
+            System.err.println(IOException.class.getName());
+            return false;
+        }
 
-            if (line == null && !thread.isAlive())
-                return false;
+        if (line == null) {
+            System.err.println("line == null");
+            return false;
         }
 
         // 11/30/11-20:23:31.674725  [**] [120:3:1] (http_inspect) NO CONTENT-LENGTH OR TRANSFER-ENCODING IN HTTP RESPONSE
@@ -140,10 +138,12 @@ public class SnortRecordReader extends StreamingPcapRecordReader {
     public void close() throws IOException {
         super.close();
 
+        /*
         for (File f : logDir.listFiles())
             f.delete();
 
         logDir.delete();
+        */
 
         if (reader != null)
             reader.close();

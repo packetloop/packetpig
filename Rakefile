@@ -58,7 +58,7 @@ task :scripts do
 end
 
 task :srcs do
-  Dir['lib/src/*'].each do |f|
-    upload(f, f)
+  Dir['lib/src/*'].each do |fn|
+    upload(fn, File.basename(fn))
   end
 end
