@@ -13,6 +13,7 @@ class RunEmr
   end
 
   def run
+    write_credentials
     jobflow = nil
 
     if @options.create
@@ -61,7 +62,6 @@ class RunEmr
   end
 
   def create_cluster
-    write_credentials
     cmd = [
       emr,
       '--create',
