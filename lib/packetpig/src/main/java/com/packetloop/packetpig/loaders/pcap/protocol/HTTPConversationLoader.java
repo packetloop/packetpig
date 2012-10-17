@@ -18,7 +18,7 @@ public class HTTPConversationLoader extends PcapLoader {
         this.field = field;
     }
 
-    public HTTPConversationLoader(String pathToTcp, String field) {
+    public HTTPConversationLoader(String field, String pathToTcp) {
         this.pathToTcp = pathToTcp;
         this.field = field;
     }

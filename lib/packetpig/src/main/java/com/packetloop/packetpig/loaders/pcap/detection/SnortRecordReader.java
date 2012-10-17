@@ -97,7 +97,7 @@ public class SnortRecordReader extends StreamingPcapRecordReader {
                 throw new IOException();
             }
 
-            String[] sig_a = { m.group(2), m.group(3), m.group(4) };
+            String[] sig_a = { m.group(2), m.group(3) };
             String sig = StringUtils.join(sig_a, "_");
             String message = m.group(5);
             int priority = Integer.parseInt(m.group(6));
