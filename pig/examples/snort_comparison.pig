@@ -4,8 +4,8 @@ RUN $includepath;
 %DEFAULT time 60
 
 snort_2905_alerts = 
-  LOAD '/Users/david/Downloads/captures/aurora_meterpreter_http.cap'
-  USING com.packetloop.packetpig.loaders.pcap.detection.SnortLoader('lib/snort-2905/etc/snort.conf')
+  LOAD '$pcap'
+  USING com.packetloop.packetpig.loaders.pcap.detection.SnortLoader('/mnt/var/lib/snort-2905/etc/snort.conf')
   AS (
     ts:long,
     sig:chararray,
@@ -19,8 +19,8 @@ snort_2905_alerts =
   );
 
 snort_2931_alerts = 
-  LOAD '/Users/david/Downloads/captures/aurora_meterpreter_http.cap'
-  USING com.packetloop.packetpig.loaders.pcap.detection.SnortLoader('lib/snort-2931/etc/snort.conf')
+  LOAD '$pcap'
+  USING com.packetloop.packetpig.loaders.pcap.detection.SnortLoader('/mnt/var/lib/snort-2931/etc/snort.conf')
   AS (
     ts:long,
     sig:chararray,
