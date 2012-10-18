@@ -3,75 +3,49 @@ RUN $includepath;
 
 %DEFAULT time 60
 
-snort_2905_alerts = 
-  LOAD '$pcap'
-  USING com.packetloop.packetpig.loaders.pcap.detection.SnortLoader('/mnt/var/lib/snort-2905/etc/snort.conf')
-  AS (
-    ts:long,
-    sig:chararray,
-    priority:int,
-    message:chararray,
-    proto:chararray,
-    src:chararray,
-    sport:int,
-    dst:chararray,
-    dport:int
-  );
+-- for local mode: uncomment the next line and comment the one after that
+--%DEFAULT old_snort_conf 'lib/snort-2905/etc/snort.conf'
+%DEFAULT old_snort_conf '/mnt/var/lib/snort-2905/etc/snort.conf'
 
-snort_2931_alerts = 
-  LOAD '$pcap'
-  USING com.packetloop.packetpig.loaders.pcap.detection.SnortLoader('/mnt/var/lib/snort-2931/etc/snort.conf')
-  AS (
-    ts:long,
-    sig:chararray,
-    priority:int,
-    message:chararray,
-    proto:chararray,
-    src:chararray,
-    sport:int,
-    dst:chararray,
-    dport:int
-  );
+-- for local mode: uncomment the next line and comment the one after that
+--%DEFAULT new_snort_conf 'lib/snort-2931/etc/snort.conf'
+%DEFAULT new_snort_conf '/mnt/var/lib/snort-2931/etc/snort.conf'
 
--- snort_2905_alerts = 
--- LOAD 'snort_2905' AS (
---     ts:long,
---     sig:chararray,
---     severity:int,
---     message:chararray,
---     proto:chararray,
---     src:chararray,
---     sport:int,
---     dst:chararray,
---     dport:int
--- );
--- 
--- snort_2931_alerts = 
--- LOAD 'snort_2931' AS (
---     ts:long,
---     sig:chararray,
---     severity:int,
---     message:chararray,
---     proto:chararray,
---     src:chararray,
---     sport:int,
---     dst:chararray,
---     dport:int
--- );
+snort_old_alerts = 
+    LOAD '$pcap'
+    USING com.packetloop.packetpig.loaders.pcap.detection.SnortLoader('$old_snort_conf')
+    AS (
+        ts:long,
+        sig:chararray,
+        priority:int,
+        message:chararray,
+        proto:chararray,
+        src:chararray,
+        sport:int,
+        dst:chararray,
+        dport:int
+);
 
-snort_2905_sigs = FOREACH snort_2905_alerts GENERATE sig, message;
-snort_2931_sigs = FOREACH snort_2931_alerts GENERATE sig, message;
+snort_new_alerts = 
+    LOAD '$pcap'
+    USING com.packetloop.packetpig.loaders.pcap.detection.SnortLoader('$new_snort_conf')
+    AS (
+        ts:long,
+        sig:chararray,
+        priority:int,
+        message:chararray,
+        proto:chararray,
+        src:chararray,
+        sport:int,
+        dst:chararray,
+        dport:int
+);
 
-snort_2905_grouped = GROUP snort_2905_sigs BY sig;
-snort_2931_grouped = GROUP snort_2931_sigs BY sig;
+snort_joined = COGROUP snort_old_alerts BY sig, snort_new_alerts BY sig;
 
-snort_2905_summed = FOREACH snort_2905_grouped GENERATE group, COUNT(snort_2905_sigs);
-snort_2931_summed = FOREACH snort_2931_grouped GENERATE group, COUNT(snort_2931_sigs);
+new_only_filtered = FILTER snort_joined BY (COUNT(snort_old_alerts) == 0);
+new_only_flattened = FOREACH new_only_filtered GENERATE FLATTEN(snort_new_alerts);
+new_only_summary = FOREACH new_only_filtered GENERATE group, COUNT(snort_new_alerts);
 
-snort_summed_joined = COGROUP snort_2905_summed BY group,
-                              snort_2931_summed BY group;
-
-new_only_filtered = FILTER snort_summed_joined BY (COUNT(snort_2905_summed) == 0);
-new_only_flattened = FOREACH new_only_filtered GENERATE FLATTEN(snort_2931_summed);
-
-STORE new_only_flattened INTO '$output/snort_comparison';
+STORE new_only_flattened INTO '$output/snort_comparison_new';
+STORE new_only_summary INTO '$output/snort_comparison_summary';
