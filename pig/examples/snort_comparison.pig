@@ -74,4 +74,4 @@ snort_summed_joined = COGROUP snort_2905_summed BY group,
 new_only_filtered = FILTER snort_summed_joined BY (COUNT(snort_2905_summed) == 0);
 new_only_flattened = FOREACH new_only_filtered GENERATE FLATTEN(snort_2931_summed);
 
-DUMP new_only_flattened;
+STORE new_only_flattened INTO '$output/snort_comparison';
