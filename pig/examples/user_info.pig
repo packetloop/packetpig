@@ -23,7 +23,7 @@ http = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.protocol.HTTPCon
 snort_alerts = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.detection.SnortLoader('lib/snort-2931/etc/snort.conf') AS (
     ts:long,
     sig:chararray,
-    priority:int,
+    severity:int,
     message:chararray,
     proto:chararray,
     src:chararray,
@@ -42,8 +42,12 @@ fingerprints = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.detectio
     os:chararray
 );
 
+high_severity = 
+    FILTER snort_alerts
+        BY (severity == 1);
+
 locations = 
-    FOREACH snort_alerts
+    FOREACH high_severity
         GENERATE
             ts, src, sport, dst, dport,
             com.packetloop.packetpig.udf.geoip.Country(src) AS country,
@@ -52,7 +56,7 @@ locations =
 
 joined = 
     COGROUP
-        snort_alerts BY (src, sport, dst, dport),
+        high_severity BY (src, sport, dst, dport),
         fingerprints BY (src, sport, dst, dport),
         http         BY (src, sport, dst, dport),
         locations    BY (src, sport, dst, dport);
@@ -60,12 +64,12 @@ joined =
 summary = 
     FOREACH joined
         GENERATE
-            FLATTEN(snort_alerts.sig),
-            FLATTEN(snort_alerts.message),
+            FLATTEN(high_severity.sig),
+            FLATTEN(high_severity.message),
             FLATTEN(http.fields),
             FLATTEN(fingerprints.os),
             group.src, group.sport, group.dst, group.dport,
-            FLATTEN(snort_alerts.ts),
+            FLATTEN(high_severity.ts),
             FLATTEN(locations.country),
             FLATTEN(locations.city),
             FLATTEN(locations.latlon);
