@@ -7,6 +7,8 @@ import org.apache.pig.data.Tuple;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LatLon extends EvalFunc<String> {
 
@@ -20,14 +22,21 @@ public class LatLon extends EvalFunc<String> {
         }
     }
 
+    public List<String> getCacheFiles() {
+        List<String> s = new ArrayList<String>();
+        s.add("hdfs:///packetpig/GeoIP.dat#GeoIP.dat");
+        return s;
+    }
+
     @Override
     public String exec(Tuple input) throws IOException {
         if (input.size() > 0) {
             String ipaddr = (String)input.get(0);
             Location location = cl.getLocation(ipaddr);
-            if (location == null) {
+
+            if (location == null)
                 return null;
-            }
+
             return location.latitude + " " + location.longitude;
         }
 
