@@ -110,9 +110,12 @@ public class PacketRecordReader extends PcapRecordReader {
     }
 
     private PacketTuple nextPacket() throws IOException {
-        Counter counter = s_statusReporter.getCounter("PacketPig", "nextPacket");
-        if (counter != null)
+        try {
+            Counter counter = s_statusReporter.getCounter("PacketPig", "nextPacket");
             counter.increment(1);
+        } catch (NullPointerException ignored) {
+            // oh, hadoop :(
+        }
 
         taskAttemptContext.progress();
 

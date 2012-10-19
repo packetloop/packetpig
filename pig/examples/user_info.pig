@@ -8,8 +8,8 @@ RUN $includepath;
 
 set default_parallel 800
 
---http = LOAD '/pl/dumps/boobs' USING com.packetloop.packetpig.loaders.pcap.protocol.HTTPConversationLoader('user-agent') AS (
-http = LOAD 'output/http/part-m-00000' AS (
+--http = LOAD 'output/http/part-m-00000' AS (
+http = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.protocol.HTTPConversationLoader('user-agent') AS (
     ts:long,
     src:chararray,
     sport:int,
@@ -19,8 +19,8 @@ http = LOAD 'output/http/part-m-00000' AS (
     request:chararray
 );
 
---snort_alerts = LOAD '/pl/dumps/boobs' USING com.packetloop.packetpig.loaders.pcap.detection.SnortLoader('lib/snort-2931/etc/snort.conf') AS (
-snort_alerts = LOAD 'output/snort_alerts/part-m-00000' AS (
+--snort_alerts = LOAD 'output/snort_alerts/part-m-00000' AS (
+snort_alerts = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.detection.SnortLoader('lib/snort-2931/etc/snort.conf') AS (
     ts:long,
     sig:chararray,
     priority:int,
@@ -32,8 +32,8 @@ snort_alerts = LOAD 'output/snort_alerts/part-m-00000' AS (
     dport:int
 );
 
---fingerprints = LOAD '/pl/dumps/boobs' USING com.packetloop.packetpig.loaders.pcap.detection.FingerprintLoader() AS (
-fingerprints = LOAD 'output/fingerprints/part-m-00000' AS (
+--fingerprints = LOAD 'output/fingerprints/part-m-00000' AS (
+fingerprints = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.detection.FingerprintLoader() AS (
     ts:long,
     src:chararray,
     sport:int,
@@ -72,5 +72,5 @@ summary =
 
 summary = DISTINCT summary;
 
-dump summary;
+STORE summary INTO 'output/user_info';
 
