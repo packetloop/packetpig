@@ -1,10 +1,5 @@
 package com.packetloop.packetpig.loaders.pcap;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-
 import org.krakenapps.pcap.PcapInputStream;
 import org.krakenapps.pcap.file.GlobalHeader;
 import org.krakenapps.pcap.packet.PacketHeader;
@@ -13,11 +8,17 @@ import org.krakenapps.pcap.util.Buffer;
 import org.krakenapps.pcap.util.ByteOrderConverter;
 import org.krakenapps.pcap.util.ChainBuffer;
 
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+
 public class PcapFSDataInputStream implements PcapInputStream {
     private GlobalHeader globalHeader;
     private DataInputStream is;
     private long length;
     private int offset;
+    private int snaplen;
 
     public PcapFSDataInputStream(InputStream data, long length) throws IOException {
         is = new DataInputStream(data);
@@ -43,13 +44,15 @@ public class PcapFSDataInputStream implements PcapInputStream {
         short minor = buf.getShort();
         int tz = buf.getInt();
         int sigfigs = buf.getInt();
-        int snaplen = buf.getInt();
+        snaplen = buf.getInt();
         int network = buf.getInt();
 
         globalHeader = new GlobalHeader(magic, major, minor, tz, sigfigs, snaplen, network);
 
         if (globalHeader.getMagicNumber() == 0xD4C3B2A1)
             globalHeader.swapByteOrder();
+
+        snaplen = ByteOrderConverter.swap(snaplen);
 
         return globalHeader;
     }
@@ -87,7 +90,7 @@ public class PcapFSDataInputStream implements PcapInputStream {
     }
 
     private Buffer readPacketData(int packetLength) throws IOException {
-        byte[] packets = new byte[packetLength];
+        byte[] packets = new byte[snaplen];
         is.readFully(packets);
         offset += packetLength;
 

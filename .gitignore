@@ -19,4 +19,4 @@ output
 *.pyc
 
 lib/elastic-mapreduce-ruby/credentials.json
-lib/scripts.tar.gz
+lib/*.tar.gz

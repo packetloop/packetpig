@@ -13,9 +13,7 @@ def upload(src, dst)
   $stdout.flush
 end
 
-task :default => :upload
-
-task :upload => [:pig, :lib, :scripts, :bootstrap]
+task :all => [:snort, :pig, :lib, :packetpig, :scripts, :bootstrap, :srcs]
 
 task :pig do
   Dir['pig/examples/*.pig'].each do |pig|
@@ -32,11 +30,26 @@ task :bootstrap do
 end
 
 task :lib do
-  libs = Dir['lib/*.jar'] - ['lib/packetpig-with-dependencies.jar']
+  libs = Dir['lib/*.jar'] - ['lib/packetpig.jar', 'lib/packetpig-with-dependencies.jar']
   libs.each do |lib|
     dst = File.basename(lib)
     upload(lib, dst)
   end
+end
+
+task :snort do
+  Dir['lib/snort*'].each do |path|
+    if File.directory?(path)
+      fn = "#{path}.tar.gz"
+      dir = File.basename(path)
+      `tar czf #{fn} -C lib #{dir}`
+      upload(fn, File.basename(fn))
+    end
+  end
+end
+
+task :packetpig do
+  upload('lib/packetpig.jar', 'packetpig.jar')
 end
 
 task :scripts do
@@ -44,3 +57,8 @@ task :scripts do
   upload('lib/scripts.tar.gz', 'scripts.tar.gz')
 end
 
+task :srcs do
+  Dir['lib/src/*'].each do |fn|
+    upload(fn, File.basename(fn))
+  end
+end

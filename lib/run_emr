@@ -13,6 +13,7 @@ class RunEmr
   end
 
   def run
+    write_credentials
     jobflow = nil
 
     if @options.create
@@ -61,12 +62,37 @@ class RunEmr
   end
 
   def create_cluster
-    write_credentials
     cmd = [
       emr,
       '--create',
       '--name', "\"#{ENV['USER']}'s pig jobflow\"",
+
+      '--bootstrap-action',
+        's3://elasticmapreduce/bootstrap-actions/configure-daemons',
+        '--args', '--namenode-opts=-XX:GCTimeRatio=19',
+
+      '--bootstrap-action',
+        's3://elasticmapreduce/bootstrap-actions/configure-hadoop',
+        '--args', '-m,mapreduce.task.timeout=0',
+        '--args', '-m,mapred.task.timeout=0',
+        '--args', '-m,tasktracker.http.threads=40',
+        '--args', '-m,mapred.map.tasks.speculative.execution=false',
+        '--args', '-s,mapred.map.tasks.speculative.execution=false',
+
       '--bootstrap-action', 's3://packetpig/bootstrap.sh',
+    ]
+
+    cmd += [
+      '--instance-group', 'master',
+      '--instance-count', '1',
+      '--instance-type', @options.instance_type,
+    ]
+
+    if @options.bid_price != 0
+      cmd += ['--bid-price', @options.bid_price]
+    end
+
+    cmd += [
       '--instance-group', 'core',
       '--instance-count', @options.instance_count,
       '--instance-type', @options.instance_type,
@@ -80,16 +106,17 @@ class RunEmr
       cmd << '--alive'
       cmd << '--pig-interactive'
     else
+      cmd << '--alive'
       cmd += ['--pig-script', @options.file]
       cmd += ['--step-name', File.basename(@options.file)]
 
-      #if @options.continue
-      #  cmd += ['--step-action', 'CONTINUE']
-      #end
+      if @options.keepalive
+        cmd += ['--step-action', 'CANCEL_AND_WAIT']
+      end
 
       args = [
         '-p,includepath=s3://packetpig/pig/include-emr.pig',
-        '-p,snortconfig=/mnt/var/lib/snort/etc/snort.conf',
+        "-p,snortconfig=/mnt/var/lib/snort-#{@options.snort_version}/etc/snort.conf",
         '-p,dnspath=/mnt/var/lib/packetpig/lib/scripts/dns_parser.py',
         '-p,tcppath=/mnt/var/lib/packetpig/lib/scripts/tcp.py',
       ]
@@ -173,11 +200,12 @@ class RunEmr
 
   def forward_tracker
     # wait for boot, just reuse the get_shell with a cool command to let us know it's ready
-    get_shell(:cmd => "echo 'Connect to http://localhost:9100/jobtracker.jsp - hit ctrl-c to stop the ssh forwarder'")
+    local_port = (1024 + rand * (2**16 - 1024)).to_i
+    get_shell(:cmd => "echo 'Connect to http://localhost:#{local_port}/jobtracker.jsp - hit ctrl-c to stop the ssh forwarder'")
     host = get_host
 
     cmd = ssh + [
-      '-L', '9100:localhost:9100',
+      '-L', "#{local_port}:localhost:9100",
       "hadoop@#{host}",
       '-N',
     ]
@@ -229,7 +257,8 @@ class RunEmr
           t0 = Time.at(step['ExecutionStatusDetail']['StartDateTime']).to_i rescue Time.now.to_i
           t1 = Time.at(step['ExecutionStatusDetail']['EndDateTime']).to_i rescue Time.now.to_i
           state = step['ExecutionStatusDetail']['State']
-          printf "\t%-60s%-20s%10ds\n", step['StepConfig']['Name'], state, t1 - t0
+          name = step['StepConfig']['Name'][0..39]
+          printf "\t%-40s %-20s%10ds\n", name, state, t1 - t0
         end
       end
     end
@@ -270,6 +299,8 @@ class RunEmr
     File.open(fn, 'w') do |f|
       f << tpl
     end
+
+    `chmod 0600 #{ENV['EMR_KEYPAIR_PATH']}`
   end
 end
 
@@ -341,6 +372,12 @@ if __FILE__ == $0
       options.create = false
     end
 
+    options.keepalive = false
+    opts.on('-k', '--keepalive', 'do not terminate on failure') do
+      options.keepalive = true
+    end
+
+
     options.watch = false
     opts.on('-w [JOBFLOW_ID]', '--watch', 'watch the job') do |job|
       options.watch = true
@@ -354,6 +391,11 @@ if __FILE__ == $0
     opts.on('-e', '--list', 'list non-terminated jobflows') do
       options.list = true
       options.create = false
+    end
+
+    options.snort_version = '2931'
+    opts.on('-y SNORT_VERSION', '--snort_version', 'version of snort to use') do |version|
+      options.snort_version = version
     end
 
     opts.on('-h', '--help', 'Display this screen') do

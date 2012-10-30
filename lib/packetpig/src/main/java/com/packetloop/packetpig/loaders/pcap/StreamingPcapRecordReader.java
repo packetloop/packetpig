@@ -24,7 +24,6 @@ public abstract class StreamingPcapRecordReader extends PcapRecordReader {
         this.context = context;
     }
 
-
     // TODO use a fifo and thread the piping and reading
     // TODO report actual progress
     protected BufferedReader streamingProcess(String cmd, String path) throws IOException, InterruptedException {
@@ -34,13 +33,10 @@ public abstract class StreamingPcapRecordReader extends PcapRecordReader {
 
         is = fs.open(dfsPath);
         String name = dfsPath.getName().toLowerCase();
-        if(name.endsWith(".gz"))
-        {
-        	is = new GZIPInputStream(is);
-        }
-        else if(name.endsWith(".bz") || name.endsWith(".bz2"))
-        {
-        	is = new CBZip2InputStream(is);
+        if (name.endsWith(".gz")) {
+            is = new GZIPInputStream(is);
+        } else if (name.endsWith(".bz") || name.endsWith(".bz2")) {
+            is = new CBZip2InputStream(is);
         }
 
         /*
@@ -70,11 +66,6 @@ public abstract class StreamingPcapRecordReader extends PcapRecordReader {
     protected void ignore(InputStream errorStream) {
         StreamSink sink = new StreamSink(errorStream);
         new Thread(sink).start();
-    }
-
-    @Override
-    public float getProgress() {
-    	return 0.0f;
     }
 }
 

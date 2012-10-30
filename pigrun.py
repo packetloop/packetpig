@@ -31,7 +31,6 @@ def generate_cmd(conf):
     cmd = []
     cmd.append('pig -v')
     cmd.append('-x ' + conf.mode)
-    cmd.append('-param output=output')
 
     if conf.mode == 'mapreduce':
         pig_path = prepend_hdfs_path(conf, conf.pig_path)
@@ -40,16 +39,17 @@ def generate_cmd(conf):
         cmd.append('-f %s' % pig_path)
         cmd.append('-param pcap=%s' % pcap_path)
         cmd.append('-param includepath=%s/include-hdfs.pig' % conf.hdfs_path)
-        #cmd.append('-param cvss=%s/snort-cvss.tsv' % conf.hdfs_path)
-        cmd.append('-param tcppath=%s' % conf.tcp_path)
-        cmd.append('-param dnspath=%s' % conf.dns_path)
 
     if conf.mode == 'local':
         cmd.append('-f %s' % conf.pig_path)
         cmd.append('-param pcap=%s' % conf.pcap_path)
 
+    cmd.append('-param output=output')
     cmd.append('-param n=%s' % conf.n)
     cmd.append('-param snortconfig=%s' % conf.snort_conf)
+    #cmd.append('-param cvss=%s/snort-cvss.tsv' % conf.hdfs_path)
+    cmd.append('-param tcppath=%s' % conf.tcp_path)
+    cmd.append('-param dnspath=%s' % conf.dns_path)
 
     pprint(cmd)
     print

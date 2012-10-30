@@ -3,6 +3,7 @@ RUN $includepath;
 
 %DEFAULT time 60
 %DEFAULT field ''
+%DEFAULT tcppath 'lib/scripts/tcp.py'
 
 http = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.protocol.HTTPConversationLoader('$field', '$tcppath') AS (
     ts:long,
