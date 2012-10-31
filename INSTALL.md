@@ -24,6 +24,7 @@ Add the following lines.
 
 And then add the Cloudera key.
 
+    sudo apt-get install curl
     sudo curl -s http://archive.cloudera.com/debian/archive.key | sudo apt-key add -
 
 Update the running system
@@ -33,7 +34,50 @@ Update the running system
 Install all the required packages for the Packetpig platform and accept
 the dependencies.
 
-    sudo apt-get install hadoop-0.20 hadoop-pig git libnids-dev libnids1.21 python-nids chromium-browser libmagic-dev ipython p0f snort snort-rules-default r-base r-base-dev
+    sudo apt-get install hadoop-0.20 hadoop-pig git libnids-dev libnids1.21 python-nids chromium-browser libmagic-dev ipython p0f r-base r-base-dev python2.7-dev libnet1-dev python-pip flex bison
+
+Install the following Python modules.
+
+   sudo pip install python-magic
+
+Then you need to install snort, glib and pynids from source.
+
+    wget http://libdnet.googlecode.com/files/libdnet-1.12.tgz
+    tar -zxvf libdnet-1.12.tgz
+    cd libdnet-1.12/
+    ./configure
+    make
+    sudo make install
+
+    wget http://www.snort.org/downloads/1850
+    tar -zxvf 1850
+    ./configure
+    make
+    sudo make install
+
+    wget http://www.snort.org/downloads/1862
+    tar -zxvf 1862
+    cd snort-2.9.3.1/
+    ./configure  --enable-ipv6 --enable-gre --enable-mpls --enable-targetbased   --enable-decoder-preprocessor-rules --enable-ppm --enable-perfprofiling   --enable-zlib --enable-reload
+    make
+    sudo make install
+
+
+    wget ftp://ftp.gtk.org/pub/gtk/v2.2/glib-2.2.3.tar.bz2
+    bunzip2 glib-2.2.3.tar.bz2
+    tar -xvf glib-2.2.3.tar
+    cd glib-2.2.3
+    ./configure
+    make
+    sudo make install
+
+
+    wget http://jon.oberheide.org/pynids/downloads/pynids-0.6.1.tar.gz
+    tar -zxvf pynids-0.6.1.tar.gz
+    cd pynids-0.6.1
+    python setup.py build
+    sudo python setup.py install
+
 
 Once all the packages are installed the R packages for time series and
 plotting need to be installed.
@@ -56,6 +100,11 @@ platform.
     cd ~/Documents
     git clone https://github.com/packetloop/packetpig.git
     cd packetpig
+    lib/scripts/tcp.py -r data/web.pcap -om http_headers -of tsv | less
+    lib/scripts/dns_parser.py -r data/web.pcap
+
+Both tcp.py and dns_parser.py should extract information out of data/web.pcap and display it to the screen. Now you are ready to run some Packetpig queries.
+
     pig -x local -f pig/examples/binning.pig -param pcap=data/web.pcap
 
 This will result in something like this. 
