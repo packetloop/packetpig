@@ -34,13 +34,13 @@ Update the running system
 Install all the required packages for the Packetpig platform and accept
 the dependencies.
 
-    sudo apt-get install hadoop-0.20 hadoop-pig git libnids-dev libnids1.21 python-nids chromium-browser libmagic-dev ipython p0f r-base r-base-dev python2.7-dev libnet1-dev python-pip flex bison libpcap0.8 libpcap0.8-dev openjdk-6-jdk
+    sudo apt-get install hadoop-0.20 hadoop-pig git libnids-dev libnids1.21 python-nids chromium-browser libmagic-dev ipython r-base r-base-dev python2.7-dev libnet1-dev python-pip flex bison libpcap0.8 libpcap0.8-dev openjdk-6-jdk
 
 Install the following Python modules.
 
    sudo pip install python-magic
 
-Then you need to install snort, glib and pynids from source.
+Then you need to install libdnet, fix libdnet ;), snort, glib, p0f and pynids from source.
 
     wget http://libdnet.googlecode.com/files/libdnet-1.12.tgz
     tar -zxvf libdnet-1.12.tgz
@@ -55,19 +55,24 @@ Fixing libdnet
     sudo ldconfig
     sudo updatedb
 
+Install DAQ
+
     wget http://www.snort.org/downloads/1850
     tar -zxvf 1850
     ./configure
     make
     sudo make install
 
+Install Snort
+
     wget http://www.snort.org/downloads/1862
     tar -zxvf 1862
     cd snort-2.9.3.1/
-    ./configure  --enable-ipv6 --enable-gre --enable-mpls --enable-targetbased   --enable-decoder-preprocessor-rules --enable-ppm --enable-perfprofiling   --enable-zlib --enable-reload
+    ./configure  --enable-ipv6 --enable-gre --enable-mpls --enable-targetbased  --enable-decoder-preprocessor-rules --enable-ppm --enable-perfprofiling   --enable-zlib --enable-reload
     make
     sudo make install
 
+Install glib
 
     wget ftp://ftp.gtk.org/pub/gtk/v2.2/glib-2.2.3.tar.bz2
     bunzip2 glib-2.2.3.tar.bz2
@@ -77,6 +82,17 @@ Fixing libdnet
     make
     sudo make install
 
+Install p0f
+
+    wget http://lcamtuf.coredump.cx/p0f3/releases/p0f-3.06b.tgz
+    tar -zxvf p0f-3.06b.tgz
+    cd p0f-3.06b/
+    vi config.h and change the define FP_FILE line from "p0f.fp" to "/etc/p0f/p0f.fp"
+    make
+    cp p0f /usr/local/bin/
+    cp p0f.fp /etc/p0f/
+
+Install pynids
 
     wget http://jon.oberheide.org/pynids/downloads/pynids-0.6.1.tar.gz
     tar -zxvf pynids-0.6.1.tar.gz
