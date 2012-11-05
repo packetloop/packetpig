@@ -34,7 +34,7 @@ Update the running system
 Install all the required packages for the Packetpig platform and accept
 the dependencies.
 
-    sudo apt-get install hadoop-0.20 hadoop-pig git libnids-dev libnids1.21 python-nids chromium-browser libmagic-dev ipython p0f r-base r-base-dev python2.7-dev libnet1-dev python-pip flex bison
+    sudo apt-get install hadoop-0.20 hadoop-pig git libnids-dev libnids1.21 python-nids chromium-browser libmagic-dev ipython p0f r-base r-base-dev python2.7-dev libnet1-dev python-pip flex bison libpcap0.8 libpcap0.8-dev openjdk-6-jdk
 
 Install the following Python modules.
 
@@ -48,6 +48,12 @@ Then you need to install snort, glib and pynids from source.
     ./configure
     make
     sudo make install
+
+Fixing libdnet
+
+    sudo cp /usr/local/lib/libdnet.1.0.1 /usr/local/lib/libdnet.so.1.0.1
+    sudo ldconfig
+    sudo updatedb
 
     wget http://www.snort.org/downloads/1850
     tar -zxvf 1850
@@ -91,21 +97,24 @@ Accept all defaults. You may get an error on ggplot2, I am working on it
 
 Pig and Hadoop require the JAVA_HOME environment variable to be set.
 
-    vi /etc/environment
+    sudo vi /etc/environment
     JAVA_HOME=/usr/lib/jvm/java-6-openjdk/
 
 Now all the base software is installed we need to install the Packetpig
-platform.
+platform and run some simple tests.
 
     cd ~/Documents
     git clone https://github.com/packetloop/packetpig.git
     cd packetpig
     lib/scripts/tcp.py -r data/web.pcap -om http_headers -of tsv | less
     lib/scripts/dns_parser.py -r data/web.pcap
+    mkdir out
+    snort -c lib/snort-2931/etc/snort.conf -A fast -y -l out -r data/web.pcap
+    vi out/alert
 
 Both tcp.py and dns_parser.py should extract information out of data/web.pcap and display it to the screen. Now you are ready to run some Packetpig queries.
 
-    pig -x local -f pig/examples/binning.pig -param pcap=data/web.pcap
+    pig -x local -f pig/examples/binning.pig -param pcap=data/web.pcap -param output=output
 
 This will result in something like this. 
 
