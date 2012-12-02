@@ -121,7 +121,6 @@ public class PacketRecordReader extends PcapRecordReader {
 
         PcapPacket packet;
 
-        System.err.println("hello");
         try {
             packet = is.getPacket();
         } catch (NegativeArraySizeException ignored) {
