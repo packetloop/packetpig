@@ -22,6 +22,5 @@ snort_alerts =
     dst:chararray,
     dport:int
   );
-
 STORE snort_alerts INTO '$output/snort';
 

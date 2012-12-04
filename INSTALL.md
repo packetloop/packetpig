@@ -59,6 +59,7 @@ Install DAQ
 
     wget http://www.snort.org/downloads/1850
     tar -zxvf 1850
+    cd daq-1.1.1/
     ./configure
     make
     sudo make install
