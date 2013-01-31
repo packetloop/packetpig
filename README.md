@@ -1,4 +1,6 @@
-# Packetpig
+# Packetpig - Open Source Big Data Security Analytics
+Created by Packetloop www.packetloop.com
+Blog: http://blog.packetloop.com/search/label/packetpig
 
 ## Note
 
