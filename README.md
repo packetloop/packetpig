@@ -1,6 +1,6 @@
 <table><tr>
-<td><img width="100" height="100" src="https://raw.github.com/packetloop/packetpig/master/packetpig.png" />
-<td>
+<td style="border: 0"><img width="100" height="100" src="https://raw.github.com/packetloop/packetpig/master/packetpig.png" />
+<td style="border: 0">
 <h1>Packetpig</h1>
 <p>An <b>Open Source Big Data Security Analytics</b> tool that leverages <a href="http://pig.apache.org/">Apache Pig</a>.</p>
 <p>
