@@ -1,6 +1,7 @@
+<img style="float: right" src="https://raw.github.com/packetloop/packetpig/master/packetpig.png" />
+
 # Packetpig - Open Source Big Data Security Analytics
-Created by Packetloop www.packetloop.com
-Blog: http://blog.packetloop.com/search/label/packetpig
+Created by [Packetloop](https://www.packetloop.com/). See the [Packetloop Blog](http://blog.packetloop.com/search/label/packetpig) for Packetpig tips and tricks.
 
 ## Note
 
@@ -73,6 +74,7 @@ Specify -i to get an interactive pig shell on the emr cluster.
 Check -h for full options or refer to X for examples.
 
 The following environment variables will configure the emr credentials for you:
+
     # AWS_ACCESS_KEY_ID
     # AWS_SECRET_ACCESS_KEY
     # EMR_KEYPAIR
