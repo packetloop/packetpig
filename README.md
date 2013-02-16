@@ -1,7 +1,8 @@
 <table><tr>
 <td><img width="100" height="100" src="https://raw.github.com/packetloop/packetpig/master/packetpig.png" />
 <td>
-<h1>Packetpig - Open Source Big Data Security Analytics</h1>
+<h1>Packetpig</h1>
+<h2>Open Source Big Data Security Analytics</h2>
 <p>
 Created by <a href="https://www.packetloop.com/">Packetloop</a>.
 See the <a href="http://blog.packetloop.com/search/label/packetpig">Packetloop Blog</a> for Packetpig tips and tricks.
