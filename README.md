@@ -1,7 +1,9 @@
-<img style="float: right" src="https://raw.github.com/packetloop/packetpig/master/packetpig.png" />
-
+<table><tr>
+<td><img src="https://raw.github.com/packetloop/packetpig/master/packetpig.png" />
+<td>
 # Packetpig - Open Source Big Data Security Analytics
 Created by [Packetloop](https://www.packetloop.com/). See the [Packetloop Blog](http://blog.packetloop.com/search/label/packetpig) for Packetpig tips and tricks.
+</table>
 
 ## Note
 
