@@ -1,8 +1,11 @@
 <table><tr>
-<td><img src="https://raw.github.com/packetloop/packetpig/master/packetpig.png" />
+<td><img width="100" height="100" src="https://raw.github.com/packetloop/packetpig/master/packetpig.png" />
 <td>
-# Packetpig - Open Source Big Data Security Analytics
-Created by [Packetloop](https://www.packetloop.com/). See the [Packetloop Blog](http://blog.packetloop.com/search/label/packetpig) for Packetpig tips and tricks.
+<h1>Packetpig - Open Source Big Data Security Analytics</h1>
+<p>
+Created by <a href="https://www.packetloop.com/">Packetloop</a>.
+See the <a href="http://blog.packetloop.com/search/label/packetpig">Packetloop Blog</a> for Packetpig tips and tricks.
+</p>
 </table>
 
 ## Note
