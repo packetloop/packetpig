@@ -54,6 +54,7 @@ public class PacketTuple {
     private int udpDport;
     private int udpLength;
     private int udpChecksum;
+    private String tcpData;
 
     public void setIpv4PacketFields(Ipv4Packet p) {
         version = p.getVersion();
@@ -92,13 +93,13 @@ public class PacketTuple {
         window = p.getWindow();
         tcpSize = p.getDataLength();
 
-        //if (tcp.getData() != null) {
-        //    byte[] buf = new byte[tcp.getDataLength()];
-        //    tcp.getData().gets(buf);
-        //    tcpData = new String(buf);
-        //} else {
-        //    tcpData = null;
-        //}
+        if (p.getData() != null) {
+            byte[] buf = new byte[p.getDataLength()];
+            p.getData().gets(buf);
+            tcpData = new String(buf);
+        } else {
+            tcpData = null;
+        }
     }
 
     public void setUdpFields(UdpPacket p) {
@@ -145,6 +146,8 @@ public class PacketTuple {
         t.append(udpDport);
         t.append(udpLength);
         t.append(udpChecksum);
+
+        t.append(tcpData);
 
         return t;
     }
