@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/pig.iml" filepath="$PROJECT_DIR$/pig.iml" />
+      <module fileurl="file://$PROJECT_DIR$/packetpig.iml" filepath="$PROJECT_DIR$/packetpig.iml" />
     </modules>
   </component>
 </project>
