@@ -18,7 +18,6 @@ public class PcapFSDataInputStream implements PcapInputStream {
     private DataInputStream is;
     private long length;
     private int offset;
-    private int snaplen;
 
     public PcapFSDataInputStream(InputStream data, long length) throws IOException {
         is = new DataInputStream(data);
@@ -44,7 +43,7 @@ public class PcapFSDataInputStream implements PcapInputStream {
         short minor = buf.getShort();
         int tz = buf.getInt();
         int sigfigs = buf.getInt();
-        snaplen = buf.getInt();
+        int snaplen = buf.getInt();
         int network = buf.getInt();
 
         globalHeader = new GlobalHeader(magic, major, minor, tz, sigfigs, snaplen, network);
@@ -90,7 +89,7 @@ public class PcapFSDataInputStream implements PcapInputStream {
     }
 
     private Buffer readPacketData(int packetLength) throws IOException {
-        byte[] packets = new byte[snaplen];
+        byte[] packets = new byte[packetLength];
         is.readFully(packets);
         offset += packetLength;
 
