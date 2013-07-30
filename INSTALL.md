@@ -2,8 +2,8 @@
 
 ## Note
 
-I will expand this guide over time starting with Ubuntu and then adding
-Mac OSX at some stage in the future.
+I will expand this guide over time starting with Ubuntu and Mac OSX then adding
+Centos at some stage in the future.
 
 ## Ubuntu 11.10 
 
@@ -34,7 +34,7 @@ Update the running system
 Install all the required packages for the Packetpig platform and accept
 the dependencies.
 
-    sudo apt-get install hadoop-0.20 hadoop-pig git libnids-dev libnids1.21 python-nids chromium-browser libmagic-dev ipython r-base r-base-dev python2.7-dev libnet1-dev python-pip flex bison libpcap0.8 libpcap0.8-dev openjdk-6-jdk
+    sudo apt-get install build-essential hadoop-0.20 hadoop-pig git libnids-dev libnids1.21 python-nids chromium-browser libmagic-dev ipython r-base r-base-dev python2.7-dev libnet1-dev python-pip flex bison libpcap0.8 libpcap0.8-dev openjdk-6-jdk libpcre3 libpcre3-dev pkg-config gettext
 
 Install the following Python modules.
 
@@ -69,9 +69,66 @@ Install Snort
     wget http://www.snort.org/downloads/1862
     tar -zxvf 1862
     cd snort-2.9.3.1/
-    ./configure  --enable-ipv6 --enable-gre --enable-mpls --enable-targetbased  --enable-decoder-preprocessor-rules --enable-ppm --enable-perfprofiling   --enable-zlib --enable-reload
+    ./configure  --prefix /usr/local/snort --enable-ipv6 --enable-gre --enable-mpls --enable-targetbased  --enable-ppm --enable-perfprofiling   --enable-zlib --enable-reload
     make
     sudo make install
+    sudo groupadd snort
+    sudo useradd -g snort snort
+    sudo ln -s /usr/local/snort/bin/snort /usr/sbin/
+    sudo ln -s /usr/local/snort/etc /etc/snort
+    sudo mkdir -p /usr/local/snort/var/log
+    chown snort:snort /usr/local/snort/var/log
+    sudo ln –s /usr/local/snort/var/log /var/log/snort
+    sudo ln -s /usr/local/snort/lib/snort_dynamicpreprocessor /usr/local/lib/snort_dynamicpreprocessor
+    sudo ln -s /usr/local/snort/lib/snort_dynamicengine /usr/local/lib/snort_dynamicengine
+    sudo mkdir /usr/local/snort/lib/snort_dynamicrules
+    sudo ln -s /usr/local/snort/lib/snort_dynamicrules /usr/local/lib/snort_dynamicrules
+    sudo chown -R snort:snort /usr/local/snort
+    sudo ldconfig 
+
+Installing the Snort Rules
+
+    Navigate to http://www.snort.org/snort-rules/ and create an account so you can download the "Registered User Release"
+    Download "snortrules-snapshot-2931.tar.gz" into ~/src/
+    cd /usr/local/snort
+    sudo tar -zxvf ~/src/snortrules-snapshot-2931.tar.gz
+    sudo cp so_rules/precompiled/Ubuntu-10-4/x86-64/2.9.3.1/*.so /usr/local/lib/snort_dynamicrules/
+    sudo snort -c /usr/local/snort/etc/snort.conf --dump-dynamic-rules=/usr/local/snort/so_rules
+    sudo vi /usr/local/snort/etc/snort.conf
+
+    Find the Reputation preprocessor section and comment it out;
+
+    # Reputation preprocessor. For more information see README.reputation
+    # preprocessor reputation: \
+    #   memcap 500, \
+    #   priority whitelist, \
+    #   nested_ip inner, \
+    #   whitelist $WHITE_LIST_PATH/white_list.rules, \
+    #   blacklist $BLACK_LIST_PATH/black_list.rules
+
+    Find the dynamic library rules section and uncomment all the dynamic rules.
+    # dynamic library rules
+    include $SO_RULE_PATH/bad-traffic.rules
+    include $SO_RULE_PATH/chat.rules
+    include $SO_RULE_PATH/dos.rules
+    include $SO_RULE_PATH/exploit.rules
+    include $SO_RULE_PATH/icmp.rules
+    include $SO_RULE_PATH/imap.rules
+    include $SO_RULE_PATH/misc.rules
+    include $SO_RULE_PATH/multimedia.rules
+    include $SO_RULE_PATH/netbios.rules
+    include $SO_RULE_PATH/nntp.rules
+    include $SO_RULE_PATH/p2p.rules
+    include $SO_RULE_PATH/smtp.rules
+    include $SO_RULE_PATH/snmp.rules
+    include $SO_RULE_PATH/specific-threats.rules
+    include $SO_RULE_PATH/web-activex.rules
+    include $SO_RULE_PATH/web-client.rules
+    include $SO_RULE_PATH/web-iis.rules
+    include $SO_RULE_PATH/web-misc.rules
+
+    Test the configuration
+    sudo snort -c /usr/local/snort/etc/snort.conf -T <-- you should see "Snort successfully validated the configuration!"
 
 Install glib
 
@@ -90,8 +147,9 @@ Install p0f
     cd p0f-3.06b/
     vi config.h and change the define FP_FILE line from "p0f.fp" to "/etc/p0f/p0f.fp"
     make
-    cp p0f /usr/local/bin/
-    cp p0f.fp /etc/p0f/
+    sudo cp p0f /usr/local/bin/
+    sudo mkdir /etc/p0f
+    sudo cp p0f.fp /etc/p0f/
 
 Install pynids
 
@@ -126,8 +184,8 @@ platform and run some simple tests.
     lib/scripts/tcp.py -r data/web.pcap -om http_headers -of tsv | less
     lib/scripts/dns_parser.py -r data/web.pcap
     mkdir out
-    snort -c lib/snort-2931/etc/snort.conf -A fast -y -l out -r data/web.pcap
-    vi out/alert
+    snort -c /usr/local/snort/etc/snort.conf -A fast -y -l out -r data/web.pcap
+    more out/alert
 
 Both tcp.py and dns_parser.py should extract information out of data/web.pcap and display it to the screen. Now you are ready to run some Packetpig queries.
 
