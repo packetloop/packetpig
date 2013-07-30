@@ -184,8 +184,9 @@ platform and run some simple tests.
     lib/scripts/tcp.py -r data/web.pcap -om http_headers -of tsv | less
     lib/scripts/dns_parser.py -r data/web.pcap
     mkdir out
-    snort -c /usr/local/snort/etc/snort.conf -A fast -y -l out -r data/web.pcap
-    more out/alert
+    sudo ln -s /usr/local/snort/ lib/snort
+    snort -c lib/snort/etc/snort.conf -A fast -y -l out -r data/web.pcap
+    more out/alert <-- will most likely contain no attacks but shows snort is working.
 
 Both tcp.py and dns_parser.py should extract information out of data/web.pcap and display it to the screen. Now you are ready to run some Packetpig queries.
 
