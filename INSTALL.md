@@ -5,7 +5,7 @@
 I will expand this guide over time starting with Ubuntu and Mac OSX then adding
 Centos at some stage in the future.
 
-## Ubuntu 11.10 
+## Ubuntu 11.10 and Cloudera CDH3
 
 Start off with a basic Ubuntu 11.10 32bit or 64bit desktop build. You
 can obviously achieve the same results on Ubuntu Server however the
@@ -42,15 +42,14 @@ the dependencies.
 
 Install the following Python modules.
 
-    sudo pip install python-magic
+    sudo pip install python-magic argparse
 
 Then you need to install libdnet, fix libdnet ;), snort, glib, p0f and pynids from source.
 
     wget http://libdnet.googlecode.com/files/libdnet-1.12.tgz
     tar -zxvf libdnet-1.12.tgz
     cd libdnet-1.12/
-    ./configure
-    make
+    ./configure && make
     sudo make install
 
 Fixing libdnet
@@ -64,8 +63,7 @@ Install DAQ
     wget http://www.snort.org/downloads/1850
     tar -zxvf 1850
     cd daq-1.1.1/
-    ./configure
-    make
+    ./configure && make
     sudo make install
 
 Install Snort
@@ -81,7 +79,7 @@ Install Snort
     sudo ln -s /usr/local/snort/bin/snort /usr/sbin/
     sudo ln -s /usr/local/snort/etc /etc/snort
     sudo mkdir -p /usr/local/snort/var/log
-    chown snort:snort /usr/local/snort/var/log
+    sudo chown snort:snort /usr/local/snort/var/log
     sudo ln –s /usr/local/snort/var/log /var/log/snort
     sudo ln -s /usr/local/snort/lib/snort_dynamicpreprocessor /usr/local/lib/snort_dynamicpreprocessor
     sudo ln -s /usr/local/snort/lib/snort_dynamicengine /usr/local/lib/snort_dynamicengine
@@ -96,7 +94,8 @@ Installing the Snort Rules
     Download "snortrules-snapshot-2931.tar.gz" into ~/src/
     cd /usr/local/snort
     sudo tar -zxvf ~/src/snortrules-snapshot-2931.tar.gz
-    sudo cp so_rules/precompiled/Ubuntu-10-4/x86-64/2.9.3.1/*.so /usr/local/lib/snort_dynamicrules/
+    [For 32bit systems] sudo cp so_rules/precompiled/Ubuntu-10-4/i386/2.9.3.1/*.so /usr/local/lib/snort_dynamicrules/
+    [For 64bit systems] sudo cp so_rules/precompiled/Ubuntu-10-4/x86-64/2.9.3.1/*.so /usr/local/lib/snort_dynamicrules/
     sudo snort -c /usr/local/snort/etc/snort.conf --dump-dynamic-rules=/usr/local/snort/so_rules
     sudo vi /usr/local/snort/etc/snort.conf
 
@@ -140,8 +139,7 @@ Install glib
     bunzip2 glib-2.2.3.tar.bz2
     tar -xvf glib-2.2.3.tar
     cd glib-2.2.3
-    ./configure
-    make
+    ./configure && make
     sudo make install
 
 Install p0f
@@ -156,6 +154,7 @@ Install p0f
     sudo cp p0f.fp /etc/p0f/
 
 Install pynids
+For 32 bit systems
 
     wget http://jon.oberheide.org/pynids/downloads/pynids-0.6.1.tar.gz
     tar -zxvf pynids-0.6.1.tar.gz
@@ -163,6 +162,18 @@ Install pynids
     python setup.py build
     sudo python setup.py install
 
+For 64bit systems
+
+    wget http://jon.oberheide.org/pynids/downloads/pynids-0.6.1.tar.gz
+    tar -zxvf pynids-0.6.1.tar.gz
+    cd pynids-0.6.1
+    tar -zxvf libnids-1.24.tar.gz
+    cd libnids-1.24/
+    ./configure CFLAGS=-fPIC --disable-libglib --disable-libnet --disable-shared && make
+    sudo make install
+    cd ..
+    python setup.py build
+    sudo python setup.py install
 
 (Optional) Once all the packages are installed the R packages for time series and
 plotting need to be installed.
@@ -181,7 +192,7 @@ Pig and Hadoop require the JAVA_HOME environment variable to be set.
 Now all the base software is installed we need to install the Packetpig
 platform and run some simple tests.
 
-    cd ~/Documents
+    cd ~/
     git clone https://github.com/packetloop/packetpig.git
     cd packetpig
     lib/scripts/tcp.py -r data/web.pcap -om http_headers -of tsv | less
