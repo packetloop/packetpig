@@ -34,11 +34,15 @@ Update the running system
 Install all the required packages for the Packetpig platform and accept
 the dependencies.
 
-    sudo apt-get install build-essential hadoop-0.20 hadoop-pig git libnids-dev libnids1.21 python-nids chromium-browser libmagic-dev ipython r-base r-base-dev python2.7-dev libnet1-dev python-pip flex bison libpcap0.8 libpcap0.8-dev openjdk-6-jdk libpcre3 libpcre3-dev pkg-config gettext
+    sudo apt-get install build-essential hadoop-0.20 hadoop-pig git-core libnids-dev libnids1.21 libmagic-dev ipython python2.6-dev libnet1-dev python-pip flex bison libpcap0.8 libpcap0.8-dev openjdk-6-jdk libpcre3 libpcre3-dev pkg-config gettext
+
+(OPTIONAL) You may also want to install some additional software for the visualisations
+
+    sudo apt-get install chromium-browser r-base r-base-dev
 
 Install the following Python modules.
 
-   sudo pip install python-magic
+    sudo pip install python-magic
 
 Then you need to install libdnet, fix libdnet ;), snort, glib, p0f and pynids from source.
 
@@ -160,15 +164,14 @@ Install pynids
     sudo python setup.py install
 
 
-Once all the packages are installed the R packages for time series and
+(Optional) Once all the packages are installed the R packages for time series and
 plotting need to be installed.
 
     sudo R
     chooseCRANmirror()
     install.packages(c("zoo", "xts","ggplot2"))
 
-Accept all defaults. You may get an error on ggplot2, I am working on it
-;)
+Accept all defaults.
 
 Pig and Hadoop require the JAVA_HOME environment variable to be set.
 
