@@ -252,11 +252,7 @@ For some of the Python modules you can't use Homebrew so I used the pip package 
 
 Then lastly you need to install pynids from source.
 
-    wget http://jon.oberheide.org/pynids/downloads/pynids-0.6.1.tar.gz
-    tar -zxvf pynids-0.6.1.tar.gz
-    cd pynids-0.6.1
-    python setup.py build
-    sudo python setup.py install
+    sudo pip install http://jon.oberheide.org/pynids/downloads/pynids-0.6.1.tar.gz
 
 A good test to ensure that everything on the Python side is working is to clone the Packetpig repository and run the following commands from within the packetpig directory.
 
@@ -267,7 +263,7 @@ A good test to ensure that everything on the Python side is working is to clone 
 
 Both tcp.py and dns_parser.py should extract information out of data/web.pcap and display it to the screen. Now you are ready to run some Packetpig queries.
 
-    pig -x local -f pig/examples/binning.pig -param pcap=data/web.pcap
+    pig -x local -f pig/examples/binning.pig -param pcap=data/web.pcap -param output=output
 
 This will result in something like this. 
 
