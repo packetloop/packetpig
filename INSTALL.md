@@ -12,6 +12,11 @@ can obviously achieve the same results on Ubuntu Server however the
 desktop comes pre-installed with an X environment allowing you to view
 visualisations in a browser quickly enough.
 
+Some packages in this install are now in the Ubuntu Universe repo. Edit /etc/apt/sources.list and add the following two lines;
+
+    deb http://us.archive.ubuntu.com/ubuntu/ precise universe
+    deb http://us.archive.ubuntu.com/ubuntu/ precise-updates universe
+
 Create a new apt source so that we can leverage the Cloudera
 distributions for Hadoop and Pig.
 
@@ -187,7 +192,10 @@ Accept all defaults.
 Pig and Hadoop require the JAVA_HOME environment variable to be set.
 
     sudo vi /etc/environment
+    #For 32 bit environments
     JAVA_HOME=/usr/lib/jvm/java-6-openjdk/
+    #For 64 bit environments
+    JAVA_HOME=/usr/lib/jvm/java-6-openjdk-amd64/
 
 Now all the base software is installed we need to install the Packetpig
 platform and run some simple tests.
