@@ -13,7 +13,7 @@ To clone the container;
 
     docker pull cloudjunky/packetpig
 
-To fully provision from the Dockerfile;
+To fully provision from the Dockerfile. Run this command from the same directory you have the Dockerfile;
 
     docker build packetpig .
 
@@ -27,6 +27,15 @@ To accomplish the same via a Vagrant image;
     docker pull cloudjunky/packetpig 
     *or
     docker build packetpig .
+
+Once the container is provisioned you can access it via;
+
+    docker run -i -t packetpig /bin/bash
+    cd /src/packetpig
+
+Then run the demo scripts as normal;
+
+    pig -x local -f pig/examples/basic_http.pig -param pcap=data/web.pcap -param output=output
 
 ## Ubuntu 11.10 and Cloudera CDH3
 
