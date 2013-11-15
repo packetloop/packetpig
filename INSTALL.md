@@ -11,27 +11,23 @@ The fastest way to experiment with Packetpig is to clone the Docker container or
 
 To clone the container;
 
-   docker pull cloudjunky/packetpig
+    docker pull cloudjunky/packetpig
 
 To fully provision from the Dockerfile;
 
-   docker build packetpig .
+    docker build packetpig .
 
 To accomplish the same via a Vagrant image;
 
-   git clone https://github.com/dotcloud/docker.git
-   cd docker
-   vagrant up
-   vagrant ssh
+    git clone https://github.com/dotcloud/docker.git
+    cd docker
+    vagrant up
+    vagrant ssh
    
-   docker pull cloudjunky/packetpig 
-   *or
-   docker build packetpig .
+    docker pull cloudjunky/packetpig 
+    *or
+    docker build packetpig .
 
-Copy the Dockerfile from the Packetpig github repo to Ubuntu machine with Docker installed.
-
-   
-   docker build 
 ## Ubuntu 11.10 and Cloudera CDH3
 
 Start off with a basic Ubuntu 11.10 32bit or 64bit desktop build. You
