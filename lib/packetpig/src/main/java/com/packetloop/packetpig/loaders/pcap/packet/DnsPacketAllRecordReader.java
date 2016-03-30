@@ -9,6 +9,8 @@ import org.krakenapps.pcap.decoder.ethernet.EthernetType;
 import org.krakenapps.pcap.decoder.ip.InternetProtocol;
 import org.krakenapps.pcap.decoder.ip.IpDecoder;
 import org.krakenapps.pcap.decoder.ip.Ipv4Packet;
+import org.krakenapps.pcap.decoder.ipv6.Ipv6Decoder;
+import org.krakenapps.pcap.decoder.ipv6.Ipv6Packet;
 import org.krakenapps.pcap.decoder.udp.UdpDecoder;
 import org.krakenapps.pcap.decoder.udp.UdpPacket;
 import org.krakenapps.pcap.decoder.udp.UdpPortProtocolMapper;
@@ -36,6 +38,8 @@ public class DnsPacketAllRecordReader extends PcapRecordReader {
         tupleQueue = new ArrayList<Tuple>();
 
         IpDecoder ipDecoder = new IpDecoder();
+        Ipv6Decoder ipv6Decoder = new Ipv6Decoder();
+
         UdpProcessor udpProcessor = new UdpProcessor() {
             @Override
             public void process(UdpPacket p) {
@@ -59,11 +63,20 @@ public class DnsPacketAllRecordReader extends PcapRecordReader {
                 srcIP = packet.getSourceAddress().getHostAddress();
                 dstIP = packet.getDestinationAddress().getHostAddress();
             }
+
+            @Override
+            public void process(Ipv6Packet packet) {
+                super.process(packet);
+                srcIP = packet.getSourceAddress().getHostAddress();
+                dstIP = packet.getDestinationAddress().getHostAddress();
+            }
         };
 
         udpDecoder.registerUdpProcessor(udpProcessor);
         eth.register(EthernetType.IPV4, ipDecoder);
+        eth.register(EthernetType.IPV6, ipv6Decoder);
         ipDecoder.register(InternetProtocol.UDP, udpDecoder);
+        ipv6Decoder.register(InternetProtocol.UDP, udpDecoder);
     }
 
     private void clear() {
