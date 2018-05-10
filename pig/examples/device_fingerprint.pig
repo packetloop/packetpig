@@ -18,8 +18,8 @@ fingerprints = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.detectio
     uptime:chararray
 );
 
-fingerprint_freq = GROUP fingerprints BY os;
-summary = FOREACH fingerprint_freq GENERATE group, COUNT(fingerprints);
-dump fingerprints;
---STORE summary INTO '$output/p0f_fingerprints';
+shared_ip = GROUP fingerprints BY src;
+device_count = FOREACH shared_ip GENERATE flatten(group),flatten(COUNT(raw_sig));
+-- STORE shared_ip INTO 'shared_ips.csv'
+STORE device_count INTO 'device_count.csv';
 
