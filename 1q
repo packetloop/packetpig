@@ -1,0 +1,85 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sun May  6 19:10:28 2018
+
+@author: aslan.varoqua@duasamericasgroup.com
+"""
+
+import os
+import subprocess, threading
+from subprocess import Popen, PIPE, STDOUT
+from flock import flock
+import time
+import datetime
+
+now = datetime.datetime.now()
+minusTwenty = now - datetime.timedelta(minutes = 10)
+# globals
+global start
+global finish
+global p0f_input
+global processor
+global mv
+global rm
+global pig
+global iface
+global queue
+global raw_pcap
+global tcpdump
+global seconds
+
+
+start ="-param start=" + str(now.isoformat()) 
+finish = "-param finish=" + str(minusTwenty.isoformat())
+pcap = "/src/p0f-input/input.pcap"
+processor = "-f pig/examples/device_fingerprint.pig"
+mv = 'mv'
+rm = 'rm'
+pig = 'pig'
+tcpdump = 'tcpdump'
+seconds = '-G 1200'
+iface = '-ni eno2'
+queue =  '/p0f-queue/'
+p0f_input = '/p0f-input/input.pcap'
+raw_pcap = '-s0 -w /p0f-input/input.pcap'
+
+def tcpdump():
+   pcap = Popen([tcpdump,seconds,iface,raw_pcap],shell=True)
+   pcap.communicate()
+   pcap.kill()
+
+def sweep():
+   pcap = Popen([rm,p0f_input,mv,queue + "*",p0f_input],shell=True)
+   pcap.communicate()
+   pcap.kill()
+    
+
+def send2pig():
+    try:
+    	piggy = Popen([pig,processor,start,finish],shell=True)       
+    	piggy.communicate()
+    	piggy.kill()
+    except:
+    	print('could not access /p0f-input/input.pcap')
+    	print('gracefully shutting down')
+    	pass
+
+def main():
+    ## ========
+    ## a message that there is a lock in place and exit.
+    lock = flock('/var/log/p0f/split.lock', True).acquire()
+    
+    if lock:
+    	try:
+	    sweep()
+	except:
+	    print("nothing in queue - making new dump 20min")
+	    tcpdump()
+	send2pig() 
+        
+    else:
+        print('someone else is working here!')
+
+if __name__ == "__main__":
+
+    main()

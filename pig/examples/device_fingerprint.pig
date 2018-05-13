@@ -1,7 +1,9 @@
 %DEFAULT includepath pig/include.pig
+
+-- First, register jar dependencies
 RUN $includepath;
 
-fingerprints = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.detection.FingerprintLoader() AS (
+fingerprints = LOAD '/p0f-input/input.pcap' USING com.packetloop.packetpig.loaders.pcap.detection.FingerprintLoader() AS (
     ts:long,
     src:chararray,
     sport:int,
@@ -18,8 +20,18 @@ fingerprints = LOAD '$pcap' USING com.packetloop.packetpig.loaders.pcap.detectio
     uptime:chararray
 );
 
-shared_ip = GROUP fingerprints BY src;
-device_count = FOREACH shared_ip GENERATE flatten(group),flatten(COUNT(raw_sig));
--- STORE shared_ip INTO 'shared_ips.csv'
-STORE device_count INTO 'device_count.csv';
+
+mapped = GROUP fingerprints BY src;
+
+reduced = FOREACH mapped {
+                   uniq = DISTINCT fingerprints.raw_sig;
+		   start = '$start';
+		   finish = '$finish';
+                   GENERATE group, COUNT(uniq);
+};
+
+
+STORE reduced INTO 'mongodb://localhost:27017/devices' USING  com.mongodb.hadoop.pig.MongoStorage();
+
+
 
