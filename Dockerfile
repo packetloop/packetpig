@@ -17,6 +17,10 @@ RUN apt install curl -y --force-yes  &&\
   pip install virtualenv  -y --force-yes && \
   apt install git  -y --force-yes 
 
+RUN mkdir /src/ && \
+  cd /src && \
+  git clone http://github.com/packetloop/packetpig.git
+
 #repos
 RUN echo "deb http://archive.cloudera.com/debian maverick-cdh3 contrib" > /etc/apt/sources.list.d/cloudera.list
 RUN echo "deb-src http://archive.cloudera.com/debian maverick-cdh3 contrib" >> /etc/apt/sources.list.d/cloudera.list
