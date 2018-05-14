@@ -1,35 +1,45 @@
 #/bin/sh
-apt install  curl -y --force-yes  \
-apt install wget  -y --force-yes && \
-apt install build-essential  -y --force-yes && \
-apt install hadoop-0.20   -y --force-yes && \
-apt install hadoop-pig git-core  -y --force-yes && \ 
-apt install libnids-dev libnids1.21 libmagic-dev  -y --force-yes && \  
-apt install ipython python2.7-dev  -y --force-yes && \
-apt install libnet1-dev  -y --force-yes && \
-apt install python-pip flex bison   -y --force-yes && \ 
-apt install libpcap0.8 libpcap0.8-dev  -y --force-yes && \ 
-apt install default-jre  -y --force-yes && \
-apt install openjdk-8-jdk  -y --force-yes && \
-apt install libpcre3  -y --force-yes && \
-apt install libpcre3-dev pkg-config gettext  -y --force-yes && \    
-apt install pcap   -y --force-yes && \
-pip install virtualenv  -y --force-yes && \
-apt install git 
+
+apt install curl -y --force-yes  &&\
+  apt install wget  -y --force-yes && \
+  apt install build-essential  -y --force-yes && \
+  apt install hadoop-0.20   -y --force-yes && \
+  apt install hadoop-pig git-core  -y --force-yes && \ 
+  apt install libnids-dev libnids1.21 libmagic-dev  -y --force-yes && \  
+  apt install ipython python2.7-dev  -y --force-yes && \
+  apt install libnet1-dev  -y --force-yes && \
+  apt install python-pip flex bison   -y --force-yes && \ 
+  apt install libpcap0.8 libpcap0.8-dev  -y --force-yes && \ 
+  apt install default-jre  -y --force-yes && \
+  apt install openjdk-8-jdk  -y --force-yes && \
+  apt install libpcre3  -y --force-yes && \
+  apt install libpcre3-dev pkg-config gettext  -y --force-yes && \    
+  apt install pcap   -y --force-yes && \
+  pip install virtualenv  -y --force-yes && \
+  apt install git  -y --force-yes 
+
+mkdir /src/ && \
+  cd /src && \
+  git clone http://github.com/packetloop/packetpig.git
 
 #repos
 echo "deb http://archive.cloudera.com/debian maverick-cdh3 contrib" > /etc/apt/sources.list.d/cloudera.list
 echo "deb-src http://archive.cloudera.com/debian maverick-cdh3 contrib" >> /etc/apt/sources.list.d/cloudera.list
 echo "deb http://us.archive.ubuntu.com/ubuntu/ precise universe" >> /etc/apt/sources.list
 echo "deb http://us.archive.ubuntu.com/ubuntu/ precise-updates universe" >> /etc/apt/sources.list
-curl -s http://archive.cloudera.com/debian/archive.key | apt-key add -
+
+
+curl -s http://archive.cloudera.com/debian/archive.key | apt-key add - 
+
 apt-get update  
+
+apt install build-essential hadoop-0.20 bunzip make autoconf hadoop-pig git-core libnids-dev libnids1.21 libmagic-dev ipython python2.7-dev libnet1-dev python-pip flex bison libpcap0.8 libpcap0.8-dev openjdk-6-jdk libpcre3 libpcre3-dev pkg-config gettext  -y  
 
 pip install python-magic argparse 
 
 #DL libdnet
 cd /src;\
-wget http://prdownloads.sourceforge.net/libdnet/libdnet-1.11.tar.gz
+  wget http://prdownloads.sourceforge.net/libdnet/libdnet-1.11.tar.gz
 
 #untar libdnet
 tar -zxvf libdnet-1.11.tgz;
@@ -43,7 +53,7 @@ cd libdnet-1.11/;
   make install;
 
 #Fix libdnet
-  cp /usr/local/lib/libdnet.1.11.1 /usr/local/lib/libdnet.so.1.0.1 &&\
+cp /usr/local/lib/libdnet.1.11.1 /usr/local/lib/libdnet.so.1.0.1 &&\
   ldconfig
 
 #Install DAQ
@@ -56,8 +66,7 @@ cd /src &&\
 # DL Snort
 cd /src &&\
   wget https://www.snort.org/downloads/snort/snort-2.9.11.1.tar.gz &&\
-  tar -zxvf snort-2.9.11.1.tar.gz &&\
-  cd snort-2.9.11.1/ &&\
+  tar -zxvf snort-2.9.11.1.tar.gz
 
 # INSTALL SNORT 
 cd snort-2.9.11.1/ &&\
@@ -69,12 +78,12 @@ cd snort-2.9.11.1/ &&\
 
 #snort rules
 mkdir /usr/local/snort/lib/snort_dynamicrules && ln -s /usr/local/snort/lib/snort_dynamicrules /usr/local/lib/snort_dynamicrules &&\
-chown -R snort:snort /usr/local/snort && ldconfig
+  chown -R snort:snort /usr/local/snort && ldconfig
 
 #Install glib
 cd /src &&\
-wget https://ftp.gnome.org/pub/gnome/sources/glib/2.2/glib-2.2.3.tar.gz && tar -zxvf glib-2.2.3.tar.gz  &&\
-cd glib-2.2.3 && ./configure && make && make install
+  wget https://ftp.gnome.org/pub/gnome/sources/glib/2.2/glib-2.2.3.tar.gz && tar -zxvf glib-2.2.3.tar.gz  &&\
+  cd glib-2.2.3 && ./configure && make && make install
 
 #Install p0f
 cd /src &&\
@@ -90,12 +99,14 @@ cd /src &&\
   cd .. && python setup.py build && python setup.py install
 
 #Set Java Environment
-PATH=/usr/lib/jvm/java-8-openjdk-amd64/:$PATH
-PPD=/src/packetpig/:$PATH
+PATH=/usr/lib/jvm/java-8-openjdk-amd64/:$PATH &&\
+  PPD=/src/packetpig/:$PATH
 
 # Packetpig
 cd /src/ &&\
- cd packetpig &&\
-    lib/scripts/tcp.py -r data/web.pcap -om http_headers -of tsv | less &&\
-    lib/scripts/dns_parser.py -r data/web.pcap && mkdir out &&\
-    pig -x local -f pig/examples/binning.pig -param pcap=data/web.pcap -param output=output && more output/binning/part-r-00000
+   cd packetpig &&\
+  lib/scripts/tcp.py -r data/web.pcap -om http_headers -of tsv | less &&\
+  lib/scripts/dns_parser.py -r data/web.pcap && mkdir out &&\
+  pig -x local -f pig/examples/binning.pig -param pcap=data/web.pcap -param output=output && more output/binning/part-r-00000
+  
+echo "installation complete"
