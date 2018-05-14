@@ -1,21 +1,21 @@
 
-RUN apt install RUN curl -y --force-yes  \
-RUN apt install wget  -y --force-yes && \
-RUN apt install build-essential  -y --force-yes && \
-RUN apt install hadoop-0.20   -y --force-yes && \
-RUN apt install hadoop-pig git-core  -y --force-yes && \ 
-RUN apt install libnids-dev libnids1.21 libmagic-dev  -y --force-yes && \  
-RUN apt install ipython python2.7-dev  -y --force-yes && \
-RUN apt install libnet1-dev  -y --force-yes && \
-RUN apt install python-pip flex bison   -y --force-yes && \ 
-RUN apt install libpcap0.8 libpcap0.8-dev  -y --force-yes && \ 
-RUN apt install default-jre  -y --force-yes && \
-RUN apt install openjdk-8-jdk  -y --force-yes && \
-RUN apt install libpcre3  -y --force-yes && \
-RUN apt install libpcre3-dev pkg-config gettext  -y --force-yes && \    
-RUN apt install pcap   -y --force-yes && \
-RUN pip install virtualenv  -y --force-yes && \
-RUN apt install git 
+RUN apt install curl -y --force-yes  &&\
+  apt install wget  -y --force-yes && \
+  apt install build-essential  -y --force-yes && \
+  apt install hadoop-0.20   -y --force-yes && \
+  apt install hadoop-pig git-core  -y --force-yes && \ 
+  apt install libnids-dev libnids1.21 libmagic-dev  -y --force-yes && \  
+  apt install ipython python2.7-dev  -y --force-yes && \
+  apt install libnet1-dev  -y --force-yes && \
+  apt install python-pip flex bison   -y --force-yes && \ 
+  apt install libpcap0.8 libpcap0.8-dev  -y --force-yes && \ 
+  apt install default-jre  -y --force-yes && \
+  apt install openjdk-8-jdk  -y --force-yes && \
+  apt install libpcre3  -y --force-yes && \
+  apt install libpcre3-dev pkg-config gettext  -y --force-yes && \    
+  apt install pcap   -y --force-yes && \
+  pip install virtualenv  -y --force-yes && \
+  apt install git  -y --force-yes 
 
 #repos
 RUN echo "deb http://archive.cloudera.com/debian maverick-cdh3 contrib" > /etc/apt/sources.list.d/cloudera.list
@@ -24,8 +24,9 @@ RUN echo "deb http://us.archive.ubuntu.com/ubuntu/ precise universe" >> /etc/apt
 RUN echo "deb http://us.archive.ubuntu.com/ubuntu/ precise-updates universe" >> /etc/apt/sources.list
 
 
-RUN curl -s http://archive.cloudera.com/debian/archive.key | apt-key add -
-apt-get update  
+RUN curl -s http://archive.cloudera.com/debian/archive.key | apt-key add - 
+
+RUN apt-get update  
 
 RUN apt install build-essential hadoop-0.20 bunzip make autoconf hadoop-pig git-core libnids-dev libnids1.21 libmagic-dev ipython python2.7-dev libnet1-dev python-pip flex bison libpcap0.8 libpcap0.8-dev openjdk-6-jdk libpcre3 libpcre3-dev pkg-config gettext  -y  
 
@@ -60,8 +61,7 @@ RUN cd /src &&\
 # DL Snort
 RUN cd /src &&\
   wget https://www.snort.org/downloads/snort/snort-2.9.11.1.tar.gz &&\
-  tar -zxvf snort-2.9.11.1.tar.gz &&\
-  cd snort-2.9.11.1/ &&\
+  tar -zxvf snort-2.9.11.1.tar.gz
 
 # INSTALL SNORT 
 RUN cd snort-2.9.11.1/ &&\
@@ -94,8 +94,8 @@ RUN cd /src &&\
   cd .. && python setup.py build && python setup.py install
 
 #Set Java Environment
-PATH=/usr/lib/jvm/java-8-openjdk-amd64/:$PATH
-PPD=/src/packetpig/:$PATH
+RUN PATH=/usr/lib/jvm/java-8-openjdk-amd64/:$PATH &&\
+  PPD=/src/packetpig/:$PATH
 
 # Packetpig
 RUN cd /src/ &&\
@@ -103,3 +103,5 @@ RUN cd /src/ &&\
   lib/scripts/tcp.py -r data/web.pcap -om http_headers -of tsv | less &&\
   lib/scripts/dns_parser.py -r data/web.pcap && mkdir out &&\
   pig -x local -f pig/examples/binning.pig -param pcap=data/web.pcap -param output=output && more output/binning/part-r-00000
+  
+RUN echo "installation complete"
