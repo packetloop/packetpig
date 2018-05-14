@@ -1,0 +1,3 @@
+#env bin/sh
+rm /src/packetpig/pig.lock 
+

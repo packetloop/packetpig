@@ -1,0 +1,24 @@
+23:28:56.231711 IP 10.29.245.108.55993 > 17.248.147.139.https: Flags [S], seq 2388478730, win 65535, options [mss 1420,nop,wscale 6,nop,nop,TS val 670033561 ecr 0,sackOK,eol], length 0
+23:28:56.231713 IP 10.12.9.14.54756 > 5.62.133.210.https: Flags [S], seq 3330205363, win 29200, options [mss 1420,sackOK,TS val 4662865 ecr 0,nop,wscale 7], length 0
+23:28:56.231875 IP 10.78.36.234.52660 > 17.252.92.10.https: Flags [S], seq 387280522, win 65535, options [mss 1420,nop,wscale 5,nop,nop,TS val 1427868937 ecr 0,sackOK,eol], length 0
+23:28:56.231876 IP 10.29.133.33.61295 > 107.154.51.11.ip.incapdns.net.21101: Flags [S], seq 2567099479, win 65535, options [mss 1440,sackOK,TS val 25760604 ecr 0,nop,wscale 2], length 0
+23:28:56.231945 IP 10.29.247.51.58558 > edge-star-shv-01-sof1.facebook.com.https: Flags [S], seq 2392768122, win 65535, options [mss 1440,nop,wscale 6,nop,nop,TS val 1093282247 ecr 0,sackOK,eol], length 0
+23:28:56.231994 IP 10.21.37.212.36050 > 149.154.167.50.xmpp-client: Flags [S], seq 873659959, win 65535, options [mss 1420,sackOK,TS val 1974450 ecr 0,nop,wscale 5], length 0
+23:28:56.231995 IP 10.56.88.54.39188 > 5.62.133.209.https: Flags [S], seq 3570992200, win 65535, options [mss 1420,sackOK,TS val 3590470 ecr 0,nop,wscale 5], length 0
+23:28:56.231996 IP 10.15.6.162.28243 > 5.62.133.210.https: Flags [S], seq 4208983859, win 65535, options [mss 1420,sackOK,TS val 55503 ecr 0,nop,wscale 5], length 0
+23:28:56.232078 IP 10.15.6.162.28244 > 5.62.133.210.https: Flags [S], seq 3317938909, win 65535, options [mss 1420,sackOK,TS val 55503 ecr 0,nop,wscale 5], length 0
+23:28:56.232079 IP 10.21.32.193.26932 > 177.150.38.185.baremetal.zare.com.21334: Flags [S], seq 16326378, win 65535, options [mss 1420,nop,wscale 3,nop,nop,sackOK], length 0
+23:28:56.232080 IP 10.31.133.220.54118 > 17.173.66.179.https: Flags [S], seq 2873261022, win 65535, options [mss 1420,nop,wscale 6,nop,nop,TS val 209374135 ecr 0,sackOK,eol], length 0
+23:28:56.232081 IP 10.31.113.44.39132 > 108.177.119.102.https: Flags [S], seq 184645684, win 14600, options [mss 1420,sackOK,TS val 4179788 ecr 0,nop,wscale 6], length 0
+23:28:56.232092 IP 10.12.7.50.43501 > ef-in-f154.1e100.net.https: Flags [S], seq 769186264, win 65535, options [mss 1420,sackOK,TS val 2459318 ecr 0,nop,wscale 6], length 0
+23:28:56.232199 IP 10.44.10.47.60123 > ec2-54-208-91-223.compute-1.amazonaws.com.12201: Flags [S], seq 1553767662, win 65535, options [mss 1420,sackOK,TS val 44496821 ecr 0,nop,wscale 6], length 0
+23:28:56.232200 IP 10.21.42.205.27112 > 185.88.181.54.https: Flags [S], seq 295884450, win 65535, options [mss 1420,sackOK,TS val 7110926 ecr 0,nop,wscale 7], length 0
+23:28:56.232221 IP 10.4.208.190.28617 > xx-fbcdn-shv-01-cdt1.fbcdn.net.https: Flags [S], seq 1582289396, win 65535, options [mss 1420,sackOK,TS val 3424507 ecr 0,nop,wscale 7], length 0
+23:28:56.232322 IP 10.31.187.220.27394 > 108.177.119.95.https: Flags [S], seq 924122553, win 14600, options [mss 1420,sackOK,TS val 38311 ecr 0,nop,wscale 6], length 0
+23:28:56.232323 IP 10.29.109.28.58389 > 17.252.92.88.https: Flags [S], seq 2038593933, win 65535, options [mss 1440,nop,wscale 6,nop,nop,TS val 421143598 ecr 0,sackOK,eol], length 0
+23:28:56.232496 IP 10.31.49.38.26665 > gamestate.bigfishgames.com.https: Flags [S], seq 165685819, win 65535, options [mss 1420,sackOK,TS val 10041542 ecr 0,nop,wscale 7], length 0
+23:28:56.232497 IP 10.29.27.209.40849 > mil04s29-in-f14.1e100.net.https: Flags [S], seq 342085543, win 14600, options [mss 1440,sackOK,TS val 4813013 ecr 0,nop,wscale 7], length 0
+23:28:56.232550 IP 10.20.154.152.52266 > 17.171.98.3.https: Flags [S], seq 3453466259, win 65535, options [mss 1420,nop,wscale 6,nop,nop,TS val 368665107 ecr 0,sackOK,eol], length 0
+23:28:56.232582 IP 10.30.116.180.50487 > 108.177.127.91.https: Flags [S], seq 513636497, win 8192, options [mss 1420,nop,wscale 2,nop,nop,sackOK], length 0
+23:28:56.232636 IP 10.12.8.80.35197 > 5.62.133.209.https: Flags [S], seq 850633053, win 14600, options [mss 1420,sackOK,TS val 7816460 ecr 0,nop,wscale 7], length 0
+23:28:56.232637 IP 10.21.42.91.415
